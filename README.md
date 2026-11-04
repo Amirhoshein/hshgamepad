@@ -55,6 +55,65 @@
   `press A,B` · `hold LT` · `release LT` · `delay 200ms`
 - **ذخیره، انصراف و بازگردانی چیدمان** تا هر وقت خواستی برگردی به حالت قبل
 
+### 🧩 آموزش ماکرو (میکرو)
+
+ماکرو یعنی **با یه لمس، یه دنباله از کارها خودکار اجرا بشه**؛ مثلاً یه کمبو تو بازی مبارزه‌ای، یا فشردن چند دکمه پشت هم.
+
+**ساخت ماکرو:**
+1. **ویرایش چیدمان** رو بزن ← **افزودن میکرو**؛ یه دکمه‌ی جدید با اسم `M1` (و `M2` و ...) ساخته میشه
+2. روی دکمه‌ی ماکرو بزن ← **ویرایش ماکرو**
+3. خط‌های دستور رو اضافه کن (با دکمه‌های **Press / Hold / Release / Delay** یا دستی بنویس)
+4. **ذخیره** رو بزن و از حالت ویرایش خارج شو. حالا با لمس اون دکمه، ماکرو اجرا میشه
+
+**هر خط یه دستوره و به ترتیب، از بالا به پایین اجرا میشه:**
+
+| دستور | کارش | مثال |
+|---|---|---|
+| `press` | دکمه رو فشار میده و ولش می‌کنه (پیش‌فرض ۶۰ میلی‌ثانیه) | `press A` · `press A,B` · `press X 150ms` |
+| `hold` | دکمه رو **نگه می‌داره** تا وقتی که `release` بشه (یا ماکرو تموم بشه) | `hold LT` |
+| `release` | دکمه‌ای که `hold` شده رو ول می‌کنه | `release LT` |
+| `delay` | صبر می‌کنه؛ بعد میره خط بعدی (اسم‌های `wait` هم قبول میشه) | `delay 200ms` · `delay 1.5s` |
+
+نکته‌ها:
+- چند دکمه رو **همزمان** بزن: با کاما بنویس، بدون فاصله‌ی اضافه: `press A,B,X`
+- زمان رو با `ms` (میلی‌ثانیه) یا `s` (ثانیه) بنویس. اگه یکا ننویسی میلی‌ثانیه حساب میشه. بیشترین زمان هر خط ۵ دقیقه‌ست
+- بین هر دو خط یه فاصله‌ی خیلی کوتاه (۲۰ میلی‌ثانیه) هست
+- دکمه‌هایی که `hold` بشن و `release` نشن، آخر ماکرو (یا اگه ماکرو رو قطع کنی) **خودکار ول میشن**؛ جایی گیر نمی‌کنن
+- تا ماکرو تموم نشده، لمس دوباره‌ی همون دکمه کاری نمی‌کنه. دور دکمه یه **حلقه‌ی پیشرفت** پر میشه تا ببینی چقدر مونده
+- هر ماکرو تا ۱۰۰ خط و هر دسته تا ۳۰ ماکرو داره
+
+**اسم دکمه‌هایی که می‌تونی بنویسی:**
+`A` `B` `X` `Y` · `LB` `RB` · `LT` `RT` · `L3` `R3` · `BACK` `START` `GUIDE` · `DU` `DD` `DL` `DR` (جهت‌های بالا، پایین، چپ، راست)
+
+اسم‌های PS4 هم قبول میشن: `cross`=A · `circle`=B · `square`=X · `triangle`=Y · `L1`=LB · `R1`=RB · `L2`=LT · `R2`=RT · `share`/`select`=BACK · `options`=START · `ps`/`home`=GUIDE · `up` `down` `left` `right`
+
+**مثال ۱: یه کمبو ساده**
+```
+press X
+delay 100ms
+press X
+delay 100ms
+press Y 120ms
+```
+
+**مثال ۲: دویدن (ماشه رو نگه دار)، بپر و ولش کن**
+```
+hold LT
+delay 800ms
+press A
+delay 300ms
+release LT
+```
+
+**مثال ۳: چند دکمه همزمان (مثلاً حمله‌ی ویژه)**
+```
+press A,B
+delay 50ms
+press DL,X 200ms
+```
+
+> ماکرو رو می‌تونی رنگ‌بندی هم بکنی (رنگ دکمه، بوردر، متن و رنگ پر شدن) از «تنظیمات ظاهری ← میکرو».
+
 ### 🎨 ظاهر و تم
 - ده‌ها **تم آماده** + ساخت تم خودت
 - رنگ هر چیزی جدا تنظیم میشه: پس‌زمینه، دکمه‌ها، متن، بوردر، ضخامت بوردر، سایه، **نئون (درخشش)**، رنگ لحظه‌ی فشردن، دکمه‌های جهت، فرمون (گرادینت)، استیک‌ها، دکمه‌های اکشن، میکرو و ...
@@ -83,11 +142,23 @@
 
 > 🎥 فیلم تست با دوربین **۲۴۰ هرتز** تو کانال تلگرام آپلود شده: [@HSHGamepad](https://t.me/HSHGamepad)
 
-برای کمترین تاخیر:
+برای **کمترین تاخیر ممکن**، گوشی رو با **کابل USB** به کامپیوتر وصل کن و **USB Tethering** رو روشن کن (جزئیات پایین‌تر). اگه نخواستی از کابل استفاده کنی:
 - گوشی رو به **وای‌فای ۵ گیگاهرتز** وصل کن و تا جای ممکن نزدیک روتر باش
 - کامپیوتر رو اگه میشه با **کابل شبکه** به روتر وصل کن
 - تو گوشی «**حالت سبک**» رو روشن کن
 - برای ماوس، «تاخیر تپ‌ودرگ» رو روی ۰ بذار
+
+### 🔌 اتصال با کابل USB (کمترین تاخیر)
+1. گوشی رو با کابل USB به کامپیوتر وصل کن
+2. **اندروید:** تنظیمات ← اتصال و اشتراک (Hotspot & tethering) ← **USB Tethering** رو روشن کن  
+   **آیفون:** تنظیمات ← Personal Hotspot رو روشن کن (برای اتصال با کابل، درایور Apple/iTunes باید روی ویندوز نصب باشه)
+3. ویندوز یه شبکه‌ی جدید می‌سازه. آدرسی که برنامه نشون میده (یا آی‌پی کارت شبکه‌ی جدید تو `ipconfig`) رو تو مرورگر گوشی باز کن
+4. اگه آدرس برنامه مال شبکه‌ی قبلیته و باز نشد، آی‌پی همون کارت شبکه‌ی جدید (معمولاً اسمش Ethernet یا Remote NDIS داره) رو دستی تو مرورگر گوشی وارد کن
+
+> کابل تازه تو اتصال وای‌فای (هوا، تداخل، روتر) نیست و تاخیرش ثابت‌تره؛ برای بازی‌های سریع (مبارزه‌ای، شوتر، ریتمیک) بهترین انتخابه.
+
+### 📶 چرا بلوتوث نداره؟
+عمداً بلوتوث اضافه نشده. تاخیر بلوتوث نسبت به وای‌فای و کابل **خیلی بیشتره** و تو تست‌ها حسش به‌خاطر لگ و تاخیر خوب نبود، و کاربرای زیادی هم اصلاً ازش استفاده نمی‌کنن. برای همین پروژه رو روی روش‌هایی (وای‌فای و USB) گذاشتیم که تاخیر خیلی کمی دارن.
 
 ---
 
@@ -238,6 +309,65 @@ Everything you see can be changed:
   `press A,B` · `hold LT` · `release LT` · `delay 200ms`
 - **Save, cancel and restore** layout any time
 
+### 🧩 Macro tutorial
+
+A macro **runs a whole sequence of actions automatically with one tap** — e.g. a fighting-game combo, or several buttons in a row.
+
+**Creating a macro:**
+1. Tap **Edit layout** → **Add macro**; a new button named `M1` (then `M2`, ...) appears
+2. Tap the macro button → **Edit macro**
+3. Add command lines (use the **Press / Hold / Release / Delay** buttons or type them)
+4. Tap **Save** and leave edit mode. Tapping that button now runs the macro
+
+**Each line is one command, executed top to bottom:**
+
+| Command | What it does | Example |
+|---|---|---|
+| `press` | Presses the button and releases it (default 60 ms) | `press A` · `press A,B` · `press X 150ms` |
+| `hold` | **Holds** the button until a `release` (or the macro ends) | `hold LT` |
+| `release` | Releases a button that was held | `release LT` |
+| `delay` | Waits, then continues with the next line (`wait` also works) | `delay 200ms` · `delay 1.5s` |
+
+Tips:
+- Press several buttons **at once** with commas and no spaces: `press A,B,X`
+- Write time in `ms` (milliseconds) or `s` (seconds). No unit means milliseconds. Max per line is 5 minutes
+- There's a tiny gap (20 ms) between consecutive lines
+- Buttons that were held and never released are **released automatically** when the macro ends (or is stopped), so nothing gets stuck
+- While a macro is running, tapping its button again does nothing. A **progress ring** fills around the button so you can see how much is left
+- Up to 100 lines per macro and 30 macros per layout
+
+**Button names you can use:**
+`A` `B` `X` `Y` · `LB` `RB` · `LT` `RT` · `L3` `R3` · `BACK` `START` `GUIDE` · `DU` `DD` `DL` `DR` (D-Pad up, down, left, right)
+
+PS4 names work too: `cross`=A · `circle`=B · `square`=X · `triangle`=Y · `L1`=LB · `R1`=RB · `L2`=LT · `R2`=RT · `share`/`select`=BACK · `options`=START · `ps`/`home`=GUIDE · `up` `down` `left` `right`
+
+**Example 1: a simple combo**
+```
+press X
+delay 100ms
+press X
+delay 100ms
+press Y 120ms
+```
+
+**Example 2: sprint (hold the trigger), jump, then let go**
+```
+hold LT
+delay 800ms
+press A
+delay 300ms
+release LT
+```
+
+**Example 3: several buttons at once (e.g. a special move)**
+```
+press A,B
+delay 50ms
+press DL,X 200ms
+```
+
+> You can restyle macros too (button color, border, text, fill color) under "Appearance → Macro".
+
 ### 🎨 Look & themes
 - Dozens of **built-in themes**, or make your own
 - Every color is adjustable: background, buttons, text, border and border width, shadows, **neon glow**, pressed color, direction buttons, wheel (gradient), sticks, action buttons, macros and more
@@ -266,11 +396,23 @@ End-to-end latency from touching the phone screen to the input being applied on 
 
 > 🎥 A test video recorded with a **240 Hz** camera is available on the Telegram channel: [@HSHGamepad](https://t.me/HSHGamepad)
 
-For the lowest latency:
+For the **lowest possible latency**, connect your phone to the PC with a **USB cable** and turn on **USB tethering** (details below). If you'd rather not use a cable:
 - Use **5 GHz Wi-Fi** and stay close to the router
 - Connect the PC to the router with an **Ethernet cable** if possible
 - Turn on **Light mode** on the phone
 - For mouse use, set **tap-and-drag delay** to 0
+
+### 🔌 USB cable connection (lowest latency)
+1. Plug the phone into the PC with a USB cable
+2. **Android:** Settings → Hotspot & tethering → turn on **USB tethering**  
+   **iPhone:** Settings → turn on Personal Hotspot (to use it over the cable, Apple's drivers / iTunes must be installed on Windows)
+3. Windows creates a new network. Open the address the app shows (or the IP of the new network adapter from `ipconfig`) in the phone's browser
+4. If the address shown belongs to your old network and doesn't open, type the IP of the new adapter (usually named Ethernet or Remote NDIS) manually in the phone's browser
+
+> A cable has no Wi-Fi air interference or router in the middle, so its latency is steadier — the best choice for fast games (fighting, shooters, rhythm).
+
+### 📶 Why no Bluetooth?
+Bluetooth was left out on purpose. Its latency is **much higher** than Wi-Fi or a cable, it didn't feel good in testing because of lag, and many users wouldn't use it anyway. So the project focuses on the low-latency options: Wi-Fi and USB.
 
 ---
 
