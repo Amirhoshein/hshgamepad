@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>   <!-- requireAdministrator -->
+
+    <!-- .NET 6 = آخرین نسخه‌ای که ویندوز 7 SP1 رو ساپورت میکنه (7 به بعد ویندوز 8.1+ میخوان) -->
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <SupportedOSPlatformVersion>6.1</SupportedOSPlatformVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>HSHGamepad</AssemblyName>
+    <Version>1.0.3</Version>
+    <Product>HSH Gamepad</Product>
+    <AssemblyTitle>HSH Gamepad</AssemblyTitle>
+    <RootNamespace>GamepadServer</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Authors>@HSHGamepad</Authors>
+    <Company>@HSHGamepad</Company>
+    <Copyright>Telegram: @HSHGamepad</Copyright>
+
+    <!-- معماری: x64 (پیش‌فرض) یا x86.   dotnet publish -c Release -p:Arch=x86 -->
+    <Arch Condition="'$(Arch)' == ''">x64</Arch>
+    <RuntimeIdentifier>win-$(Arch)</RuntimeIdentifier>
+    <PlatformTarget>$(Arch)</PlatformTarget>
+    <PublishDir>publish\$(Arch)\</PublishDir>
+
+    <!-- یک exe تکی که خودِ .NET رو توش داره (روی کامپیوتر مقصد هیچ ران‌تایمی لازم نیست) -->
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <!-- فشرده‌سازی خود exe خاموشه؛ Inno Setup با lzma2 بهتر فشرده میکنه و برنامه هم سریع‌تر بالا میاد -->
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <!-- .NET 6 پایان پشتیبانی شده؛ هشدارش رو خاموش میکنیم (ویندوز 7 راه دیگه‌ای نداره) -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <DefaultItemExcludes>$(DefaultItemExcludes);publish/**;dist/**;installer/**;redist/**;net48/**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- نسخه‌ی کلاینت: اگه با درایور 1.16 (ویندوز 7) خطای bus version mismatch داد، اینو بذار 1.16.150 -->
+    <PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.256" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- صفحه‌ی وب داخل خود exe جاسازی میشه، پس فایل کناریش لازم نیست -->
+    <Content Remove="index.html" />
+    <None Remove="index.html" />
+    <EmbeddedResource Include="index.html" />
+    <None Remove="icon.ico" />
+    <EmbeddedResource Include="icon.ico" />
+    <!-- آیکون «خروج» (منوی راست‌کلیک taskbar و tray): سفید برای تم تیره، تیره برای تم روشن -->
+    <None Remove="exit-light.ico" />
+    <None Remove="exit-dark.ico" />
+    <EmbeddedResource Include="exit-light.ico" />
+    <EmbeddedResource Include="exit-dark.ico" />
+    <!-- آیکون دکمه‌های تلگرام و گیت‌هاب (پایین سمت چپ پنجره) -->
+    <None Remove="icons\telegram.png" />
+    <None Remove="icons\github.png" />
+    <EmbeddedResource Include="icons\telegram.png" />
+    <EmbeddedResource Include="icons\github.png" />
+  </ItemGroup>
+</Project>
