@@ -1,361 +1,391 @@
 <div align="center">
 
-# 🎮 HSH Gamepad
+<img src="icon.ico" width="96" alt="HSH Gamepad">
 
-**گوشی‌ت رو تبدیل کن به دسته‌ی بازی ویندوز؛ بدون نصب هیچ برنامه‌ای روی گوشی!**
+# HSH Gamepad
 
-دسته‌ی مجازی **Xbox 360** و **PS4 (DualShock 4)** تا **۹ پلیر** همزمان، با کمترین تاخیر ممکن
-**رایگان، بدون اکانت و بدون نیاز به اینترنت؛ کنترل همه‌چیز دست خودته.**
+**گوشی‌ت رو تبدیل کن به دسته‌ی PS4 / Xbox 360 / فرمون / ماوس و کیبورد برای کامپیوتر**
+**Turn your phone into a PS4 / Xbox 360 controller, steering wheel, mouse & keyboard for your PC**
 
-[![Release](https://img.shields.io/github/v/release/Amirhoshein/hshgamepad?label=release&color=5b92ff)](https://github.com/Amirhoshein/hshgamepad/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/Amirhoshein/hshgamepad/total?color=3b5a99)](https://github.com/Amirhoshein/hshgamepad/releases)
-[![Telegram](https://img.shields.io/badge/Telegram-@HSHGamepad-26A5E4?logo=telegram&logoColor=white)](https://t.me/HSHGamepad)
+![Version](https://img.shields.io/badge/version-1.0.4-blue)
+![Platform](https://img.shields.io/badge/Windows-7%20%7C%208.1%20%7C%2010%20%7C%2011-0078D6)
+![Players](https://img.shields.io/badge/players-up%20to%209-brightgreen)
+![Latency](https://img.shields.io/badge/latency-2--6%20ms-orange)
 
-[📥 دانلود](#-دانلود) · [🎯 کاربردها](#-کاربردها) · [🧪 تستر دسته](#-تستر-دسته-gamepad-tester) · [🧬 اشتراک تم](#-اشتراک-تم-با-json) · [🗝️ آزادی کاربر](#️-آزادی-کاربر) · [💬 تلگرام](https://t.me/HSHGamepad) · [English](#-english-summary)
+[**فارسی**](#fa) · [**English**](#en) · [دانلود / Download](https://github.com/Amirhoshein/hshgamepad/releases/latest) · [Telegram @HSHGamepad](https://t.me/HSHGamepad)
 
 </div>
 
-<!--
-عکس‌های برنامه رو اینجا بذار:
-![صفحه‌ی گوشی](docs/phone.png)
-![پنجره‌ی ویندوز](docs/server.png)
-![تستر دسته](docs/tester.png)
--->
-
 ---
 
-## 📖 این برنامه چیه؟
+<a id="fa"></a>
 
-**HSH Gamepad** یک برنامه‌ی دو‌تکه‌ست:
+<div dir="rtl">
 
-1. **برنامه‌ی ویندوز** که با درایور [ViGEmBus](https://github.com/nefarius/ViGEmBus) یک یا چند **دسته‌ی مجازی** می‌سازد؛ برای ویندوز و بازی‌ها دقیقاً مثل یک دسته‌ی واقعی Xbox 360 یا DualShock 4 دیده می‌شود.
-2. **صفحه‌ی وب روی گوشی** که خودِ برنامه به گوشی می‌دهد. کافیه آدرسی که برنامه نشان می‌دهد را توی مرورگر گوشی باز کنی؛ **هیچ اپی روی گوشی نصب نمی‌شود**.
+# 🇮🇷 فارسی
 
-هر چیزی که روی صفحه‌ی گوشی لمس کنی (دکمه، استیک، دکمه‌های جهت و...) با پیام‌های خیلی کوچک و سریع به کامپیوتر می‌رسد و همان لحظه روی دسته‌ی مجازی اعمال می‌شود. هر بازی یا شبیه‌سازی که از دسته پشتیبانی کند (Steam، emulatorها و...) بدون هیچ تنظیم خاصی با آن کار می‌کند.
+## HSH Gamepad چیه؟
 
-> 💡 مثال کاربرد: بازی با دوستات روی یک کامپیوتر (بازی‌های کاناپه‌ای)، وقتی دسته نداری یا تعداد دسته‌هات کمه. هر کس با گوشی خودش یک پلیر می‌شود.
+یه برنامه‌ی ساده برای ویندوز که گوشی‌ت رو تبدیل می‌کنه به **دسته‌ی بازی واقعی**. نیازی به نصب اپ روی گوشی نیست؛ فقط یه آدرس رو تو مرورگر گوشی باز می‌کنی و همین. بازی‌ها فکر می‌کنن یه دسته‌ی واقعی Xbox 360 یا PS4 به کامپیوتر وصل کردی.
 
----
-
-## 🎯 کاربردها
-
-| کاربرد | چطور کمکت می‌کند |
-|---|---|
-| 🛋️ **بازی کاناپه‌ای با دوستان** | تا ۹ نفر با گوشی خودشان روی یک کامپیوتر بازی می‌کنند؛ لازم نیست دسته بخری یا قرض بگیری |
-| 🕹️ **شبیه‌سازها (Emulator)** | کنسول‌های قدیمی را با دسته‌ی مجازی Xbox یا PS4 اجرا کن؛ هر شبیه‌سازی که دسته را بشناسد بدون تنظیم خاصی کار می‌کند |
-| 🎮 **Steam و بازی‌های PC** | برای ویندوز و Steam یک دسته‌ی واقعی دیده می‌شود، پس بازی‌هایی که «دسته می‌خواهند» هم درست کار می‌کنند |
-| 🪫 **دسته‌ی یدک و اضطراری** | دسته‌ات خراب شد، باتری‌اش تمام شد یا همراهت نیست؟ گوشی جایگزین فوری است |
-| 🎉 **مهمانی و دورهمی** | هر مهمان آدرس را در مرورگر گوشی‌اش باز می‌کند، شماره‌ی پلیرش را می‌گیرد و بازی شروع می‌شود؛ بدون نصب هیچ چیزی |
-| 👶 **چیدمان مخصوص هر نفر** | برای بچه‌ها یا کسی که دکمه‌های بزرگ‌تر لازم دارد، دکمه‌ها را بزرگ کن و محدوده‌ی لمس را زیاد کن؛ هر پلیر چیدمان خودش را دارد |
-| 🎨 **سلیقه‌ی شخصی** | چیدمان و ظاهر (تم، رنگ، نئون، شفافیت) را برای هر بازی یا هر نفر جدا بساز و ذخیره کن |
-| 🧪 **امتحان کردن دسته‌ی PS4 و Xbox** | ببین یک بازی با هر کدام چطور رفتار می‌کند (آیکون‌ها، لرزش، تاچ‌پد) و [با تستر](#-تستر-دسته-gamepad-tester) مطمئن شو درست کار می‌کند |
-| 📳 **حس لمس واقعی** | لرزش بازی به گوشی همان پلیر می‌رسد |
-
-> 💡 برای کمترین تاخیر و بازی‌های سریع (مبارزه‌ای، ریسینگ)، گوشی را با کابل USB (Tethering) یا Wi-Fi ۵GHz وصل کن.
-
----
-
-## 🗝️ آزادی کاربر
-
-برنامه با این فکر ساخته شده که **کنترل همه‌چیز دست خودِ کاربر باشه**، نه برنامه. خلاصه‌ی چیزهایی که تصمیمش با توئه:
-
-### 🔒 آزادی و حریم خصوصی
-
-- 🌐 **بدون اینترنت و بدون اکانت**: همه‌چیز فقط روی شبکه‌ی خودت (Wi-Fi / هات‌اسپات / کابل USB) رد و بدل می‌شود. برنامه هیچ درخواستی به اینترنت نمی‌فرستد (آمار، تحلیل، آپدیت خودکار و...) و صفحه‌ی گوشی هم هیچ فونت یا اسکریپت خارجی لود نمی‌کند.
-- 💾 **داده‌هات پیش خودته**: چیدمان و ظاهر دکمه‌ها داخل مرورگر **گوشی خودت** ذخیره می‌شود و تنظیمات پنجره‌ی ویندوز در `%AppData%\GamepadServer`؛ هیچ‌جا آپلود نمی‌شود.
-- 🧑‍🤝‍🧑 **اسم دلخواه**: اسم هر گوشی فقط برای نمایش در پنجره‌ی برنامه است، هر چی خواستی بذار (یا نذار).
-- 🛡️ **فقط گوشی‌ها**: خودِ کامپیوتر سرور اجازه‌ی وصل شدن به دسته را ندارد، تا اشتباهی دسته‌ی خودت رو کنترل نکنی.
-
-### 🎛️ آزادی روی دسته و چیدمان
-
-- 🎮 **نوع دسته رو خودت انتخاب کن**: Xbox 360 یا PS4 برای هر پلیر جدا (با محدودیت ۴ دسته‌ی Xbox در ویندوز).
-- ✏️ **چیدمان کاملاً آزاد**: هر دکمه رو جابه‌جا کن، اندازه‌ش رو تا **۳۰۰٪** بزرگ کن، **محدوده‌ی لمس** رو (تا ۵۰۰٪) جدا از ظاهرش تنظیم کن و **شفافیتش** رو تا ۰٪ پایین بیار (برای دکمه‌های نامرئی).
-- ↩️ **هیچ تغییری برگشت‌ناپذیر نیست**: تا ۶۰ مرحله Undo، بازگردانی چیدمان به حالت کارخانه، و بازگردانی رنگ‌ها به پیش‌فرض (هر بخش دکمه‌ی خودش را دارد).
-- 🕹️ **حالت حرکت رو خودت انتخاب کن**: دکمه‌های جهت، جوی‌استیک ثابت، یا جوی‌استیک **دنبال‌کننده** (مثل بازی‌های موبایل)؛ برای کنترل دوم هم همین‌طور.
-- ❌ **دکمه‌های اکشن**: جدا از هم (معمولی) یا **ضربدری** (X-layout) که انگشت بین چهار دکمه می‌لغزد و دو دکمه‌ی کنارهم هم‌زمان فشرده می‌شوند.
-- 📳 **لرزش**: لرزش لمسی و لرزش دسته (که بازی می‌فرستد) هر دو قابل خاموش کردنند.
-- 🖼️ **تمام‌صفحه و چرخش**: تمام‌صفحه‌ی خودکار در حالت افقی و قفل روشن ماندن صفحه، هر دو دست خودته.
-- 🎨 **ظاهر بدون محدودیت**: تم‌های آماده، رنگ تک‌تک اجزا، نئون، بلور، پس‌زمینه و...؛ هر تمی که ساختی را می‌توانی به **JSON** تبدیل کنی و [با بقیه به اشتراک بگذاری](#-اشتراک-تم-با-json)؛ تم دوستت را هم با چسباندن کدش اعمال کن.
-- 📋 **کپی چیدمان بقیه**: چیدمان هر پلیر دیگری را که در همان لحظه وصل است کپی کن و بعد دلخواه ویرایشش کن.
-
-### 🖥️ آزادی روی سمت کامپیوتر
-
-- 🔌 **پورت دست توئه**: پیش‌فرض ۸۰ است؛ اگر اشغال بود، برنامه به‌جای ارور، می‌گوید چه برنامه‌ای گرفته (اسم + مسیر فایل) و **تو تصمیم می‌گیری**: ببندی‌اش یا با ۱۱۱۱ (و بعدی‌ها) ادامه بدهی.
-- 🧹 **مدیریت دسته‌ی آزاد**: حذف دستی با دکمه، یا حذف خودکار بعد از N ثانیه (پیش‌فرض: هیچ‌وقت حذف نمی‌شود).
-- 🔔 **Tray**: بستن پنجره فقط آن را مخفی می‌کند؛ خروج واقعی از منوی راست‌کلیک.
-- 🧪 **تست کامل دسته بدون نیاز به بازی** با [تستر دسته](#-تستر-دسته-gamepad-tester).
-
----
-
-## 🧬 اشتراک تم با JSON
-
-تمی که ساختی فقط مال خودت نیست؛ می‌توانی آن را به یک **متن JSON** تبدیل کنی، در تلگرام، گروه یا کانال بفرستی و هر کس با یک چسباندن آن را روی گوشی‌اش اعمال کند.
-
-**گرفتن JSON تم خودت:**
-
-1. در صفحه‌ی گوشی، تنظیمات ← **تنظیمات ظاهری** را باز کن.
-2. روی دکمه‌ی **ویرایش json** بزن؛ کد تم فعلی در یک کادر نشان داده می‌شود.
-3. روی **کپی** بزن و متن را هر جا خواستی بفرست یا ذخیره کن.
-
-**اعمال تم دیگران:**
-
-1. همان کادر **ویرایش json** را باز کن.
-2. کد تم را داخلش **بچسبان** (دکمه‌ی «چسباندن» یا نگه داشتن و Paste).
-3. روی **اعمال** بزن؛ ظاهر فعلی با آن تم جایگزین می‌شود.
-
-**نکته‌ها:**
-
-- 🎛️ JSON را می‌توانی قبل از اعمال یا کپی **دستی ویرایش کنی**، مثلاً یک رنگ را عوض کنی.
-- ✅ اگر کد معتبر نباشد یا هیچ تنظیم شناخته‌شده‌ای نداشته باشد، برنامه پیغام می‌دهد و چیزی عوض نمی‌شود.
-- 🔙 هر بخش از ظاهر دکمه‌ی «بازگشت به پیش‌فرض» دارد؛ اگر تمی را دوست نداشتی، رنگ‌ها را به حالت اول برگردان.
-- 🎨 این کد فقط **ظاهر** را شامل می‌شود (رنگ‌ها، نئون، بلور، پس‌زمینه و...)؛ چیدمان دکمه‌ها جداست و با «کپی از بقیه» منتقل می‌شود.
-- 📢 تم‌هایت را در [کانال تلگرام](https://t.me/HSHGamepad) با بقیه به اشتراک بگذار.
-
----
-
-## 🧪 تستر دسته (Gamepad Tester)
-
-نمی‌دونی دسته درست کار می‌کنه یا مشکل از بازیه؟ لازم نیست حدس بزنی؛ برنامه یک **پنجره‌ی تست زنده** برای هر پلیر دارد.
-
-**چطور باز کنیم؟** در پنجره‌ی اصلی، روی ردیف پلیر مورد نظر (که گوشی‌اش وصل است) **دابل‌کلیک** کن.
-
-**چی نشون میده؟**
-
-| قابلیت | توضیح |
-|---|---|
-| 🎮 **نمای زنده‌ی دسته** | تصویر گرافیکیِ Xbox 360 یا DualShock 4 (بسته به نوع دسته‌ی همان پلیر) که با هر لمس روی گوشی همان لحظه واکنش نشان می‌دهد |
-| 🔘 **همه‌ی ورودی‌ها** | دکمه‌های A/B/X/Y (یا ✕ ○ □ △)، LB/RB، LT/RT، L3/R3، Back/Start/Guide، تاچ‌پد (PS4) و D-Pad |
-| 🕹️ **استیک‌ها** | موقعیت دقیق استیک چپ و راست؛ برای تشخیص دقت، دقیقاً همان مقداری که به بازی می‌رسد |
-| 🏷️ **اطلاعات پلیر** | شماره‌ی پلیر، نوع دسته، اسم و مدل گوشی، IP و اینکه آیا خودکار از Xbox به PS4 تغییر کرده یا نه |
-| 📳 **دکمه‌ی «تست لرزش»** | لرزش کامل (۲۵۵/۲۵۵) را درست مثل یک بازی، حدود ۱.۲ ثانیه برای گوشی می‌فرستد تا مطمئن بشوی مسیر لرزش سالم است |
-| 📡 **لرزشی که بازی می‌فرستد** | آخرین مقدار موتور بزرگ/کوچک و اینکه چند میلی‌ثانیه پیش رسیده؛ برای فهمیدن اینکه بازی اصلاً فرمان لرزش می‌دهد یا نه |
-| 🔬 **عیب‌یابی** | شمارنده‌ی رویدادهای ViGEm / گزارش‌های خام DS4 و ۱۰ بایت اول آخرین گزارش خام |
-
-> 📝 لاگ لرزش در `%AppData%\GamepadServer\rumble.log` هم نوشته می‌شود (حداکثر ۴۰۰ خط در هر اجرا). اگر باگ لرزش گزارش می‌کنی، این فایل خیلی کمک می‌کند.
-
-**کاربردها:**
-
-- مطمئن شدن از اینکه دکمه یا استیک گوشی درست و بدون تاخیر دیده می‌شود، قبل از شروع بازی.
-- تشخیص اینکه مشکل از برنامه است یا تنظیمات بازی (مثلاً بازی دسته‌ی Xbox می‌خواهد و تو PS4 ساخته‌ای).
-- بررسی چیدمان جدید و دکمه‌هایی که با هم تداخل لمسی دارند.
-- تست لرزش بدون باز کردن هیچ بازی.
-
-> 💡 برای تست بیشتر، می‌توانی از ابزارهای معمول ویندوز هم استفاده کنی: `joy.cpl` (Game Controllers) یا صفحه‌ی تست دسته در Steam.
+مناسب وقتی که:
+- دسته نداری و می‌خوای با دوستات **دونفره، چهارنفره یا حتی ۹ نفره** بازی کنی 🎮
+- می‌خوای از گوشی به‌عنوان **فرمون ماشین** (با ژیروسکوپ) استفاده کنی 🏎️
+- می‌خوای از گوشی **ماوس و کیبورد** کامپیوتر رو کنترل کنی (مثل لمس‌پد لپ‌تاپ) 🖱️
 
 ---
 
 ## ✨ امکانات
 
-### 🖥️ سمت کامپیوتر
+### 🎮 دسته‌ها
+- **PS4 (DualShock 4)** و **Xbox 360**؛ هر کدوم رو خواستی انتخاب کن
+- **تا ۹ پلیر همزمان** (هر پلیر یه رنگ مخصوص خودش داره)
+- **ژیروسکوپ** گوشی (برای دسته‌ی PS4)
+- **لرزش دسته**؛ وقتی بازی لرزش بفرسته، گوشی‌ت می‌لرزه (قابل خاموش کردن)
+- **فرمون (Steering Wheel)** با ژیروسکوپ: زاویه‌ی چرخش، حساسیت، ضریب، ناحیه‌ی مرده، نرمی حرکت، تنظیم مرکز و پدال گاز/ترمز (آنالوگ یا دیجیتال)
+- **ماوس و کیبورد** (فقط پلیر ۱): صفحه‌ی لمسی مثل لپ‌تاپ؛ تپ = کلیک، دو انگشت = اسکرول، تپ دو انگشتی = کلیک راست، درگ، حساسیت و سرعت اسکرول قابل تنظیم
 
-| قابلیت | توضیح |
-|---|---|
-| 🎮 **تا ۹ پلیر** | هر شماره‌ی پلیر فقط یک گوشی می‌تواند داشته باشد؛ بقیه نمی‌توانند شماره‌ی گرفته‌شده را بردارند و در پنجره هم دیده می‌شود چه کسی کدام شماره را دارد |
-| 🕹️ **Xbox 360 و PS4** | نوع دسته برای هر پلیر جدا انتخاب می‌شود. ⚠️ ویندوز (XInput) فقط **۴ دسته‌ی Xbox** پشتیبانی می‌کند؛ پلیر ۵ تا ۹ باید PS4 باشند. اگر Xbox ساخته نشود، برنامه خودکار PS4 می‌سازد |
-| 🧪 **تستر دسته** | نمای زنده‌ی دسته، تست لرزش و عیب‌یابی؛ [جزئیات بالا](#-تستر-دسته-gamepad-tester) |
-| 🪟 **پنجره‌ی وضعیت** | تم تیره؛ جدول ۹ پلیر با وضعیت، اسم، نوع دسته، مدل دستگاه و IP هر گوشی |
-| 🌐 **آدرس آماده‌ی اتصال** | بالای پنجره آدرس شبکه‌ی محلی نشان داده می‌شود و با یک دکمه کپی می‌شود |
-| 📳 **لرزش از بازی به گوشی** | وقتی بازی به دسته لرزش می‌دهد، همان لرزش روی گوشی همان پلیر اجرا می‌شود |
-| 🧹 **حذف دسته‌ی آزاد** | وقتی گوشی قطع می‌شود دسته‌ی مجازی می‌ماند؛ با دکمه‌ی «حذف» دستی یا با گزینه‌ی **حذف خودکار بعد از N ثانیه** پاک می‌شود (پیش‌فرض: هیچ‌وقت) |
-| 🔌 **مدیریت هوشمند پورت** | پورت پیش‌فرض ۸۰ است (پس لازم نیست پورت را در آدرس بنویسی). اگر اشغال باشد برنامه به‌جای ارور، می‌گوید **کدام برنامه** پورت را گرفته، آموزش آزاد کردنش را نشان می‌دهد و اجازه می‌دهد آن را ببندی. اگر نخواستی، برنامه با پورت **۱۱۱۱** (و بعدی‌ها) ادامه می‌دهد و بدون بستن برنامه می‌تواند روی ۸۰ برگردد |
-| 🔒 **امنیت پایه** | خودِ کامپیوتر سرور اجازه‌ی وصل شدن به دسته را ندارد (فقط گوشی‌ها) |
-| 🔔 **Tray و Taskbar** | بستن پنجره برنامه را به کنار ساعت می‌برد؛ اجرای دوباره همان پنجره را نشان می‌دهد (فقط یک نسخه اجرا می‌شود). راست‌کلیک روی آیکون taskbar → «خروج از برنامه» |
-| ⚡ **اولویت بالا** | برنامه با اولویت High اجرا می‌شود تا وقتی بازی CPU را می‌گیرد، عقب نماند |
-| 🪟 **ویندوز ۷ تا ۱۱** | هم 32 بیتی هم 64 بیتی |
-| 🔗 **لینک‌های سریع** | دکمه‌های تلگرام و گیت‌هاب پایین سمت چپ پنجره |
+### 🛠️ آزادی کامل در ویرایش دسته
+هر چیزی که می‌بینی قابل تغییره:
+- **ویرایش چیدمان**: هر دکمه رو نگه دار و هرجا خواستی ولش کن
+- **اندازه‌ی دقیق** (عرض، طول، اندازه‌ی متن) و **شفافیت** هر دکمه
+- **کپی، حذف و اضافه کردن** دکمه
+- **حالت‌های مختلف D-Pad و کنترل دوم**: دکمه‌ای، دکمه‌ی جدا (مثل اکشن)، جوی‌استیک ثابت یا دنبال‌کننده، استیک راست ↔ دکمه‌ای، دکمه‌های اکشن جدا یا ضربدری
+- **ماکرو (میکرو)**: هر دکمه‌ای می‌تونه یه دنباله از کارها اجرا کنه؛ مثلاً  
+  `press A,B` · `hold LT` · `release LT` · `delay 200ms`
+- **ذخیره، انصراف و بازگردانی چیدمان** تا هر وقت خواستی برگردی به حالت قبل
 
-### 📱 سمت گوشی (صفحه‌ی وب)
+### 🎨 ظاهر و تم
+- ده‌ها **تم آماده** + ساخت تم خودت
+- رنگ هر چیزی جدا تنظیم میشه: پس‌زمینه، دکمه‌ها، متن، بوردر، ضخامت بوردر، سایه، **نئون (درخشش)**، رنگ لحظه‌ی فشردن، دکمه‌های جهت، فرمون (گرادینت)، استیک‌ها، دکمه‌های اکشن، میکرو و ...
+- پس‌زمینه‌ی شطرنجی، افکت سه‌بعدی (نورپردازی) و انیمیشن نرم فشردن دکمه‌ها
+- **ویرایش JSON تم**: کد تم رو کپی کن، دستکاری کن، یا تم دوستت رو بچسبون و اعمال کن
+- **حالت سبک** برای گوشی‌های ضعیف (بلور و بعضی انیمیشن‌ها خاموش میشن تا تاخیر کم بشه)
+- تمام‌صفحه، اسم دلخواه برای هر پلیر، نشانگر **پینگ** زنده (سبز / زرد / قرمز)
 
-- 🖐️ **چیدمان شبیه دسته‌ی Xbox**: دو استیک، D-Pad، دکمه‌های A/B/X/Y، LB/RB، LT/RT، L3/R3، Back/Start/Guide و (در حالت PS4) تاچ‌پد
-- ✏️ **ویرایش چیدمان**: دکمه‌ی «ویرایش چیدمان» فقط گزینه‌های مربوط به چیدمان را نشان می‌دهد؛ برای جابه‌جایی، دکمه را نگه دار و هر جا خواستی رها کن، با کلیک روی هر دکمه تنظیمات خودش باز می‌شود (اندازه تا **۳۰۰٪**، **محدوده‌ی لمس** تا ۵۰۰٪، **شفافیت** تا ۰٪). ذخیره، از ویرایش خارج می‌کند؛ «انصراف» همه‌چیز را به قبل برمی‌گرداند
-- 🕹️ **حالت‌های استیک و D-Pad**: دکمه‌ای، جوی‌استیک ثابت و حالت **دنبال‌کننده** (پایه‌ی استیک دنبال انگشت می‌آید) با **محدوده‌ی لمس قابل تنظیم**؛ برای حرکت یک «کنترل دوم» هم می‌توانی تعریف کنی
-- ❌ **دکمه‌های اکشن ضربدری (X-layout)**: چهار دکمه‌ی اکشن به‌جای چهار دکمه‌ی جدا، یک ناحیه‌ی لمسی می‌شوند که با قطرها به چهار قسمت تقسیم شده؛ انگشت می‌تواند بین‌شان بلغزد و دو دکمه‌ی کنارهم هم‌زمان فشرده شوند
-- 🎨 **تم‌های آماده**: مثل ماتریکس، سایبرپانک، کهکشانی، جنگلی، غروب، رترو، کربن، یخی (روشن)، کاغذی (روشن)، مینیمال سیاه‌سفید و...؛ با یک کلیک اعمال می‌شود و بعدش هر رنگ را جدا دستکاری کنی
-- 🧬 **تم به‌صورت JSON**: تم فعلی را به JSON تبدیل کن، کپی بگیر و برای بقیه بفرست؛ یا JSON تم دیگران را بچسبان و اعمال کن ([جزئیات](#-اشتراک-تم-با-json))
-- 🖌️ **شخصی‌سازی کامل ظاهر**: رنگ دکمه‌ها، متن، بوردر و ضخامتش، سایه/نئون و میزان درخشش، افکت سه‌بعدی، رنگ پایه و توپ هر استیک، رنگ تک‌تک دکمه‌های اکشن، رنگ‌های ضربدری، رنگ و بلور پنل تنظیمات، رنگ پس‌زمینه (و پس‌زمینه‌ی شطرنجی)؛ **رنگ لحظه‌ی فشردن** هم جدا برای دکمه‌های اکشن، فلش‌ها و بقیه تنظیم می‌شود. هر مورد دکمه‌ی بازگشت به پیش‌فرض دارد و گزینه‌های بی‌اثر در حالت فعلی مخفی می‌شوند
-- 📋 **کپی از بقیه** (کپی چیدمان گوشی‌های دیگر)، **بازگشت به عقب (Undo)** تا ۶۰ تغییر و «بازگردانی چیدمان» به حالت کارخانه
-- 🪟 **پنل تنظیمات** که از سمت چپ باز می‌شود، با گزینه‌های مرتب و قابل اسکرول و بلور قابل تنظیم؛ **جابه‌جایی پنل** هم دست خودته
-- 📶 **نمایش پینگ** کنار دکمه‌ی تنظیمات (قابل جابه‌جایی)
-- 📳 **لرزش** هنگام لمس و **لرزش دسته (از بازی)**؛ هر دو قابل خاموش کردن
-- 🖼️ **تمام‌صفحه‌ی خودکار** هنگام چرخاندن گوشی به حالت افقی (و راهنمای «گوشی رو افقی بگیر» در حالت عمودی)
-- 🔆 **روشن ماندن صفحه** تا گوشی وسط بازی خاموش نشود
-- 👤 **اسم دلخواه** برای هر گوشی (فقط برای نمایش در پنجره‌ی برنامه)
-- 💾 همه‌ی تنظیمات و چیدمان‌ها در خود مرورگر گوشی ذخیره می‌شوند
+### 💻 برنامه‌ی ویندوز
+- نمایش **آدرس اتصال** + دکمه‌ی کپی + **QR Code**؛ فقط اسکن کن
+- لیست پلیرهای وصل‌شده (اسم، مدل گوشی و آی‌پی)
+- **حذف خودکار دسته‌ی رها شده** بعد از چند ثانیه (اختیاری)
+- **کلید روشن/خاموش برای ماوس و کیبورد** از گوشی (برای امنیت بیشتر)
+- **تستر دسته**: پنجره‌ی سه‌بعدی که لحظه‌ای نشون میده چه دکمه‌ای زده میشه + لاگ ژیروسکوپ + **تست لرزش**
+- آیکون کنار ساعت (tray)؛ با بستن پنجره برنامه همون‌جا می‌مونه
+- منوی راست‌کلیک آیکون تسک‌بار با گزینه‌ی **«خروج از برنامه»**
+- فقط یک نسخه اجرا میشه (اجرای دوباره، همون پنجره رو نشون میده)
+- اگه پورت ۸۰ اشغال باشه (IIS، Apache، Skype، ...) خودش پورت دیگه‌ای انتخاب می‌کنه و راهنمای حل مشکل نشون میده
+- اجرای خودکار با **دسترسی ادمین** (برای اینکه ماوس/کیبورد به برنامه‌های ادمین مثل Task Manager هم برسه)
 
 ---
 
-## 📥 دانلود
+## ⚡ تاخیر (Latency)
 
-آخرین نسخه: **[v1.0.3](https://github.com/Amirhoshein/hshgamepad/releases/tag/hsh-gamepad-v1.0.3)**
+تاخیر کلی از لحظه‌ی لمس صفحه‌ی گوشی تا اجرا شدن توی کامپیوتر، **با فرض تاخیر شبکه‌ی لوکال = ۰**، بین **۲ تا ۶ میلی‌ثانیه** هست.
 
-فایل‌ها با فرمت **RAR** هستند؛ برای باز کردنشان به [7-Zip](https://www.7-zip.org/) یا WinRAR نیاز داری.
+> 🎥 فیلم تست با دوربین **۲۴۰ هرتز** تو کانال تلگرام آپلود شده: [@HSHGamepad](https://t.me/HSHGamepad)
 
-### کدوم نسخه رو بگیرم؟
+برای کمترین تاخیر:
+- گوشی رو به **وای‌فای ۵ گیگاهرتز** وصل کن و تا جای ممکن نزدیک روتر باش
+- کامپیوتر رو اگه میشه با **کابل شبکه** به روتر وصل کن
+- تو گوشی «**حالت سبک**» رو روشن کن
+- برای ماوس، «تاخیر تپ‌ودرگ» رو روی ۰ بذار
 
-- ویندوز ۱۰ یا ۱۱ → نسخه‌ی **Win10-11**
-- ویندوز ۷ یا ۸.۱ → نسخه‌ی **Win7-8.1**
-- ویندوزت ۶۴ بیتی است یا ۳۲ بیتی؟ (Settings ← System ← About) → `x64` یا `x86`
-- اینترنت داری؟ نسخه‌ی **معمولی (کم‌حجم)** کافی است. اینترنت نداری یا نصب سریع‌تر و مطمئن‌تر می‌خوای؟ نسخه‌ی **Full** رو بگیر (توضیح پایین).
+---
 
-### فرق نسخه‌ی معمولی و Full چیه؟
+## 📥 نصب و استفاده
 
-خودِ برنامه در هر دو دقیقاً یکی است؛ فقط **نصب‌کننده** فرق دارد.
+### ۱) نصب
+از بخش **[Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest)** نصب‌کننده‌ی مناسب سیستمت رو دانلود کن:
 
-| | **معمولی (کم‌حجم)** | **Full (آفلاین)** |
-|---|---|---|
-| **حجم دانلود** | کم (حدود ۵ مگابایت در ویندوز ۱۰/۱۱؛ حدود ۸۰ مگابایت در ویندوز ۷/۸.۱) | زیاد (حدود ۱۲۰ تا ۱۹۶ مگابایت) |
-| **پیش‌نیازها** | اگر چیزی لازم باشد (مثل .NET Framework 4.8) هنگام نصب از اینترنت دانلود می‌شود | همه‌ی پیش‌نیازها (مثل .NET Framework 4.8) داخل خود نصب‌کننده است |
-| **نیاز به اینترنت هنگام نصب** | فقط اگر پیش‌نیازی روی سیستم نباشد | ❌ ندارد |
-| **مناسب برای** | ویندوز ۱۰/۱۱ و کسی که اینترنت دارد (در بیشتر سیستم‌ها .NET از قبل هست و چیزی دانلود نمی‌شود) | کامپیوتر بدون اینترنت یا اینترنت ضعیف، ویندوز ۷/۸.۱ قدیمی، و نصب روی چند سیستم با یک فایل |
+| سیستم‌عامل | نسخه |
+|---|---|
+| ویندوز ۱۰ و ۱۱ | `HSHGamepad-Setup-Win10-11-x64.exe` یا `...-x86.exe` |
+| ویندوز ۷ و ۸.۱ | `HSHGamepad-Setup-Win7-8.1-x64.exe` یا `...-x86.exe` |
 
-> 💡 مطمئن نیستی؟ نسخه‌ی **معمولی** را بگیر؛ اگر هنگام نصب پیامی درباره‌ی دانلود پیش‌نیاز یا خطای اینترنت دیدی، نسخه‌ی **Full** را نصب کن.
+نصب‌کننده درایور **ViGEmBus** (لازم برای ساخت دسته‌ی مجازی) و بقیه‌ی پیش‌نیازها رو خودش نصب می‌کنه. اگه نمی‌دونی ۳۲ یا ۶۴ بیتی هستی، معمولاً `x64` درسته.
 
-| سیستم | معمولی (کم‌حجم) | Full (آفلاین) |
-|---|---|---|
-| **ویندوز ۱۰/۱۱ — ۶۴ بیت** (رایج‌ترین) | [دانلود](https://github.com/Amirhoshein/hshgamepad/releases/download/hsh-gamepad-v1.0.3/HSHGamepad-Setup-v3-Win10-11-x64.rar) | [دانلود](https://github.com/Amirhoshein/hshgamepad/releases/download/hsh-gamepad-v1.0.3/HSHGamepad-Setup-v3-Win10-11-x64-Full.rar) |
-| **ویندوز ۱۰/۱۱ — ۳۲ بیت** | [دانلود](https://github.com/Amirhoshein/hshgamepad/releases/download/hsh-gamepad-v1.0.3/HSHGamepad-Setup-v3-Win10-11-x86.rar) | [دانلود](https://github.com/Amirhoshein/hshgamepad/releases/download/hsh-gamepad-v1.0.3/HSHGamepad-Setup-v3-Win10-11-x86-Full.rar) |
-| **ویندوز ۷/۸.۱ — ۶۴ بیت** | [دانلود](https://github.com/Amirhoshein/hshgamepad/releases/download/hsh-gamepad-v1.0.3/HSHGamepad-Setup-v3-Win7-8.1-x64.rar) | [دانلود](https://github.com/Amirhoshein/hshgamepad/releases/download/hsh-gamepad-v1.0.3/HSHGamepad-Setup-v3-Win7-8.1-x64-Full.rar) |
-| **ویندوز ۷/۸.۱ — ۳۲ بیت** | [دانلود](https://github.com/Amirhoshein/hshgamepad/releases/download/hsh-gamepad-v1.0.3/HSHGamepad-Setup-v3-Win7-8.1-x86.rar) | [دانلود](https://github.com/Amirhoshein/hshgamepad/releases/download/hsh-gamepad-v1.0.3/HSHGamepad-Setup-v3-Win7-8.1-x86-Full.rar) |
+> ویندوز ۱۰ و ۱۱ از قبل .NET Framework 4.8 دارن. ویندوز ۷ و ۸.۱ رو نصب‌کننده خودش دانلود می‌کنه.
 
-> نسخه‌های ویندوز ۷/۸.۱ از ViGEmBus نسخه‌ی قدیمی‌تر (1.16.x) و بسته‌های لازم ویندوز ۷ استفاده می‌کنند.
+### ۲) اجرا
+1. برنامه رو باز کن و دسترسی ادمین رو تایید کن
+2. **گوشی و کامپیوتر باید به یک وای‌فای (یک شبکه) وصل باشن**
+3. آدرسی که تو پنجره‌ی برنامه نوشته رو تو مرورگر گوشی وارد کن، یا **QR Code** رو اسکن کن
+4. تو تنظیمات گوشی اسم، شماره‌ی پلیر و نوع دسته رو انتخاب کن
+5. بازی رو باز کن؛ تموم! 🎉
+
+### ۳) نکته‌ها
+- هر شماره‌ی پلیر فقط **یه گوشی** می‌تونه داشته باشه
+- محدودیت ویندوز: **Xbox 360 فقط ۴ دسته** داره. پلیر ۵ تا ۹ باید PS4 باشن (اگه Xbox ساخته نشه، خودکار PS4 میشه)
+- ماوس و کیبورد فقط برای **پلیر ۱** هست
+- باز کردن آدرس روی خود کامپیوتر (همون سیستمی که برنامه روشه) عمداً بلاک شده؛ از گوشی وارد شو
+
+---
+
+## ❓ سوالات متداول
 
 <details>
-<summary>🔐 چک‌سام SHA-256 فایل‌ها (برای مطمئن شدن از سالم بودن دانلود)</summary>
+<summary><b>برنامه نصب شد ولی بازی دسته رو نمی‌شناسه</b></summary>
 
-| فایل | SHA-256 |
-|---|---|
-| `HSHGamepad-Setup-v3-Win10-11-x64.rar` | `4acb33f991e2cb1a6e9d89919f795b85403a2221931d3676f797a2011fa63c05` |
-| `HSHGamepad-Setup-v3-Win10-11-x64-Full.rar` | `f4c2ed762ca06f36b8d975b261002c84fa86bd00790450ec8d3acdc32bf25ad6` |
-| `HSHGamepad-Setup-v3-Win10-11-x86.rar` | `8e42f508f9140ec1fd743ba56d4cc3fa508b552ab479e10e2acfe6030b15a6e7` |
-| `HSHGamepad-Setup-v3-Win10-11-x86-Full.rar` | `a1c59d394c68676a4374b21871a0a7ffd438b249c1b38adf52821c1bd064cf49` |
-| `HSHGamepad-Setup-v3-Win7-8.1-x64.rar` | `9b5786341eb2e03fbaedc5a577e5bd5b27fe941436b1c2e4aef9e772880a146b` |
-| `HSHGamepad-Setup-v3-Win7-8.1-x64-Full.rar` | `24c0072d1f69e2e6d3a76c57865029dba22844dbcbbdfb11eb365f7c371f69ef` |
-| `HSHGamepad-Setup-v3-Win7-8.1-x86.rar` | `SHA256_HERE` |
-| `HSHGamepad-Setup-v3-Win7-8.1-x86-Full.rar` | `fb08ba285f2ab9442020a7a4e6cf821d6a6b7e1bd31a44b2cc2e5be9cf7b69df` |
+مطمئن شو درایور ViGEmBus نصب شده و کامپیوتر بعد از نصب ریستارت شده. تو بازی هم گزینه‌ی کنترلر رو چک کن؛ بعضی بازی‌ها دسته‌ی Xbox رو راحت‌تر می‌شناسن.
+</details>
 
+<details>
+<summary><b>گوشی به آدرس وصل نمیشه</b></summary>
+
+- گوشی و کامپیوتر باید به یک وای‌فای وصل باشن
+- فایروال ویندوز ممکنه جلوی اتصال رو بگیره؛ تو پنجره‌ی اجازه‌ی فایروال «Private networks» رو تایید کن
+- اگه پورت ۸۰ اشغاله، برنامه پورت دیگه‌ای (مثلاً ۱۱۱۱) انتخاب می‌کنه؛ آدرس کامل رو با پورت وارد کن
+- بعضی وای‌فای‌ها (مثل مهمان یا عمومی) ارتباط بین دستگاه‌ها رو می‌بندن
+</details>
+
+<details>
+<summary><b>آنتی‌ویروس یا SmartScreen هشدار میده</b></summary>
+
+برنامه برای ساخت دسته‌ی مجازی و شبیه‌سازی ماوس و کیبورد از APIهای سطح پایین ویندوز استفاده می‌کنه و با دسترسی ادمین اجرا میشه، برای همین ممکنه بعضی آنتی‌ویروس‌ها یا SmartScreen هشدار بدن. کدش کاملاً بازه و می‌تونی خودت بررسی و بیلد کنی. فقط از همین صفحه‌ی گیت‌هاب دانلود کن.
+</details>
+
+<details>
+<summary><b>امنیت برنامه چطوره؟</b></summary>
+
+ارتباط گوشی و کامپیوتر فقط تو شبکه‌ی خودته و رمز ندارد؛ هر کسی که تو همون وای‌فای باشه و آدرس رو بدونه می‌تونه وصل بشه. جزئیات و راهکار تو [SECURITY.md](SECURITY.md) نوشته شده. اگه تو شبکه‌ی عمومی یا شلوغ بازی می‌کنی، گزینه‌ی «دسترسی ماوس و کیبورد از گوشی» رو خاموش کن.
 </details>
 
 ---
 
-## 🚀 راه‌اندازی سریع
+## 💬 ارتباط و پشتیبانی
 
-1. نسخه‌ی مناسب را از بالا دانلود و با 7-Zip/WinRAR باز کن، بعد نصبش کن.
-2. برنامه را باز کن؛ یک پنجره با **آدرس** (مثلاً `http://192.168.1.10`) نشان داده می‌شود.
-3. گوشی و کامپیوتر باید روی **یک شبکه** باشند. آدرس را توی **مرورگر گوشی** باز کن و اسمت را بنویس.
-4. از تنظیمات صفحه، شماره‌ی **پلیر** و **نوع دسته** (Xbox 360 / PS4) را انتخاب کن.
-5. (اختیاری) در پنجره‌ی ویندوز روی ردیف پلیرت **دابل‌کلیک** کن تا در [تستر دسته](#-تستر-دسته-gamepad-tester) ببینی همه‌چیز درست کار می‌کند.
-6. بازی را باز کن و لذت ببر 🎉
-
-> 🔥 اگر گوشی به آدرس وصل نشد، فایروال ویندوز را برای برنامه (یا پورت ۸۰ / ۱۱۱۱) باز کن و مطمئن شو شبکه روی حالت «Private» است. برای کمترین تاخیر، گوشی را با **کابل USB** (Tethering) وصل کن.
-
-### ⚙️ سیستم موردنیاز
-
-| | |
-|---|---|
-| **سیستم‌عامل** | ویندوز ۷ SP1 تا ویندوز ۱۱ (۳۲ و ۶۴ بیت) |
-| **CPU** | در بهترین حالت حدود ۰.۲ هسته |
-| **RAM** | ۶۴ مگابایت |
-| **شبکه** | Wi-Fi مناسب ۵GHz (یا کمی ضعیف‌تر ۲.۴GHz)؛ ترجیحاً گوشی را با کابل USB وصل کن |
-| **درایور** | ViGEmBus (در نصب‌کننده‌ها همراه برنامه است) |
+- کانال تلگرام (آموزش، فیلم‌ها و آپدیت‌ها): **[@HSHGamepad](https://t.me/HSHGamepad)**
+- باگ و پیشنهاد: [Issues](https://github.com/Amirhoshein/hshgamepad/issues)
+- مشکل امنیتی: [SECURITY.md](SECURITY.md) رو بخون
 
 ---
 
-## 🧠 خلاصه‌ی طرز کار
+## 👨‍💻 بخش مخصوص برنامه‌نویس‌ها و کنجکاوها
+
+- **زبان و فریم‌ورک:** C# روی **.NET Framework 4.8** (WinForms). اکسه فقط چند صد کیلوبایته و ران‌تایم همراهش نیست
+- **وب‌سرور:** پیاده‌سازی دستی روی TCP خام + **WebSocket** (`WebServer.cs`، `WsStream.cs`)؛ بدون Kestrel / ASP.NET
+- **دسته‌ی مجازی:** [ViGEmBus](https://github.com/nefarius/ViGEmBus) از طریق پکیج `Nefarius.ViGEm.Client`
+- **ماوس و کیبورد:** `SendInput` (`InputInjector.cs`)
+- **رابط گوشی:** یک فایل `index.html` (HTML + CSS + JS خالص، بدون کتابخونه و بدون هیچ درخواستی به اینترنت) که داخل exe جاسازی (Embedded) میشه
+- **پروتکل:** پیام‌های سبک روی WebSocket (`Protocol.cs`)، مدیریت اسلات‌ها در `Hub.cs` و `Slot.cs`
+- **ساختار پروژه:**
 
 ```
-┌──────────────┐   پیام‌های کوچک   ┌───────────────────┐   ViGEmBus   ┌──────────┐
-│  گوشی (مرورگر) │ ───────────────────────▶ │  HSH Gamepad       │ ───────────▶ │  بازی‌ها   │
-│               │ ◀─────────────────────── │  (روی ویندوز)       │  دسته‌ی مجازی │  Steam... │
-└──────────────┘  وضعیت پلیرها / پینگ / لرزش └───────────────────┘ ◀─────────── └──────────┘
-                                                                    لرزش از بازی
+Gamepad/
+├─ index.html          رابط گوشی (دسته، ویرایشگر، تم‌ها، فرمون، ماوس/کیبورد)
+├─ MainForm.cs         پنجره‌ی اصلی، tray، QR
+├─ GamepadTesterForm.cs  تستر سه‌بعدی دسته
+├─ InputInjector.cs    ماوس/کیبورد مجازی
+├─ PortGuard.cs        انتخاب پورت و راهنمای «پورت ۸۰ اشغاله»
+├─ JumpList.cs         منوی راست‌کلیک تسک‌بار
+├─ Elevation.cs        چک ادمین و اجرای دوباره با UAC
+├─ net48/              پروژه‌ی .NET Framework 4.8 (سرور، پروتکل، Hub، ...)
+├─ build.bat           بیلد برنامه + ساخت نصب‌کننده‌ها
+└─ installer/          اسکریپت Inno Setup
 ```
 
-- صفحه‌ی گوشی داخل خود برنامه جاسازی شده؛ پس لازم نیست چیزی جداگانه نصب یا دانلود کنی.
-- ورودی‌ها خیلی کوچک و سریع به کامپیوتر می‌رسند و همان لحظه روی دسته‌ی مجازی اعمال می‌شوند.
-- اگر اتصال گوشی قطع شود، **همه‌ی دکمه‌های آن پلیر خودکار رها می‌شوند** (دکمه‌ی گیرکرده نداریم) و شماره‌ی پلیر آزاد می‌شود. اگر همان گوشی دوباره وصل شود، اتصال قبلی کنار می‌رود.
-- دسته‌ی مجازی فقط وقتی ساخته می‌شود که لازم باشد.
-- در حالت PS4 دکمه‌ها به معادل خودشان نگاشت می‌شوند (A→✕، B→○، X→□، Y→△، Back→Share، Start→Options، Guide→PS)، D-Pad به‌صورت ۸ جهت و تاچ‌پد هم قابل استفاده است.
-- لرزشی که بازی به دسته می‌دهد (چه Xbox، چه PS4) به گوشی همان پلیر فرستاده می‌شود.
-- تنظیمات پنجره‌ی برنامه در `%AppData%\GamepadServer` ذخیره می‌شود.
+**ساخت از سورس** (نیاز: .NET SDK 6 یا جدیدتر، Inno Setup 6.3+، اینترنت برای بار اول):
 
-## ❓ سوالات پرتکرار
+```bat
+build.bat net48     :: نصب‌کننده‌های کوچک
+build.bat full      :: نصب‌کننده‌های Full (با .NET 4.8 آفلاین)
+build.bat           :: همه
+```
+
+خروجی تو پوشه‌ی `dist\` ساخته میشه. فقط خود برنامه:
+
+```bat
+dotnet build net48\GamepadServer.Net48.csproj -c Release -p:Arch=x64
+```
+
+Pull Request و پیشنهاد همیشه خوش‌آمده ⭐
+
+</div>
+
+---
+
+<a id="en"></a>
+
+# 🇬🇧 English
+
+## What is HSH Gamepad?
+
+A simple Windows app that turns your phone into a **real game controller** for your PC. No phone app needed — just open an address in your phone's browser. Games see a genuine Xbox 360 or PS4 controller plugged into the computer.
+
+Great for:
+- Playing **local multiplayer with up to 9 players** without owning any controllers 🎮
+- Using your phone as a **steering wheel** (with gyroscope) 🏎️
+- Controlling your PC's **mouse & keyboard** from the phone, like a laptop touchpad 🖱️
+
+---
+
+## ✨ Features
+
+### 🎮 Controllers
+- **PS4 (DualShock 4)** and **Xbox 360** — pick whichever you like
+- **Up to 9 players** at once (each player gets their own color)
+- Phone **gyroscope** support (PS4 mode)
+- **Rumble** — when the game vibrates, your phone does too (can be turned off)
+- **Steering Wheel** mode using the gyroscope: full rotation angle, sensitivity, N-degree multiplier, dead zone, smoothing, center calibration, analog or digital pedals
+- **Mouse & Keyboard** (Player 1 only): laptop-style touchpad — tap = click, two fingers = scroll, two-finger tap = right click, tap-and-drag, adjustable sensitivity and scroll speed
+
+### 🛠️ Total freedom in layout editing
+Everything you see can be changed:
+- **Layout editor** — press and hold any button, drop it wherever you want
+- **Exact size** (width, height, font size) and **opacity** per button
+- **Duplicate, delete and add** buttons
+- **Different D-Pad / second-control modes** — buttons, separated buttons (action style), fixed or following joystick, right-stick ↔ buttons, separated or diamond action buttons
+- **Macros**: any button can run a sequence of actions, e.g.  
+  `press A,B` · `hold LT` · `release LT` · `delay 200ms`
+- **Save, cancel and restore** layout any time
+
+### 🎨 Look & themes
+- Dozens of **built-in themes**, or make your own
+- Every color is adjustable: background, buttons, text, border and border width, shadows, **neon glow**, pressed color, direction buttons, wheel (gradient), sticks, action buttons, macros and more
+- Checkered background, 3D lighting effect, smooth press animation
+- **Theme JSON editor** — copy your theme, tweak it, or paste a friend's and apply
+- **Light mode** for weaker phones (turns off blur and some animations)
+- Fullscreen, custom name per player, live **ping indicator** (green / yellow / red)
+
+### 💻 Windows app
+- Shows the **connection address** + copy button + **QR code** — just scan
+- List of connected players (name, phone model, IP)
+- **Auto-remove idle controllers** after N seconds (optional)
+- **On/off switch for phone mouse & keyboard access** (for extra safety)
+- **Controller tester**: a live 3D window showing which buttons are pressed + gyro log + **rumble test**
+- Tray icon — closing the window keeps the app running in the tray
+- Taskbar right-click menu with **"Exit"**
+- Single instance only (launching again just shows the existing window)
+- If port 80 is busy (IIS, Apache, Skype, ...) it picks another port and shows a help window
+- Runs with **administrator rights** (so mouse/keyboard input can reach admin apps like Task Manager)
+
+---
+
+## ⚡ Latency
+
+End-to-end latency from touching the phone screen to the input being applied on the PC is **2 ms to 6 ms**, assuming **zero local network latency**.
+
+> 🎥 A test video recorded with a **240 Hz** camera is available on the Telegram channel: [@HSHGamepad](https://t.me/HSHGamepad)
+
+For the lowest latency:
+- Use **5 GHz Wi-Fi** and stay close to the router
+- Connect the PC to the router with an **Ethernet cable** if possible
+- Turn on **Light mode** on the phone
+- For mouse use, set **tap-and-drag delay** to 0
+
+---
+
+## 📥 Install & use
+
+### 1) Install
+Download the right installer from **[Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest)**:
+
+| OS | File |
+|---|---|
+| Windows 10 / 11 | `HSHGamepad-Setup-Win10-11-x64.exe` or `...-x86.exe` |
+| Windows 7 / 8.1 | `HSHGamepad-Setup-Win7-8.1-x64.exe` or `...-x86.exe` |
+
+The installer sets up the **ViGEmBus** driver (needed for virtual controllers) and other prerequisites for you. If unsure, `x64` is almost always right.
+
+> Windows 10/11 already include .NET Framework 4.8. On Windows 7 / 8.1 the installer downloads it.
+
+### 2) Run
+1. Open the app and accept the administrator prompt
+2. **Phone and PC must be on the same Wi-Fi network**
+3. Type the address shown in the app into your phone's browser, or scan the **QR code**
+4. In the phone settings choose your name, player number and controller type
+5. Launch your game — done! 🎉
+
+### 3) Good to know
+- Each player number can only be used by **one phone**
+- Windows limit: **Xbox 360 has only 4 slots**. Players 5–9 must be PS4 (if Xbox can't be created, it automatically falls back to PS4)
+- Mouse & keyboard is **Player 1 only**
+- Opening the address on the PC that runs the server is blocked on purpose — use your phone
+
+---
+
+## ❓ FAQ
 
 <details>
-<summary><b>گوشی به آدرس وصل نمی‌شود</b></summary>
+<summary><b>Installed, but the game doesn't detect the controller</b></summary>
 
-- هر دو دستگاه باید روی یک شبکه باشند.
-- فایروال ویندوز را بررسی کن و شبکه را روی Private بگذار.
-- آدرسی را که **پنجره‌ی برنامه** نشان می‌دهد وارد کن (اگر پورت ۸۰ نبود، پورتش هم در آدرس هست).
-- از روی خود کامپیوتر نمی‌شود به دسته وصل شد؛ فقط از گوشی.
+Make sure the ViGEmBus driver is installed and you restarted the PC after installation. Check the game's controller settings too — some games detect Xbox controllers more reliably.
 </details>
 
 <details>
-<summary><b>پیام «ViGEmBus driver not found» می‌دهد</b></summary>
+<summary><b>My phone can't connect</b></summary>
 
-درایور ViGEmBus نصب نیست یا درست بالا نیامده؛ آن را از [اینجا](https://github.com/nefarius/ViGEmBus/releases) نصب کن و کامپیوتر را ری‌استارت کن.
+- Phone and PC must be on the same Wi-Fi
+- Windows Firewall may block it — allow the app on **Private networks**
+- If port 80 is busy the app picks another port (e.g. 1111); type the full address including the port
+- Guest/public Wi-Fi networks often block device-to-device traffic
 </details>
 
 <details>
-<summary><b>پورت ۸۰ اشغال است</b></summary>
+<summary><b>Antivirus / SmartScreen shows a warning</b></summary>
 
-معمولاً IIS، Skype، XAMPP/Apache یا یک کپی دیگر همین برنامه است. برنامه خودش اسم و مسیر برنامه‌ی پورت‌گیر را نشان می‌دهد؛ می‌توانی آن را ببندی (برنامه دوباره روی ۸۰ می‌آید) یا با پورت ۱۱۱۱ ادامه بدهی.
+The app uses low-level Windows APIs to create virtual controllers and simulate mouse/keyboard input, and runs as administrator, so some antivirus products or SmartScreen may warn. The code is fully open — you can review and build it yourself. Only download from this GitHub page.
 </details>
 
 <details>
-<summary><b>چرا پلیر ۵ به بعد فقط PS4 است؟</b></summary>
+<summary><b>How secure is it?</b></summary>
 
-ویندوز از طریق XInput بیشتر از ۴ دسته‌ی Xbox 360 را پشتیبانی نمی‌کند. این محدودیت ویندوز است، نه برنامه.
-</details>
-
-<details>
-<summary><b>دکمه‌ها گیر می‌کنند یا دسته‌ی اضافه می‌ماند</b></summary>
-
-با قطع شدن گوشی، همه‌ی دکمه‌ها خودکار رها می‌شوند. دسته‌ی مجازی بدون گوشی را می‌توانی با دکمه‌ی «حذف» پاک کنی یا «حذف خودکار» را در پنجره روشن کنی.
-</details>
-
-<details>
-<summary><b>مطمئن نیستم دسته درست کار می‌کند؛ چطور تست کنم؟</b></summary>
-
-در پنجره‌ی برنامه روی ردیف پلیرت **دابل‌کلیک** کن تا [تستر دسته](#-تستر-دسته-gamepad-tester) باز شود. اگر دکمه‌ها و استیک‌ها در تستر درست حرکت می‌کنند ولی در بازی نه، مشکل معمولاً از تنظیمات بازی است (مثلاً نوع دسته‌ی اشتباه یا دسته‌ی دوم که اولویت دارد).
-</details>
-
-<details>
-<summary><b>لرزش کار نمی‌کند</b></summary>
-
-1. در تستر روی «تست لرزش» بزن. اگر گوشی لرزید، مسیر لرزش سالم است.
-2. «لرزش دسته (از بازی)» را در تنظیمات صفحه‌ی گوشی بررسی کن که خاموش نباشد.
-3. بعضی مرورگرها یا گوشی‌ها (مثلاً Safari در iOS) API لرزش را پشتیبانی نمی‌کنند یا در حالت صرفه‌جویی غیرفعالش می‌کنند.
-4. در تستر ببین بازی اصلاً لرزش می‌فرستد یا نه (بخش «لرزشی که بازی می‌فرستد»). بعضی بازی‌ها فقط به یک نوع دسته (Xbox یا PS4) لرزش می‌دهند.
+The phone ↔ PC link stays on your local network and has **no password**; anyone on the same Wi-Fi who knows the address can connect. See [SECURITY.md](SECURITY.md) for details. On public or crowded networks, turn off "mouse & keyboard access from phone".
 </details>
 
 ---
 
-## 📜 مجوز
+## 💬 Contact & support
 
-استفاده‌ی شخصی از HSH Gamepad رایگان است. شرایط دقیق استفاده و انتشار را در فایل [LICENSE](LICENSE) همین مخزن ببین.
-
-## 🙏 قدردانی
-
-- [ViGEmBus](https://github.com/nefarius/ViGEmBus) و [ViGEm.Client](https://github.com/nefarius/ViGEm.NET) از Nefarius، موتور ساخت دسته‌ی مجازی
-- همه‌ی کسانی که تست می‌کنند، باگ گزارش می‌دهند و پیشنهاد می‌دهند ❤️
-
-## 📬 ارتباط
-
-- 💬 کانال تلگرام: [@HSHGamepad](https://t.me/HSHGamepad)
-- 🐛 باگ یا پیشنهاد؟ از بخش [Issues](https://github.com/Amirhoshein/hshgamepad/issues) یا تلگرام بگو
+- Telegram channel (tutorials, videos, updates): **[@HSHGamepad](https://t.me/HSHGamepad)**
+- Bugs & suggestions: [Issues](https://github.com/Amirhoshein/hshgamepad/issues)
+- Security problems: see [SECURITY.md](SECURITY.md)
 
 ---
 
-## 🌍 English summary
+## 👨‍💻 For developers & the curious
 
-**HSH Gamepad** is a free tool that turns your phone into a Windows game controller. A small Windows app creates virtual **Xbox 360** / **DualShock 4** gamepads (up to **9 players**, via [ViGEmBus](https://github.com/nefarius/ViGEmBus)) and serves a touch-controller web page to your phone's browser. No app is needed on the phone, no account, no internet.
+- **Language / framework:** C# on **.NET Framework 4.8** (WinForms). The exe is a few hundred KB and doesn't bundle a runtime
+- **Web server:** hand-written on raw TCP + **WebSocket** (`WebServer.cs`, `WsStream.cs`) — no Kestrel / ASP.NET
+- **Virtual controllers:** [ViGEmBus](https://github.com/nefarius/ViGEmBus) via the `Nefarius.ViGEm.Client` package
+- **Mouse & keyboard:** `SendInput` (`InputInjector.cs`)
+- **Phone UI:** a single `index.html` (plain HTML + CSS + JS, no libraries, no requests to the internet) embedded in the exe
+- **Protocol:** lightweight WebSocket messages (`Protocol.cs`), slot management in `Hub.cs` and `Slot.cs`
+- **Project layout:**
 
-**Use it for:** couch co-op with friends (everyone plays on their own phone), emulators, Steam and any PC game that expects a gamepad, a backup controller when yours is dead or missing, parties, and custom layouts (big buttons for kids, per-game setups).
+```
+Gamepad/
+├─ index.html          phone UI (controller, editor, themes, wheel, mouse/keyboard)
+├─ MainForm.cs         main window, tray, QR
+├─ GamepadTesterForm.cs  3D controller tester
+├─ InputInjector.cs    virtual mouse/keyboard
+├─ PortGuard.cs        port selection and the "port 80 is busy" helper
+├─ JumpList.cs         taskbar right-click menu
+├─ Elevation.cs        admin check and UAC relaunch
+├─ net48/              .NET Framework 4.8 project (server, protocol, hub, ...)
+├─ build.bat           build the app + installers
+└─ installer/          Inno Setup script
+```
 
-**Highlights:** fully editable layout (move/resize buttons up to 300%, separate touch area up to 500%, per-button opacity, 60-step undo), floating "follow" joystick, X-shaped face-button mode, ready-made themes + export/import any theme as JSON to share + per-element colors, copy another player's layout, per-player pad type, optional haptics and game-rumble forwarding, your choice of port, and auto-removal of idle pads.
+**Build from source** (needs .NET SDK 6+, Inno Setup 6.3+, internet on first run):
 
-**Gamepad Tester:** double-click a player row to open a live visual of the pad (buttons, sticks, triggers, touchpad), a one-click **rumble test**, the last rumble values sent by the game and diagnostics (`rumble.log`).
+```bat
+build.bat net48     :: small installers
+build.bat full      :: "Full" installers (offline .NET 4.8 bundled)
+build.bat           :: everything
+```
 
-**Quick start:** download the installer for your Windows version from the [release page](https://github.com/Amirhoshein/hshgamepad/releases/tag/hsh-gamepad-v1.0.3) (files are `.rar`, use 7-Zip) → run HSH Gamepad → open the shown address in your phone's browser (same network) → pick a player number and pad type → play.
+Output goes to `dist\`. Just the app:
 
-> Windows XInput only supports 4 Xbox 360 pads, so players 5–9 are always PS4 pads.
+```bat
+dotnet build net48\GamepadServer.Net48.csproj -c Release -p:Arch=x64
+```
+
+Pull requests and suggestions are always welcome ⭐
+
+---
+
+<div align="center">
+
+**HSH Gamepad v1.0.4** · [Telegram @HSHGamepad](https://t.me/HSHGamepad) · [GitHub](https://github.com/Amirhoshein/hshgamepad)
+
+</div>
