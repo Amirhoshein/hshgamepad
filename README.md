@@ -8,6 +8,7 @@
 **Turn your phone into a PS4 / Xbox 360 controller, steering wheel, mouse & keyboard for your PC**
 
 ![Version](https://img.shields.io/badge/version-1.0.4-blue)
+[![Downloads](https://img.shields.io/github/downloads/Amirhoshein/hshgamepad/total?color=3b5a99)](https://github.com/Amirhoshein/hshgamepad/releases)
 ![Platform](https://img.shields.io/badge/Windows-7%20%7C%208.1%20%7C%2010%20%7C%2011-0078D6)
 ![Players](https://img.shields.io/badge/players-up%20to%209-brightgreen)
 ![Latency](https://img.shields.io/badge/latency-2--6%20ms-orange)
