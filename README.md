@@ -14,7 +14,7 @@
 ![Latency](https://img.shields.io/badge/latency-2--6%20ms-orange)
 ![Gyroscope](https://img.shields.io/badge/gyroscope-supported-purple)
 
-[**English**](#en) · [**فارسی**](#fa) · [Download / دانلود](https://github.com/Amirhoshein/hshgamepad/releases/latest) · [Telegram @HSHGamepad](https://t.me/HSHGamepad)
+[**🇬🇧English**](#en) · [**🇮🇷فارسی**](#fa) · [🔗Telegram @HSHGamepad](https://t.me/HSHGamepad)
 
 <br>
 
