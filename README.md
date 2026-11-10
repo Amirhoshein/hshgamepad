@@ -16,6 +16,11 @@
 
 [**English**](#en) · [**فارسی**](#fa) · [Download / دانلود](https://github.com/Amirhoshein/hshgamepad/releases/latest) · [Telegram @HSHGamepad](https://t.me/HSHGamepad)
 
+<br>
+<!-- <img width="1280" height="964" alt="photo_2026-11-10_22-47-45" src="" /> -->
+
+<img src="https://github.com/user-attachments/assets/953b6d21-7b44-428b-aafb-1294f7427330" alt="HSH Gamepad Demo" width="700">
+
 </div>
 
 ---
