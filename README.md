@@ -4,8 +4,8 @@
 
 # HSH Gamepad
 
-**Turn your phone into a PS4 / Xbox 360 controller, gyroscope steering wheel, mouse & keyboard for your PC**
-**گوشی‌ت رو تبدیل کن به دسته‌ی PS4 / Xbox 360 / فرمون ژیروسکوپی / ماوس و کیبورد برای کامپیوتر**
+**Turn your phone into a Gamepad (PS4 / Xbox 360 controller), gyroscope steering wheel, mouse & keyboard for your PC**
+**گوشی‌ت رو تبدیل کن به دسته‌ی بازی PS4 / Xbox 360 / فرمون ژیروسکوپی / ماوس و کیبورد برای کامپیوتر**
 
 ![Version](https://img.shields.io/badge/version-1.0.4-blue)
 [![Downloads](https://img.shields.io/github/downloads/Amirhoshein/hshgamepad/total?color=3b5a99)](https://github.com/Amirhoshein/hshgamepad/releases)
