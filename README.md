@@ -17,9 +17,16 @@
 [**English**](#en) · [**فارسی**](#fa) · [Download / دانلود](https://github.com/Amirhoshein/hshgamepad/releases/latest) · [Telegram @HSHGamepad](https://t.me/HSHGamepad)
 
 <br>
-<!-- <img width="1280" height="964" alt="photo_2026-11-10_22-47-45" src="" /> -->
 
 <img src="https://github.com/user-attachments/assets/953b6d21-7b44-428b-aafb-1294f7427330" alt="HSH Gamepad Demo" width="700">
+
+<!-- ویدیوی دمو: فایل mp4 رو توی ویرایشگر README بکش و رها کن، بعد لینکی که گیت‌هاب می‌سازه رو اینجا بذار:
+<video src="LINK_VIDEO_اینجا" controls width="700"></video>
+-->
+
+<br><br>
+
+[![Download for Windows](https://img.shields.io/badge/⬇_Download_for_Windows-دانلود-2ea44f?style=for-the-badge)](https://github.com/Amirhoshein/hshgamepad/releases/latest)
 
 </div>
 
@@ -28,6 +35,8 @@
 <a id="en"></a>
 
 # 🇬🇧 English
+
+**Contents:** [Quick Start](#en-quickstart) · [Features](#en-features) · [Latency](#en-latency) · [Macros](#en-macros) · [Install & Use](#en-install) · [FAQ](#en-faq) · [Roadmap](#en-roadmap) · [Developers](#en-dev)
 
 ## What is HSH Gamepad?
 
@@ -40,7 +49,19 @@ Great for:
 - Using your phone's **gyroscope** for motion controls and as a **steering wheel** 🏎️
 - Controlling your PC's **mouse & keyboard** from the phone, like a laptop touchpad 🖱️
 
+<a id="en-quickstart"></a>
+
+## 🚀 Quick Start (3 steps)
+
+1. **Download & install:** get the installer for your Windows from **[Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest)** (it installs the ViGEmBus driver for you)
+2. **Run the app** and accept the administrator prompt. Make sure the **phone and PC are on the same Wi-Fi**
+3. **Scan the QR code** in the app (or type the shown address into your phone's browser), choose your player and controller type, and launch your game 🎉
+
+> Details, USB-cable mode and troubleshooting are below.
+
 ---
+
+<a id="en-features"></a>
 
 ## ✨ All Features at a Glance
 
@@ -97,17 +118,21 @@ Great for:
 - Runs with **administrator rights**, so mouse/keyboard input can reach admin apps like Task Manager
 
 ### ⚡ Connection
-- **2 to 6 ms** end-to-end latency
+- **2 to 6 ms** end-to-end latency (measured on the device side, see [Latency](#en-latency))
 - Works over **Wi-Fi** or a **USB cable (USB tethering)** for the lowest latency
 - Supports Windows **7, 8.1, 10 and 11** (x86 and x64)
 
 ---
 
+<a id="en-latency"></a>
+
 ## ⚡ Latency
 
-End-to-end latency from touching the phone screen to the input being applied on the PC is **2 ms to 6 ms**, assuming **zero local network latency**.
+The app's own end-to-end latency, from touching the phone screen to the input being applied on the PC, is **2 ms to 6 ms**. This was measured with a **240 Hz camera** and **does not include network transit time** (i.e. it assumes local network latency of 0).
 
-> 🎥 A test video recorded with a **240 Hz** camera is available on the Telegram channel: [@HSHGamepad](https://t.me/HSHGamepad)
+**Your real-world latency = this value + your network latency.** Wi-Fi latency varies with signal strength, interference and the router, while a USB cable is much steadier.
+
+> 🎥 The test video recorded with a **240 Hz** camera is available on the Telegram channel: [@HSHGamepad](https://t.me/HSHGamepad)
 
 For the **lowest possible latency**, connect your phone to the PC with a **USB cable** and turn on **USB tethering** (details below). If you'd rather not use a cable:
 - Use **5 GHz Wi-Fi** and stay close to the router
@@ -128,6 +153,8 @@ For the **lowest possible latency**, connect your phone to the PC with a **USB c
 Bluetooth was left out on purpose. Its latency is **much higher** than Wi-Fi or a cable, it didn't feel good in testing because of lag, and many users wouldn't use it anyway. So the project focuses on the low-latency options: Wi-Fi and USB.
 
 ---
+
+<a id="en-macros"></a>
 
 ## 🧩 Macro Tutorial
 
@@ -190,6 +217,8 @@ press DL,X 200ms
 
 ---
 
+<a id="en-install"></a>
+
 ## 📥 Install & Use
 
 ### 1) Install
@@ -219,6 +248,8 @@ The installer sets up the **ViGEmBus** driver (needed for virtual controllers) a
 - Opening the address on the PC that runs the server is blocked on purpose, use your phone
 
 ---
+
+<a id="en-faq"></a>
 
 ## ❓ FAQ
 
@@ -251,13 +282,28 @@ The phone ↔ PC link stays on your local network and has **no password**; anyon
 
 ---
 
+<a id="en-roadmap"></a>
+
+## 🗺️ Roadmap / Ideas
+
+- [ ] Optional **PIN / token** for connecting a phone (to stop other people on the same network from joining)
+- [ ] Code signing for the installer and exe (fewer SmartScreen / antivirus warnings)
+- [ ] Demo video and more screenshots
+
+Have an idea? [Open an issue](https://github.com/Amirhoshein/hshgamepad/issues/new/choose) or tell us on Telegram.
+
+---
+
 ## 💬 Contact & Support
 
 - Telegram channel (tutorials, videos, updates): **[@HSHGamepad](https://t.me/HSHGamepad)**
 - Bugs & suggestions: [Issues](https://github.com/Amirhoshein/hshgamepad/issues)
 - Security problems: see [SECURITY.md](SECURITY.md)
+- Changes between versions: [CHANGELOG.md](CHANGELOG.md) · Want to help: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
+
+<a id="en-dev"></a>
 
 ## 👨‍💻 For Developers & the Curious
 
@@ -297,7 +343,7 @@ Output goes to `dist\`. Just the app:
 dotnet build net48\GamepadServer.Net48.csproj -c Release -p:Arch=x64
 ```
 
-Pull requests and suggestions are always welcome ⭐
+Pull requests and suggestions are always welcome ⭐ (see [CONTRIBUTING.md](CONTRIBUTING.md))
 
 ---
 
@@ -306,6 +352,8 @@ Pull requests and suggestions are always welcome ⭐
 <div dir="rtl">
 
 # 🇮🇷 فارسی
+
+**فهرست:** [شروع سریع](#fa-quickstart) · [امکانات](#fa-features) · [تاخیر](#fa-latency) · [ماکرو](#fa-macros) · [نصب و استفاده](#fa-install) · [سوالات متداول](#fa-faq) · [نقشه‌ی راه](#fa-roadmap) · [برنامه‌نویس‌ها](#fa-dev)
 
 ## HSH Gamepad چیه؟
 
@@ -318,7 +366,19 @@ Pull requests and suggestions are always welcome ⭐
 - می‌خوای از **ژیروسکوپ** گوشی برای کنترل حرکتی و به‌عنوان **فرمون ماشین** استفاده کنی 🏎️
 - می‌خوای از گوشی **ماوس و کیبورد** کامپیوتر رو کنترل کنی (مثل لمس‌پد لپ‌تاپ) 🖱️
 
+<a id="fa-quickstart"></a>
+
+## 🚀 شروع سریع (۳ مرحله)
+
+1. **دانلود و نصب:** نصب‌کننده‌ی مناسب ویندوزت رو از **[Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest)** بگیر (درایور ViGEmBus رو خودش نصب می‌کنه)
+2. **برنامه رو اجرا کن** و دسترسی ادمین رو تایید کن. مطمئن شو **گوشی و کامپیوتر به یک وای‌فای وصلن**
+3. **QR Code** داخل برنامه رو اسکن کن (یا آدرس نمایش‌داده‌شده رو تو مرورگر گوشی بزن)، شماره‌ی پلیر و نوع دسته رو انتخاب کن و بازی رو باز کن 🎉
+
+> جزئیات، اتصال با کابل USB و رفع مشکل‌ها پایین‌تر نوشته شده.
+
 ---
+
+<a id="fa-features"></a>
 
 ## ✨ همه‌ی امکانات، یکجا
 
@@ -353,13 +413,13 @@ Pull requests and suggestions are always welcome ⭐
 - **اندازه‌ی دقیق** (عرض، طول، اندازه‌ی متن) و **شفافیت** هر دکمه
 - **کپی، حذف و اضافه کردن** دکمه
 - **حالت‌های مختلف D-Pad و کنترل دوم**: دکمه‌ای، دکمه‌ی جدا (مثل اکشن)، جوی‌استیک ثابت یا دنبال‌کننده، استیک راست ↔ دکمه‌ای، دکمه‌های اکشن جدا یا ضربدری
-- **ماکرو (میکرو)**: هر دکمه‌ای می‌تونه یه دنباله از کارها اجرا کنه (`press`، `hold`، `release`، `delay`)
+- **ماکرو**: هر دکمه‌ای می‌تونه یه دنباله از کارها اجرا کنه (`press`، `hold`، `release`، `delay`)
 - **ذخیره، انصراف و بازگردانی چیدمان** تا هر وقت خواستی
 
 ### 🎨 ظاهر و تم
 - ده‌ها **تم آماده** + ساخت تم خودت
 - **ویرایش JSON تم**: کد تم رو کپی کن، دستکاری کن، یا تم دوستت رو بچسبون و اعمال کن
-- رنگ هر چیزی جدا تنظیم میشه: پس‌زمینه، دکمه‌ها، متن، بوردر، ضخامت بوردر، سایه، **نئون (درخشش)**، رنگ لحظه‌ی فشردن، دکمه‌های جهت، فرمون (گرادینت)، استیک‌ها، دکمه‌های اکشن، میکرو و ...
+- رنگ هر چیزی جدا تنظیم میشه: پس‌زمینه، دکمه‌ها، متن، بوردر، ضخامت بوردر، سایه، **نئون (درخشش)**، رنگ لحظه‌ی فشردن، دکمه‌های جهت، فرمون (گرادینت)، استیک‌ها، دکمه‌های اکشن، ماکرو و ...
 - پس‌زمینه‌ی شطرنجی، **افکت سه‌بعدی** (نورپردازی) و انیمیشن نرم فشردن دکمه‌ها
 - **حالت سبک** برای گوشی‌های ضعیف (بلور و بعضی انیمیشن‌ها خاموش میشن تا تاخیر کم بشه)
 
@@ -375,15 +435,19 @@ Pull requests and suggestions are always welcome ⭐
 - اجرای خودکار با **دسترسی ادمین** (برای اینکه ماوس/کیبورد به برنامه‌های ادمین مثل Task Manager هم برسه)
 
 ### ⚡ اتصال
-- تاخیر **۲ تا ۶ میلی‌ثانیه**
+- تاخیر **۲ تا ۶ میلی‌ثانیه** (اندازه‌گیری سمت دستگاه، بخش [تاخیر](#fa-latency) رو ببین)
 - اتصال با **وای‌فای** یا **کابل USB (USB Tethering)** برای کمترین تاخیر
 - پشتیبانی از ویندوز **۷، ۸.۱، ۱۰ و ۱۱** (x86 و x64)
 
 ---
 
+<a id="fa-latency"></a>
+
 ## ⚡ تاخیر (Latency)
 
-تاخیر کلی از لحظه‌ی لمس صفحه‌ی گوشی تا اجرا شدن توی کامپیوتر، **با فرض تاخیر شبکه‌ی لوکال = ۰**، بین **۲ تا ۶ میلی‌ثانیه** هست.
+تاخیر خود برنامه، از لحظه‌ی لمس صفحه‌ی گوشی تا اجرا شدن توی کامپیوتر، بین **۲ تا ۶ میلی‌ثانیه** هست. این عدد با **دوربین ۲۴۰ هرتز** اندازه‌گیری شده و **زمان رفت‌وآمد داخل شبکه رو شامل نمیشه** (یعنی تاخیر شبکه‌ی لوکال = ۰ فرض شده).
+
+**تاخیر واقعی‌ای که حس می‌کنی = این عدد + تاخیر شبکه‌ی خودت.** تاخیر وای‌فای به قدرت سیگنال، تداخل و روتر بستگی داره، ولی کابل USB خیلی ثابت‌تره.
 
 > 🎥 فیلم تست با دوربین **۲۴۰ هرتز** تو کانال تلگرام آپلود شده: [@HSHGamepad](https://t.me/HSHGamepad)
 
@@ -407,12 +471,14 @@ Pull requests and suggestions are always welcome ⭐
 
 ---
 
-## 🧩 آموزش ماکرو (میکرو)
+<a id="fa-macros"></a>
+
+## 🧩 آموزش ماکرو
 
 ماکرو یعنی **با یه لمس، یه دنباله از کارها خودکار اجرا بشه**؛ مثلاً یه کمبو تو بازی مبارزه‌ای، یا فشردن چند دکمه پشت هم.
 
 **ساخت ماکرو:**
-1. **ویرایش چیدمان** رو بزن ← **افزودن میکرو**؛ یه دکمه‌ی جدید با اسم `M1` (و `M2` و ...) ساخته میشه
+1. **ویرایش چیدمان** رو بزن ← **افزودن ماکرو**؛ یه دکمه‌ی جدید با اسم `M1` (و `M2` و ...) ساخته میشه
 2. روی دکمه‌ی ماکرو بزن ← **ویرایش ماکرو**
 3. خط‌های دستور رو اضافه کن (با دکمه‌های **Press / Hold / Release / Delay** یا دستی بنویس)
 4. **ذخیره** رو بزن و از حالت ویرایش خارج شو. حالا با لمس اون دکمه، ماکرو اجرا میشه
@@ -464,9 +530,11 @@ delay 50ms
 press DL,X 200ms
 ```
 
-> ماکرو رو می‌تونی رنگ‌بندی هم بکنی (رنگ دکمه، بوردر، متن و رنگ پر شدن) از «تنظیمات ظاهری ← میکرو».
+> ماکرو رو می‌تونی رنگ‌بندی هم بکنی (رنگ دکمه، بوردر، متن و رنگ پر شدن) از «تنظیمات ظاهری ← ماکرو».
 
 ---
+
+<a id="fa-install"></a>
 
 ## 📥 نصب و استفاده
 
@@ -498,6 +566,8 @@ press DL,X 200ms
 
 ---
 
+<a id="fa-faq"></a>
+
 ## ❓ سوالات متداول
 
 <details>
@@ -524,8 +594,20 @@ press DL,X 200ms
 <details>
 <summary><b>امنیت برنامه چطوره؟</b></summary>
 
-ارتباط گوشی و کامپیوتر فقط تو شبکه‌ی خودته و رمز ندارد؛ هر کسی که تو همون وای‌فای باشه و آدرس رو بدونه می‌تونه وصل بشه. جزئیات و راهکار تو [SECURITY.md](SECURITY.md) نوشته شده. اگه تو شبکه‌ی عمومی یا شلوغ بازی می‌کنی، گزینه‌ی «دسترسی ماوس و کیبورد از گوشی» رو خاموش کن.
+ارتباط گوشی و کامپیوتر فقط تو شبکه‌ی خودته و رمز نداره؛ هر کسی که تو همون وای‌فای باشه و آدرس رو بدونه می‌تونه وصل بشه. جزئیات و راهکار تو [SECURITY.md](SECURITY.md) نوشته شده. اگه تو شبکه‌ی عمومی یا شلوغ بازی می‌کنی، گزینه‌ی «دسترسی ماوس و کیبورد از گوشی» رو خاموش کن.
 </details>
+
+---
+
+<a id="fa-roadmap"></a>
+
+## 🗺️ نقشه‌ی راه / ایده‌ها
+
+- [ ] **رمز یا PIN** اختیاری برای اتصال گوشی (تا بقیه‌ی افراد داخل همون شبکه نتونن وصل بشن)
+- [ ] امضای دیجیتال (Code Signing) برای نصب‌کننده و برنامه (هشدار کمتر SmartScreen و آنتی‌ویروس)
+- [ ] ویدیوی دمو و اسکرین‌شات‌های بیشتر
+
+ایده‌ای داری؟ [یه Issue باز کن](https://github.com/Amirhoshein/hshgamepad/issues/new/choose) یا تو تلگرام بگو.
 
 ---
 
@@ -534,12 +616,15 @@ press DL,X 200ms
 - کانال تلگرام (آموزش، فیلم‌ها و آپدیت‌ها): **[@HSHGamepad](https://t.me/HSHGamepad)**
 - باگ و پیشنهاد: [Issues](https://github.com/Amirhoshein/hshgamepad/issues)
 - مشکل امنیتی: [SECURITY.md](SECURITY.md) رو بخون
+- تغییرات نسخه‌ها: [CHANGELOG.md](CHANGELOG.md) · می‌خوای کمک کنی: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
+<a id="fa-dev"></a>
+
 ## 👨‍💻 بخش مخصوص برنامه‌نویس‌ها و کنجکاوها
 
-- **زبان و فریم‌ورک:** C# روی **.NET Framework 4.8** (WinForms). اکسه فقط چند صد کیلوبایته و ران‌تایم همراهش نیست
+- **زبان و فریم‌ورک:** C# روی **.NET Framework 4.8** (WinForms). فایل exe فقط چند صد کیلوبایته و ران‌تایم همراهش نیست
 - **وب‌سرور:** پیاده‌سازی دستی روی TCP خام + **WebSocket** (`WebServer.cs`، `WsStream.cs`)؛ بدون Kestrel / ASP.NET
 - **دسته‌ی مجازی:** [ViGEmBus](https://github.com/nefarius/ViGEmBus) از طریق پکیج `Nefarius.ViGEm.Client`
 - **ماوس و کیبورد:** `SendInput` (`InputInjector.cs`)
@@ -575,7 +660,7 @@ build.bat           :: همه
 dotnet build net48\GamepadServer.Net48.csproj -c Release -p:Arch=x64
 ```
 
-Pull Request و پیشنهاد همیشه خوش‌آمده ⭐
+Pull Request و پیشنهاد همیشه خوش‌آمده ⭐ (فایل [CONTRIBUTING.md](CONTRIBUTING.md) رو ببین)
 
 </div>
 
