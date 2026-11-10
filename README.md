@@ -18,7 +18,7 @@
 
 <br>
 
-<img src="https://github.com/user-attachments/assets/953b6d21-7b44-428b-aafb-1294f7427330" alt="HSH Gamepad Demo" width="700">
+<img src="https://github.com/user-attachments/assets/3290b7a3-bf2c-4dee-b915-f1c5bd43968a" alt="HSH Gamepad Demo" width="700">
 
 <!-- ویدیوی دمو: فایل mp4 رو توی ویرایشگر README بکش و رها کن، بعد لینکی که گیت‌هاب می‌سازه رو اینجا بذار:
 <video src="LINK_VIDEO_اینجا" controls width="700"></video>
