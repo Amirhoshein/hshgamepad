@@ -24,9 +24,9 @@
 <video src="LINK_VIDEO_اینجا" controls width="700"></video>
 -->
 
-<br><br>
+<br>
 
-[![Download for Windows](https://img.shields.io/badge/⬇_Download_for_Windows-دانلود-2ea44f?style=for-the-badge)](https://github.com/Amirhoshein/hshgamepad/releases/latest)
+[![Download for Windows](https://img.shields.io/badge/_-Download_Now-2ea44f?style=for-the-badge)](https://github.com/Amirhoshein/hshgamepad/releases/latest)
 
 </div>
 
