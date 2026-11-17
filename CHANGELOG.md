@@ -1,8 +1,4 @@
 # 📜 Changelog — HSH Gamepad
-
-تمام تغییرات مهم پروژه‌ی **HSH Gamepad** در این فایل ثبت می‌شود.
-فرمت این فایل بر اساس [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) است.
-
 🎮 کانال تلگرام: [@HSHGamepad](https://t.me/HSHGamepad)
 
 ---
