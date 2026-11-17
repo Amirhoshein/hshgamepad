@@ -5,7 +5,6 @@
 # HSH Gamepad
 
 **Turn your phone into a Gamepad (PS4 / Xbox 360 controller), gyroscope steering wheel, mouse & keyboard and a touch screen for your PC**
-**گوشی‌ت رو تبدیل کن به دسته‌ی بازی PS4 / Xbox 360 / فرمون ژیروسکوپی / ماوس و کیبورد / نمایشگر لمسی برای کامپیوتر**
 
 ![Version](https://img.shields.io/badge/version-1.0.5-blue)
 [![Downloads](https://img.shields.io/github/downloads/Amirhoshein/hshgamepad/total?color=3b5a99)](https://github.com/Amirhoshein/hshgamepad/releases)
@@ -16,14 +15,14 @@
 ![Languages](https://img.shields.io/badge/languages-12-teal)
 ![Touch Screen](https://img.shields.io/badge/phone%20as%20monitor-new-red)
 
-[**🇬🇧English**](#en) · [**🇮🇷فارسی**](#fa) · [🔗Telegram @HSHGamepad](https://t.me/HSHGamepad)
+[**🇬🇧 English**](README.md) · [**🇮🇷 فارسی**](README.fa.md) · [🔗 Telegram @HSHGamepad](https://t.me/HSHGamepad)
 
 <br>
 
 <img src="https://github.com/user-attachments/assets/3290b7a3-bf2c-4dee-b915-f1c5bd43968a" alt="HSH Gamepad Demo" width="900">
 
-<!-- ویدیوی دمو: فایل mp4 رو توی ویرایشگر README بکش و رها کن، بعد لینکی که گیت‌هاب می‌سازه رو اینجا بذار:
-<video src="LINK_VIDEO_اینجا" controls width="700"></video>
+<!-- Demo video: drag the mp4 file into the README editor on GitHub, then put the link it creates here:
+<video src="VIDEO_LINK_HERE" controls width="700"></video>
 -->
 
 <br>
@@ -34,11 +33,7 @@
 
 ---
 
-<a id="en"></a>
-
-# 🇬🇧 English
-
-**Contents:** [Quick Start](#en-quickstart) · [What's New](#en-new) · [Features](#en-features) · [Latency](#en-latency) · [Macros](#en-macros) · [Install & Use](#en-install) · [FAQ](#en-faq) · [Roadmap](#en-roadmap) · [Developers](#en-dev)
+**Contents:** [Quick Start](#en-quickstart) · [What's New](#en-new) · [Features](#en-features) · [Latency](#en-latency) · [Macros](#en-macros) · [Install & Use](#en-install) · [FAQ](#en-faq) · [Roadmap](#en-roadmap)
 
 ## What is HSH Gamepad?
 
@@ -79,6 +74,7 @@ Great for:
 | 🖥️ **Touch Screen mode** | See your PC monitor live on the phone and control it by touch (player 1) |
 | 🌐 **Smarter IP detection** | Fixed: the shown address no longer jumps to a VPN / VMware / Hyper-V adapter, so the phone connects again |
 | 🧱 **Firewall helper** | Detects when Windows Firewall blocks the current network and offers to fix it |
+| 🎚️ **Analog triggers** | L2 / R2 can be slid like real triggers, so how far you press matters (great for gas in racing games) |
 | 🧬 **Layout JSON editor** | View, copy, edit and paste your whole controller layout as JSON, to back it up or share it with friends |
 | ⌨️ **Better typing** | Type any text (Persian and other Unicode too) with the phone keyboard |
 
@@ -96,6 +92,12 @@ Great for:
 3. Click **Import** (or just drop the file onto the language window, or into the folder). Your language appears as a new card; click it to apply
 4. Use **Export** to save a language file and share it with others
 
+### 🎚️ Analog triggers (slidable L2 / R2)
+On a real controller, how far you press L2 / R2 matters, for example in *Need for Speed* it sets how much gas you give. Now your phone can do it too.
+- In the **layout editor**, tap **L2 / R2** and turn on **slide (drag) mode**
+- Choose the **slide direction** that feels right
+- The value shows live in the **controller tester** on Windows
+
 ### 🧬 Layout JSON editor
 Besides the theme JSON, you can now edit the **layout** as JSON too.
 - In the layout editor tap **Edit JSON**, then choose **this controller** or **all controllers** (PS4 / Xbox and wheel)
@@ -111,7 +113,9 @@ Besides the theme JSON, you can now edit the **layout** as JSON too.
 
 ### 🖥️ Touch Screen mode (Monitor management)
 Use the phone as a **live view of your PC monitor** and control the PC by touching it.
-- Pick the **monitor** you want to see (multi-monitor PCs supported)
+- Choose **Touch Screen** from the controller type picker and the PC screen appears on the phone
+- Pick the **monitor** you want to see. With **two or more monitors** a **switch button** appears to jump between them
+- A **custom keyboard** is available right there from a button, and you can use it while viewing the screen
 - Choose **image quality** and **FPS**; the real limit is always the lower of PC and phone resolution / Hz
 - **H.264** live video (low bandwidth, higher fps) with automatic fallback to **JPEG** if the browser or PC can't do it
 - Fast capture with **Desktop Duplication (DXGI)** on Windows 8 and later (it also captures fullscreen games), and an automatic GDI fallback on Windows 7
@@ -121,10 +125,10 @@ Use the phone as a **live view of your PC monitor** and control the PC by touchi
 - For **player 1 only**, and only when "Mouse & keyboard access from phone" is on in the Windows app
 
 ### 🌐 Fixes & improvements
-- **Host IP changing / phone can't connect:** the app now ignores VPN, VMware, VirtualBox, Hyper-V, WSL, ZeroTier, Hamachi and other virtual adapters, and shows the IP of your **real Wi-Fi / Ethernet** card. APIPA (169.254.x.x) addresses are skipped too
+- **Host IP changing / phone can't connect:** it no longer matters whether your **VPN is on or off**. The app now ignores VPN, VMware, VirtualBox, Hyper-V, WSL, ZeroTier, Hamachi and other virtual adapters, and shows the IP of your **real Wi-Fi / Ethernet** card. APIPA (169.254.x.x) addresses are skipped too
 - **Firewall:** Windows keeps separate rules for Domain / Private / Public networks, so switching Wi-Fi could silently block the phone. The app now checks the current network and, with your permission, adds a rule for all networks
 - **Port helper:** the "port 80 is busy" dialogs are fully translated and name the program that holds the port
-- **Mouse & keyboard:** new modes for moving the mouse and keyboard together, tap-and-drag delay and "hold main keys like Alt on double-click"
+- **Mouse & keyboard:** connect a keyboard to the phone (with a converter), choose **Mouse** as the controller type, and the keyboard now works **at the same time** as the mouse. Also new: tap-and-drag delay and "hold main keys like Alt on double-click"
 - Windows 7 / 8.1 and 10 / 11 installers are unchanged: same file names as before
 
 ---
@@ -136,6 +140,7 @@ Use the phone as a **live view of your PC monitor** and control the PC by touchi
 ### 🎮 Controllers
 - **PS4 (DualShock 4)** and **Xbox 360** emulation, pick whichever you like
 - **Up to 9 players** at once, each with their own color
+- **Analog L2 / R2:** slide the triggers like a real controller (direction adjustable)
 - **Rumble / vibration**: when the game vibrates, your phone does too (can be turned off)
 - **No app to install on the phone**, works in the phone's browser
 - Custom **name per player** and a live **ping indicator** (green / yellow / red)
@@ -386,471 +391,7 @@ Have an idea? [Open an issue](https://github.com/Amirhoshein/hshgamepad/issues/n
 - Telegram channel (tutorials, videos, updates): **[@HSHGamepad](https://t.me/HSHGamepad)**
 - Bugs & suggestions: [Issues](https://github.com/Amirhoshein/hshgamepad/issues)
 - Security problems: see [SECURITY.md](SECURITY.md)
-- Changes between versions: [CHANGELOG.md](CHANGELOG.md) · Want to help: [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
-
-<a id="en-dev"></a>
-
-## 👨‍💻 For Developers & the Curious
-
-- **Language / framework:** C# on **.NET Framework 4.8** (WinForms). The exe is a few hundred KB and doesn't bundle a runtime
-- **Web server:** hand-written on raw TCP + **WebSocket** (`WebServer.cs`, `WsStream.cs`), no Kestrel / ASP.NET
-- **Virtual controllers:** [ViGEmBus](https://github.com/nefarius/ViGEmBus) via the `Nefarius.ViGEm.Client` package
-- **Mouse & keyboard:** `SendInput` (`InputInjector.cs`), including Unicode typing
-- **Touch Screen:** DXGI Desktop Duplication (GDI fallback) → JPEG or H.264 (Media Foundation, fMP4 over MSE) over the same WebSocket
-- **Phone UI:** a single `index.html` (plain HTML + CSS + JS, no libraries, no requests to the internet) embedded in the exe
-- **Protocol:** lightweight WebSocket messages (`Protocol.cs`), slot management in `Hub.cs` and `Slot.cs`
-- **Project layout:**
-
-```
-Gamepad/
-├─ index.html          phone UI (controller, editor, themes, wheel, mouse/keyboard)
-├─ MainForm.cs         main window, tray, QR
-├─ GamepadTesterForm.cs  3D controller tester
-├─ InputInjector.cs    virtual mouse/keyboard
-├─ PortGuard.cs        port selection and the "port 80 is busy" helper
-├─ AccessGuard.cs     secret address (key) and auto ban
-├─ FirewallGuard.cs   firewall check for the current network
-├─ Lang.cs, LanguageForm.cs   language system and language window
-├─ lang/              language files (JSON, 12 built in)
-├─ ScreenCast.cs      Touch Screen: capture, streaming, touch commands
-├─ DxgiCapture.cs     fast screen capture (Desktop Duplication)
-├─ H264Encoder.cs     H.264 live video (Media Foundation)
-├─ JumpList.cs         taskbar right-click menu
-├─ Elevation.cs        admin check and UAC relaunch
-├─ net48/              .NET Framework 4.8 project (server, protocol, hub, ...)
-├─ build.bat           build the app + installers
-└─ installer/          Inno Setup script
-```
-
-**Build from source** (needs .NET SDK 6+, Inno Setup 6.3+, internet on first run):
-
-```bat
-build.bat net48     :: small installers
-build.bat full      :: "Full" installers (offline .NET 4.8 bundled)
-build.bat           :: everything
-```
-
-Output goes to `dist\`. Just the app:
-
-```bat
-dotnet build net48\GamepadServer.Net48.csproj -c Release -p:Arch=x64
-```
-
-Pull requests and suggestions are always welcome ⭐ (see [CONTRIBUTING.md](CONTRIBUTING.md))
-
----
-
-<a id="fa"></a>
-
-<div dir="rtl">
-
-# 🇮🇷 فارسی
-
-**فهرست:** [شروع سریع](#fa-quickstart) · [تازه‌ها](#fa-new) · [امکانات](#fa-features) · [تاخیر](#fa-latency) · [ماکرو](#fa-macros) · [نصب و استفاده](#fa-install) · [سوالات متداول](#fa-faq) · [نقشه‌ی راه](#fa-roadmap) · [برنامه‌نویس‌ها](#fa-dev)
-
-## HSH Gamepad چیه؟
-
-یه برنامه‌ی ساده برای ویندوز که گوشی‌ت رو تبدیل می‌کنه به **دسته‌ی بازی واقعی**. نیازی به نصب اپ روی گوشی نیست؛ فقط یه آدرس رو تو مرورگر گوشی باز می‌کنی و همین. بازی‌ها فکر می‌کنن یه دسته‌ی واقعی Xbox 360 یا PS4 به کامپیوتر وصل کردی.
-
-**کلمات کلیدی:** گوشی به‌جای دسته · دسته‌ی ژیروسکوپی · کنترل حرکتی (Motion Controls) · فرمون ژیروسکوپی · Xbox 360 و DualShock 4 مجازی · گوشی به‌جای ماوس و کیبورد · بازی چندنفره تا ۹ نفر · گوشی به‌جای نمایشگر لمسی · چندزبانه · ViGEmBus
-
-مناسب وقتی که:
-- دسته نداری و می‌خوای با دوستات **دونفره، چهارنفره یا حتی ۹ نفره** بازی کنی 🎮
-- می‌خوای از **ژیروسکوپ** گوشی برای کنترل حرکتی و به‌عنوان **فرمون ماشین** استفاده کنی 🏎️
-- می‌خوای از گوشی **ماوس و کیبورد** کامپیوتر رو کنترل کنی (مثل لمس‌پد لپ‌تاپ) 🖱️
-- می‌خوای تصویر **مانیتور کامپیوتر رو زنده روی گوشی** ببینی و مثل **نمایشگر لمسی** کنترلش کنی 🖥️📱
-- می‌خوای برنامه **به زبان خودت** باشه (۱۲ زبان آماده) 🌍
-- می‌خوای اتصال **خصوصی** بمونه؛ با آدرس مخفی و بن خودکار کسایی که حدس می‌زنن 🔐
-
-<a id="fa-quickstart"></a>
-
-## 🚀 شروع سریع (۳ مرحله)
-
-1. **دانلود و نصب:** نصب‌کننده‌ی مناسب ویندوزت رو از **[Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest)** بگیر (درایور ViGEmBus رو خودش نصب می‌کنه)
-2. **برنامه رو اجرا کن** و دسترسی ادمین رو تایید کن. مطمئن شو **گوشی و کامپیوتر به یک وای‌فای وصلن**
-3. **QR Code** داخل برنامه رو اسکن کن (یا آدرس نمایش‌داده‌شده رو تو مرورگر گوشی بزن)، شماره‌ی پلیر و نوع دسته رو انتخاب کن و بازی رو باز کن 🎉
-
-> جزئیات، اتصال با کابل USB و رفع مشکل‌ها پایین‌تر نوشته شده.
-
----
-
-<a id="fa-new"></a>
-
-## 🆕 تازه‌های نسخه‌ی ۱.۰.۵
-
-> از **۱.۰.۴** آپدیت می‌کنی؟ همه‌ی چیزهایی که اضافه یا درست شده اینجاست. جزئیات کامل تو [CHANGELOG.md](CHANGELOG.md) هست.
-
-| | |
-|---|---|
-| 🌍 **چندزبانه** | ۱۲ زبان آماده برای برنامه‌ی ویندوز و صفحه‌ی گوشی، با پنجره‌ی انتخاب زبان، ایمپورت / اکسپورت و ترجمه‌ی دلخواه خودت |
-| 🔐 **آدرس مخفی + بن خودکار** | کلید اختیاری داخل آدرس، و بن موقت آی‌پی‌هایی که حدس اشتباه می‌زنن |
-| 🖥️ **حالت نمایشگر لمسی** | مانیتور کامپیوتر رو زنده روی گوشی ببین و با لمس کنترلش کن (پلیر ۱) |
-| 🌐 **تشخیص هوشمند IP** | رفع باگ: آدرس نمایش‌داده‌شده دیگه به کارت شبکه‌ی VPN / VMware / Hyper-V نمی‌پره و گوشی دوباره وصل میشه |
-| 🧱 **کمک فایروال** | تشخیص اینکه فایروال ویندوز شبکه‌ی فعلی رو بسته و پیشنهاد رفعش |
-| 🧬 **ویرایش JSON چیدمان** | کل چیدمان دسته رو به‌صورت JSON ببین، کپی کن، ویرایش کن و بچسبون؛ برای بکاپ یا فرستادن برای دوستات |
-| ⌨️ **تایپ بهتر** | هر متنی (فارسی و بقیه‌ی یونیکدها هم) رو با کیبورد گوشی تایپ کن |
-
-### 🌍 چندزبانه
-- **۱۲ زبان آماده:** English، فارسی، Deutsch، Español، Français، Italiano، Português، Русский، Türkçe، 中文، 日本語، 한국어
-- **برنامه‌ی ویندوز، منوی tray، پنجره‌ها و صفحه‌ی گوشی** همه با زبان انتخابی نشون داده میشن
-- **پنجره‌ی زبان** جدید تو برنامه: هر زبان یه کارت داره + **Import / Export / باز کردن پوشه**
-- زبان‌ها فایل‌های **JSON** ساده تو پوشه‌ی `lang` کنار exe هستن. یکی رو کپی کن، ترجمه کن، بنداز تو پوشه و تو لیست ظاهر میشه (اگه کلیدی کم باشه از انگلیسی استفاده میشه، پس هیچ‌وقت متن خالی نمی‌بینی)
-- عوض کردن زبان تو برنامه‌ی ویندوز همون لحظه اعمال میشه. تو گوشی فقط کافیه **صفحه رو رفرش کنی** تا زبانش هم عوض بشه
-- **نصب‌کننده** هم زبان می‌پرسه و انتخابت اولین بار اجرا، زبان برنامه میشه
-
-**اضافه کردن زبان خودت (JSON دلخواه):**
-1. پنجره‌ی زبان ← **باز کردن پوشه** (یا برو سراغ پوشه‌ی `lang` کنار exe)
-2. فایل `en.json` رو کپی کن، هر اسمی خواستی بذار و متن‌ها رو ترجمه کن. بخش `meta` (با `code` و `name`) و بخش `strings` رو نگه دار
-3. **Import** رو بزن (یا فایل رو بنداز رو پنجره‌ی زبان یا داخل پوشه). زبانت به‌صورت یه کارت جدید میاد؛ روش بزن تا اعمال بشه
-4. با **Export** فایل زبان رو ذخیره کن و برای بقیه بفرست
-
-### 🧬 ویرایش JSON چیدمان
-علاوه بر JSON تم، حالا **چیدمان** رو هم می‌تونی به‌صورت JSON ویرایش کنی.
-- تو ویرایش چیدمان **ویرایش JSON** رو بزن و **همین دسته** یا **همه‌ی دسته‌ها** (PS4 / Xbox و فرمون) رو انتخاب کن
-- کد، جای هر دکمه، اندازه و تنظیماتش رو نشون میده. **کپی** کن برای بکاپ یا فرستادن برای دوستت، یا چیدمان یکی دیگه رو **بچسبون**
-- اگه خواستی دستی ویرایشش کن، با **اعمال** ببینش، با **برگشت** بر می‌گردی و آخرش **ذخیره** رو بزن
-- اگه کد مال نوع دسته‌ی دیگه‌ای باشه، برنامه بهت میگه و چیدمانت رو خراب نمی‌کنه
-
-### 🔐 امنیت اتصال
-- **آدرس مخفی (کلید دسترسی):** گوشی فقط با آدرسی وصل میشه که کلیدت توشه، مثل `http://192.168.1.5/q2szc`. هر آدرس دیگه‌ای شبیه سایتی میشه که وجود نداره
-- دکمه‌ی **کلید تصادفی** برای ساخت کلید جدید هر وقت خواستی. QR Code و آدرس نمایش‌داده‌شده همیشه کلید رو دارن
-- **بن خودکار:** بعد از N تلاش اشتباه، آی‌پی برای M دقیقه بلاک میشه. هر دو عدد قابل تنظیمه و می‌تونی بن رو خاموش کنی
-- هر دو گزینه تو پنجره‌ی سرور هستن. جزئیات تو [SECURITY.md](SECURITY.md)
-
-### 🖥️ حالت نمایشگر لمسی (مدیریت مانیتور)
-گوشی رو به‌عنوان **نمای زنده‌ی مانیتور کامپیوتر** استفاده کن و با لمس، کامپیوتر رو کنترل کن.
-- **مانیتور** مورد نظرت رو انتخاب کن (کامپیوتر چندمانیتوره هم پشتیبانی میشه)
-- **کیفیت تصویر** و **FPS** قابل تنظیمه؛ محدودیت واقعی همیشه کمترِ بین کامپیوتر و گوشی (رزولوشن / هرتز) هست
-- ویدیوی زنده‌ی **H.264** (حجم کم، fps بالاتر) و اگه مرورگر یا کامپیوتر نتونست، خودکار برمی‌گرده روی **JPEG**
-- ضبط سریع با **Desktop Duplication (DXGI)** تو ویندوز ۸ به بالا (تمام‌صفحه‌ی بازی‌ها رو هم می‌گیره) و برگشت خودکار به GDI تو ویندوز ۷
-- گزینه‌ی **نمایش / مخفی کردن نشانگر ماوس** تو تصویر و تنظیم **بافر** فریم (بافر بیشتر = روان‌تر و fps بالاتر ولی کمی تاخیر)
-- **کنترل لمسی:** لمس کوتاه = کلیک چپ · نگه داشتن = کلیک راست · درگ با یک انگشت = جابه‌جایی پنجره و فایل · دو انگشت = اسکرول · پینچ = زوم (Ctrl + چرخ ماوس)
-- **تایپ با کیبورد گوشی** یا **کیبورد کامل**، با متن یونیکد (فارسی هم) و مستقل از زبان کیبورد ویندوز
-- فقط برای **پلیر ۱** و فقط وقتی «دسترسی ماوس و کیبورد از گوشی» تو برنامه‌ی ویندوز روشنه
-
-### 🌐 رفع باگ‌ها و بهبودها
-- **عوض شدن IP هاست / وصل نشدن گوشی:** برنامه حالا کارت‌های شبکه‌ی مجازی (VPN، VMware، VirtualBox، Hyper-V، WSL، ZeroTier، Hamachi و ...) رو نادیده می‌گیره و IP **وای‌فای / Ethernet واقعی** رو نشون میده. آدرس‌های APIPA (169.254.x.x) هم رد میشن
-- **فایروال:** ویندوز برای شبکه‌های Domain / Private / Public قانون جدا نگه می‌داره و با عوض کردن وای‌فای ممکن بود بی‌صدا جلوی گوشی رو بگیره. برنامه حالا شبکه‌ی فعلی رو چک می‌کنه و با اجازه‌ی تو یه قانون برای همه‌ی شبکه‌ها اضافه می‌کنه
-- **راهنمای پورت:** پنجره‌های «پورت ۸۰ اشغاله» کامل ترجمه شدن و اسم برنامه‌ای که پورت رو گرفته رو نشون میدن
-- **ماوس و کیبورد:** حالت‌های جدید برای حرکت همزمان ماوس و کیبورد، تاخیر تپ‌ودرگ و «نگه داشتن دکمه‌های اصلی مثل Alt با دابل‌کلیک»
-- نصب‌کننده‌های ویندوز ۷ / ۸.۱ و ۱۰ / ۱۱ همون قبلین: اسم فایل‌ها عوض نشده
-
----
-
-<a id="fa-features"></a>
-
-## ✨ همه‌ی امکانات، یکجا
-
-### 🎮 دسته‌ها
-- شبیه‌سازی **PS4 (DualShock 4)** و **Xbox 360**؛ هر کدوم رو خواستی انتخاب کن
-- **تا ۹ پلیر همزمان**، هر پلیر با رنگ مخصوص خودش
-- **لرزش دسته**؛ وقتی بازی لرزش بفرسته، گوشی‌ت می‌لرزه (قابل خاموش کردن)
-- **بدون نیاز به نصب اپ روی گوشی**؛ فقط مرورگر
-- اسم دلخواه برای هر پلیر و نشانگر **پینگ** زنده (سبز / زرد / قرمز)
-- حالت تمام‌صفحه
-
-### 🎯 ژیروسکوپ و کنترل حرکتی
-- **پشتیبانی کامل از ژیروسکوپ گوشی**: سنسور حرکتی گوشی به‌عنوان **ورودی حرکتی دسته‌ی PS4 (DualShock 4)** به کامپیوتر فرستاده میشه (حالت PS4)
-- **فرمون با ژیروسکوپ**: گوشی رو مثل یه فرمون واقعی بچرخون
-  - تنظیم **زاویه‌ی چرخش**
-  - **حساسیت** و **ضریب (N-degree)**
-  - **ناحیه‌ی مرده** (Dead Zone)
-  - **نرمی حرکت** (Smoothing)
-  - **تنظیم مرکز** (Center Calibration)
-  - **پدال گاز/ترمز** آنالوگ یا دیجیتال
-  - ظاهر فرمون (گرادینت) کاملاً قابل شخصی‌سازیه
-- **لاگ زنده‌ی ژیروسکوپ** تو تستر دسته‌ی ویندوز؛ برای اینکه مطمئن بشی داده‌ها درست می‌رسن
-
-### 🌍 زبان‌ها
-- **۱۲ زبان آماده** برای برنامه‌ی ویندوز و صفحه‌ی گوشی، با امکان ترجمه‌ی JSON دلخواه ([جزئیات](#fa-new))
-
-### 🔐 امنیت
-- **آدرس مخفی** و **بن خودکار** تلاش‌های اشتباه ([جزئیات](#fa-new))
-
-### 🖥️ نمایشگر لمسی (فقط پلیر ۱)
-- **مانیتور کامپیوتر روی گوشی**، انتخاب مانیتور، H.264 / JPEG، تنظیم کیفیت و FPS و کنترل کامل لمسی ([جزئیات](#fa-new))
-
-### 🖱️ ماوس و کیبورد (فقط پلیر ۱)
-- **صفحه‌ی لمسی** مثل لپ‌تاپ روی گوشی
-- **تپ** = کلیک · **دو انگشت** = اسکرول · **تپ دو انگشتی** = کلیک راست · **درگ**
-- **حساسیت**، **سرعت اسکرول** و **تاخیر تپ‌ودرگ** قابل تنظیم
-- **کیبورد کامل** و تایپ با کیبورد گوشی (یونیکد / فارسی هم پشتیبانی میشه)
-- **کلید روشن/خاموش** تو برنامه‌ی ویندوز برای دسترسی ماوس و کیبورد از گوشی (برای امنیت بیشتر)
-
-### 🛠️ آزادی کامل در ویرایش دسته
-- **ویرایش چیدمان**: هر دکمه رو نگه دار و هرجا خواستی ولش کن
-- **اندازه‌ی دقیق** (عرض، طول، اندازه‌ی متن) و **شفافیت** هر دکمه
-- **کپی، حذف و اضافه کردن** دکمه
-- **حالت‌های مختلف D-Pad و کنترل دوم**: دکمه‌ای، دکمه‌ی جدا (مثل اکشن)، جوی‌استیک ثابت یا دنبال‌کننده، استیک راست ↔ دکمه‌ای، دکمه‌های اکشن جدا یا ضربدری
-- **ماکرو**: هر دکمه‌ای می‌تونه یه دنباله از کارها اجرا کنه (`press`، `hold`، `release`، `delay`)
-- **ویرایش JSON چیدمان**: چیدمان رو به‌صورت کد کپی، ویرایش و بچسبون؛ برای بکاپ یا اشتراک ([جزئیات](#fa-new))
-- **ذخیره، انصراف و بازگردانی چیدمان** تا هر وقت خواستی
-
-### 🎨 ظاهر و تم
-- ده‌ها **تم آماده** + ساخت تم خودت
-- **ویرایش JSON تم**: کد تم رو کپی کن، دستکاری کن، یا تم دوستت رو بچسبون و اعمال کن
-- رنگ هر چیزی جدا تنظیم میشه: پس‌زمینه، دکمه‌ها، متن، بوردر، ضخامت بوردر، سایه، **نئون (درخشش)**، رنگ لحظه‌ی فشردن، دکمه‌های جهت، فرمون (گرادینت)، استیک‌ها، دکمه‌های اکشن، ماکرو و ...
-- پس‌زمینه‌ی شطرنجی، **افکت سه‌بعدی** (نورپردازی) و انیمیشن نرم فشردن دکمه‌ها
-- **حالت سبک** برای گوشی‌های ضعیف (بلور و بعضی انیمیشن‌ها خاموش میشن تا تاخیر کم بشه)
-
-### 💻 برنامه‌ی ویندوز
-- نمایش **آدرس اتصال** + دکمه‌ی کپی + **QR Code**؛ فقط اسکن کن
-- لیست پلیرهای وصل‌شده (اسم، مدل گوشی و آی‌پی)
-- **تستر دسته**: پنجره‌ی سه‌بعدی که لحظه‌ای نشون میده چه دکمه‌ای زده میشه + لاگ ژیروسکوپ + **تست لرزش**
-- **حذف خودکار دسته‌ی رها شده** بعد از چند ثانیه (اختیاری)
-- **آیکون tray** کنار ساعت؛ با بستن پنجره برنامه همون‌جا می‌مونه
-- منوی راست‌کلیک آیکون تسک‌بار با گزینه‌ی **«خروج از برنامه»**
-- **فقط یک نسخه** اجرا میشه (اجرای دوباره، همون پنجره رو نشون میده)
-- **انتخاب خودکار پورت** وقتی پورت ۸۰ اشغاله (IIS، Apache، Skype، ...) + نمایش راهنمای حل مشکل
-- **پنجره‌ی زبان** (۱۲ زبان، ایمپورت / اکسپورت زبان خودت)
-- **تشخیص هوشمند IP** که VPN و کارت‌های مجازی رو رد می‌کنه + **چک فایروال** برای شبکه‌ی فعلی
-- اجرای خودکار با **دسترسی ادمین** (برای اینکه ماوس/کیبورد به برنامه‌های ادمین مثل Task Manager هم برسه)
-
-### ⚡ اتصال
-- تاخیر **۲ تا ۶ میلی‌ثانیه** (اندازه‌گیری سمت دستگاه، بخش [تاخیر](#fa-latency) رو ببین)
-- اتصال با **وای‌فای** یا **کابل USB (USB Tethering)** برای کمترین تاخیر
-- پشتیبانی از ویندوز **۷، ۸.۱، ۱۰ و ۱۱** (x86 و x64)
-
----
-
-<a id="fa-latency"></a>
-
-## ⚡ تاخیر (Latency)
-
-تاخیر خود برنامه، از لحظه‌ی لمس صفحه‌ی گوشی تا اجرا شدن توی کامپیوتر، بین **۲ تا ۶ میلی‌ثانیه** هست. این عدد با **دوربین ۲۴۰ هرتز** اندازه‌گیری شده و **زمان رفت‌وآمد داخل شبکه رو شامل نمیشه** (یعنی تاخیر شبکه‌ی لوکال = ۰ فرض شده).
-
-**تاخیر واقعی‌ای که حس می‌کنی = این عدد + تاخیر شبکه‌ی خودت.** تاخیر وای‌فای به قدرت سیگنال، تداخل و روتر بستگی داره، ولی کابل USB خیلی ثابت‌تره.
-
-> 🎥 فیلم تست با دوربین **۲۴۰ هرتز** تو کانال تلگرام آپلود شده: [@HSHGamepad](https://t.me/HSHGamepad)
-
-برای **کمترین تاخیر ممکن**، گوشی رو با **کابل USB** به کامپیوتر وصل کن و **USB Tethering** رو روشن کن (جزئیات پایین‌تر). اگه نخواستی از کابل استفاده کنی:
-- گوشی رو به **وای‌فای ۵ گیگاهرتز** وصل کن و تا جای ممکن نزدیک روتر باش
-- کامپیوتر رو اگه میشه با **کابل شبکه** به روتر وصل کن
-- تو گوشی «**حالت سبک**» رو روشن کن
-- برای ماوس، «تاخیر تپ‌ودرگ» رو روی ۰ بذار
-
-### 🔌 اتصال با کابل USB (کمترین تاخیر)
-1. گوشی رو با کابل USB به کامپیوتر وصل کن
-2. **اندروید:** تنظیمات ← اتصال و اشتراک (Hotspot & tethering) ← **USB Tethering** رو روشن کن
-   **آیفون:** تنظیمات ← Personal Hotspot رو روشن کن (برای اتصال با کابل، درایور Apple/iTunes باید روی ویندوز نصب باشه)
-3. ویندوز یه شبکه‌ی جدید می‌سازه. آدرسی که برنامه نشون میده (یا آی‌پی کارت شبکه‌ی جدید تو `ipconfig`) رو تو مرورگر گوشی باز کن
-4. اگه آدرس برنامه مال شبکه‌ی قبلیته و باز نشد، آی‌پی همون کارت شبکه‌ی جدید (معمولاً اسمش Ethernet یا Remote NDIS داره) رو دستی تو مرورگر گوشی وارد کن
-
-> کابل تو اتصال وای‌فای (هوا، تداخل، روتر) نیست و تاخیرش ثابت‌تره؛ برای بازی‌های سریع (مبارزه‌ای، شوتر، ریتمیک) بهترین انتخابه.
-
-### 📶 چرا بلوتوث نداره؟
-عمداً بلوتوث اضافه نشده. تاخیر بلوتوث نسبت به وای‌فای و کابل **خیلی بیشتره** و تو تست‌ها حسش به‌خاطر لگ و تاخیر خوب نبود، و کاربرای زیادی هم اصلاً ازش استفاده نمی‌کنن. برای همین پروژه رو روی روش‌هایی (وای‌فای و USB) گذاشتیم که تاخیر خیلی کمی دارن.
-
----
-
-<a id="fa-macros"></a>
-
-## 🧩 آموزش ماکرو
-
-ماکرو یعنی **با یه لمس، یه دنباله از کارها خودکار اجرا بشه**؛ مثلاً یه کمبو تو بازی مبارزه‌ای، یا فشردن چند دکمه پشت هم.
-
-**ساخت ماکرو:**
-1. **ویرایش چیدمان** رو بزن ← **افزودن ماکرو**؛ یه دکمه‌ی جدید با اسم `M1` (و `M2` و ...) ساخته میشه
-2. روی دکمه‌ی ماکرو بزن ← **ویرایش ماکرو**
-3. خط‌های دستور رو اضافه کن (با دکمه‌های **Press / Hold / Release / Delay** یا دستی بنویس)
-4. **ذخیره** رو بزن و از حالت ویرایش خارج شو. حالا با لمس اون دکمه، ماکرو اجرا میشه
-
-**هر خط یه دستوره و به ترتیب، از بالا به پایین اجرا میشه:**
-
-| دستور | کارش | مثال |
-|---|---|---|
-| `press` | دکمه رو فشار میده و ولش می‌کنه (پیش‌فرض ۶۰ میلی‌ثانیه) | `press A` · `press A,B` · `press X 150ms` |
-| `hold` | دکمه رو **نگه می‌داره** تا وقتی که `release` بشه (یا ماکرو تموم بشه) | `hold LT` |
-| `release` | دکمه‌ای که `hold` شده رو ول می‌کنه | `release LT` |
-| `delay` | صبر می‌کنه؛ بعد میره خط بعدی (اسم‌های `wait` هم قبول میشه) | `delay 200ms` · `delay 1.5s` |
-
-نکته‌ها:
-- چند دکمه رو **همزمان** بزن: با کاما بنویس، بدون فاصله‌ی اضافه: `press A,B,X`
-- زمان رو با `ms` (میلی‌ثانیه) یا `s` (ثانیه) بنویس. اگه یکا ننویسی میلی‌ثانیه حساب میشه. بیشترین زمان هر خط ۵ دقیقه‌ست
-- بین هر دو خط یه فاصله‌ی خیلی کوتاه (۲۰ میلی‌ثانیه) هست
-- دکمه‌هایی که `hold` بشن و `release` نشن، آخر ماکرو (یا اگه ماکرو رو قطع کنی) **خودکار ول میشن**؛ جایی گیر نمی‌کنن
-- تا ماکرو تموم نشده، لمس دوباره‌ی همون دکمه کاری نمی‌کنه. دور دکمه یه **حلقه‌ی پیشرفت** پر میشه تا ببینی چقدر مونده
-- هر ماکرو تا ۱۰۰ خط و هر دسته تا ۳۰ ماکرو داره
-
-**اسم دکمه‌هایی که می‌تونی بنویسی:**
-`A` `B` `X` `Y` · `LB` `RB` · `LT` `RT` · `L3` `R3` · `BACK` `START` `GUIDE` · `DU` `DD` `DL` `DR` (جهت‌های بالا، پایین، چپ، راست)
-
-اسم‌های PS4 هم قبول میشن: `cross`=A · `circle`=B · `square`=X · `triangle`=Y · `L1`=LB · `R1`=RB · `L2`=LT · `R2`=RT · `share`/`select`=BACK · `options`=START · `ps`/`home`=GUIDE · `up` `down` `left` `right`
-
-**مثال ۱: یه کمبو ساده**
-```
-press X
-delay 100ms
-press X
-delay 100ms
-press Y 120ms
-```
-
-**مثال ۲: دویدن (ماشه رو نگه دار)، بپر و ولش کن**
-```
-hold LT
-delay 800ms
-press A
-delay 300ms
-release LT
-```
-
-**مثال ۳: چند دکمه همزمان (مثلاً حمله‌ی ویژه)**
-```
-press A,B
-delay 50ms
-press DL,X 200ms
-```
-
-> ماکرو رو می‌تونی رنگ‌بندی هم بکنی (رنگ دکمه، بوردر، متن و رنگ پر شدن) از «تنظیمات ظاهری ← ماکرو».
-
----
-
-<a id="fa-install"></a>
-
-## 📥 نصب و استفاده
-
-### ۱) نصب
-از بخش **[Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest)** نصب‌کننده‌ی مناسب سیستمت رو دانلود کن:
-
-| سیستم‌عامل | نسخه |
-|---|---|
-| ویندوز ۱۰ و ۱۱ | `HSHGamepad-Setup-Win10-11-x64.exe` یا `...-x86.exe` |
-| ویندوز ۷ و ۸.۱ | `HSHGamepad-Setup-Win7-8.1-x64.exe` یا `...-x86.exe` |
-
-نصب‌کننده درایور **ViGEmBus** (لازم برای ساخت دسته‌ی مجازی) و بقیه‌ی پیش‌نیازها رو خودش نصب می‌کنه. اگه نمی‌دونی ۳۲ یا ۶۴ بیتی هستی، معمولاً `x64` درسته.
-
-> ویندوز ۱۰ و ۱۱ از قبل .NET Framework 4.8 دارن. ویندوز ۷ و ۸.۱ رو نصب‌کننده خودش دانلود می‌کنه.
-
-### ۲) اجرا
-1. برنامه رو باز کن و دسترسی ادمین رو تایید کن
-2. **گوشی و کامپیوتر باید به یک وای‌فای (یک شبکه) وصل باشن**
-3. آدرسی که تو پنجره‌ی برنامه نوشته رو تو مرورگر گوشی وارد کن، یا **QR Code** رو اسکن کن
-4. تو تنظیمات گوشی اسم، شماره‌ی پلیر و نوع دسته رو انتخاب کن
-5. بازی رو باز کن؛ تموم! 🎉
-
-### ۳) نکته‌ها
-- اگه **آدرس مخفی** رو روشن کردی، آدرس کامل با کلید رو وارد کن (QR Code از قبل کلید رو داره)
-- هر شماره‌ی پلیر فقط **یه گوشی** می‌تونه داشته باشه
-- محدودیت ویندوز: **Xbox 360 فقط ۴ دسته** داره. پلیر ۵ تا ۹ باید PS4 باشن (اگه Xbox ساخته نشه، خودکار PS4 میشه)
-- ماوس و کیبورد و **نمایشگر لمسی** فقط برای **پلیر ۱** هست
-- ژیروسکوپ تو **حالت PS4** و **حالت فرمون** استفاده میشه
-- باز کردن آدرس روی خود کامپیوتر (همون سیستمی که برنامه روشه) عمداً بلاک شده؛ از گوشی وارد شو
-
----
-
-<a id="fa-faq"></a>
-
-## ❓ سوالات متداول
-
-<details>
-<summary><b>برنامه نصب شد ولی بازی دسته رو نمی‌شناسه</b></summary>
-
-مطمئن شو درایور ViGEmBus نصب شده و کامپیوتر بعد از نصب ریستارت شده. تو بازی هم گزینه‌ی کنترلر رو چک کن؛ بعضی بازی‌ها دسته‌ی Xbox رو راحت‌تر می‌شناسن.
-</details>
-
-<details>
-<summary><b>گوشی به آدرس وصل نمیشه</b></summary>
-
-- گوشی و کامپیوتر باید به یک وای‌فای وصل باشن
-- فایروال ویندوز ممکنه جلوی اتصال رو بگیره؛ تو پنجره‌ی اجازه‌ی فایروال «Private networks» رو تایید کن (برنامه خودش هم چک می‌کنه و پیشنهاد میده یه قانون برای همه‌ی شبکه‌ها اضافه کنه)
-- اگه پورت ۸۰ اشغاله، برنامه پورت دیگه‌ای (مثلاً ۱۱۱۱) انتخاب می‌کنه؛ آدرس کامل رو با پورت وارد کن
-- بعضی وای‌فای‌ها (مثل مهمان یا عمومی) ارتباط بین دستگاه‌ها رو می‌بندن
-- اگه **VPN** یا ماشین مجازی داری، برنامه IP واقعی وای‌فای / Ethernet رو نشون میده؛ اگه بازم اشتباه بود، IP رو از `ipconfig` خودت وارد کن
-- وقتی **آدرس مخفی** روشنه، آدرس باید کلید رو داشته باشه وگرنه صفحه وجود نداره
-- تلاش اشتباه زیاد باعث **بن موقت** آی‌پی میشه؛ صبر کن یا بن رو تو پنجره‌ی سرور خاموش کن
-</details>
-
-<details>
-<summary><b>آنتی‌ویروس یا SmartScreen هشدار میده</b></summary>
-
-برنامه برای ساخت دسته‌ی مجازی و شبیه‌سازی ماوس و کیبورد از APIهای سطح پایین ویندوز استفاده می‌کنه و با دسترسی ادمین اجرا میشه، برای همین ممکنه بعضی آنتی‌ویروس‌ها یا SmartScreen هشدار بدن. کدش کاملاً بازه و می‌تونی خودت بررسی و بیلد کنی. فقط از همین صفحه‌ی گیت‌هاب دانلود کن.
-</details>
-
-<details>
-<summary><b>امنیت برنامه چطوره؟</b></summary>
-
-ارتباط گوشی و کامپیوتر فقط تو شبکه‌ی خودته. از نسخه‌ی ۱.۰.۵ می‌تونی **آدرس مخفی (کلید دسترسی)** رو روشن کنی تا فقط کسایی که آدرس کامل رو دارن وصل بشن، و **بن خودکار** آی‌پی‌هایی که مدام حدس می‌زنن رو بلاک می‌کنه. بدون کلید، هر کسی که تو همون وای‌فای باشه و آدرس رو بدونه می‌تونه وصل بشه. جزئیات و راهکار تو [SECURITY.md](SECURITY.md) نوشته شده. اگه تو شبکه‌ی عمومی یا شلوغ بازی می‌کنی، کلید رو روشن کن و گزینه‌ی «دسترسی ماوس و کیبورد از گوشی» رو خاموش کن.
-</details>
-
----
-
-<a id="fa-roadmap"></a>
-
-## 🗺️ نقشه‌ی راه / ایده‌ها
-
-- [x] **آدرس مخفی / کلید** اختیاری برای اتصال گوشی + بن خودکار *(تو نسخه‌ی ۱.۰.۵ اضافه شد)*
-- [x] پشتیبانی **چندزبانه** *(تو نسخه‌ی ۱.۰.۵ اضافه شد)*
-- [x] حالت **نمایشگر لمسی** *(تو نسخه‌ی ۱.۰.۵ اضافه شد)*
-- [ ] امضای دیجیتال (Code Signing) برای نصب‌کننده و برنامه (هشدار کمتر SmartScreen و آنتی‌ویروس)
-- [ ] ویدیوی دمو و اسکرین‌شات‌های بیشتر
-
-ایده‌ای داری؟ [یه Issue باز کن](https://github.com/Amirhoshein/hshgamepad/issues/new/choose) یا تو تلگرام بگو.
-
----
-
-## 💬 ارتباط و پشتیبانی
-
-- کانال تلگرام (آموزش، فیلم‌ها و آپدیت‌ها): **[@HSHGamepad](https://t.me/HSHGamepad)**
-- باگ و پیشنهاد: [Issues](https://github.com/Amirhoshein/hshgamepad/issues)
-- مشکل امنیتی: [SECURITY.md](SECURITY.md) رو بخون
-- تغییرات نسخه‌ها: [CHANGELOG.md](CHANGELOG.md) · می‌خوای کمک کنی: [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
-
-<a id="fa-dev"></a>
-
-## 👨‍💻 بخش مخصوص برنامه‌نویس‌ها و کنجکاوها
-
-- **زبان و فریم‌ورک:** C# روی **.NET Framework 4.8** (WinForms). فایل exe فقط چند صد کیلوبایته و ران‌تایم همراهش نیست
-- **وب‌سرور:** پیاده‌سازی دستی روی TCP خام + **WebSocket** (`WebServer.cs`، `WsStream.cs`)؛ بدون Kestrel / ASP.NET
-- **دسته‌ی مجازی:** [ViGEmBus](https://github.com/nefarius/ViGEmBus) از طریق پکیج `Nefarius.ViGEm.Client`
-- **ماوس و کیبورد:** `SendInput` (`InputInjector.cs`) با تایپ یونیکد
-- **نمایشگر لمسی:** DXGI Desktop Duplication (با GDI به‌عنوان جایگزین) ← JPEG یا H.264 (Media Foundation، fMP4 روی MSE) روی همون WebSocket
-- **رابط گوشی:** یک فایل `index.html` (HTML + CSS + JS خالص، بدون کتابخونه و بدون هیچ درخواستی به اینترنت) که داخل exe جاسازی (Embedded) میشه
-- **پروتکل:** پیام‌های سبک روی WebSocket (`Protocol.cs`)، مدیریت اسلات‌ها در `Hub.cs` و `Slot.cs`
-- **ساختار پروژه:**
-
-```
-Gamepad/
-├─ index.html          رابط گوشی (دسته، ویرایشگر، تم‌ها، فرمون، ماوس/کیبورد)
-├─ MainForm.cs         پنجره‌ی اصلی، tray، QR
-├─ GamepadTesterForm.cs  تستر سه‌بعدی دسته
-├─ InputInjector.cs    ماوس/کیبورد مجازی
-├─ PortGuard.cs        انتخاب پورت و راهنمای «پورت ۸۰ اشغاله»
-├─ AccessGuard.cs     آدرس مخفی (کلید) و بن خودکار
-├─ FirewallGuard.cs   چک فایروال برای شبکه‌ی فعلی
-├─ Lang.cs, LanguageForm.cs   سیستم زبان و پنجره‌ی زبان
-├─ lang/              فایل‌های زبان (JSON، ۱۲ زبان آماده)
-├─ ScreenCast.cs      نمایشگر لمسی: ضبط، پخش، دستورهای لمسی
-├─ DxgiCapture.cs     ضبط سریع صفحه (Desktop Duplication)
-├─ H264Encoder.cs     ویدیوی زنده‌ی H.264 (Media Foundation)
-├─ JumpList.cs         منوی راست‌کلیک تسک‌بار
-├─ Elevation.cs        چک ادمین و اجرای دوباره با UAC
-├─ net48/              پروژه‌ی .NET Framework 4.8 (سرور، پروتکل، Hub، ...)
-├─ build.bat           بیلد برنامه + ساخت نصب‌کننده‌ها
-└─ installer/          اسکریپت Inno Setup
-```
-
-**ساخت از سورس** (نیاز: .NET SDK 6 یا جدیدتر، Inno Setup 6.3+، اینترنت برای بار اول):
-
-```bat
-build.bat net48     :: نصب‌کننده‌های کوچک
-build.bat full      :: نصب‌کننده‌های Full (با .NET 4.8 آفلاین)
-build.bat           :: همه
-```
-
-خروجی تو پوشه‌ی `dist\` ساخته میشه. فقط خود برنامه:
-
-```bat
-dotnet build net48\GamepadServer.Net48.csproj -c Release -p:Arch=x64
-```
-
-Pull Request و پیشنهاد همیشه خوش‌آمده ⭐ (فایل [CONTRIBUTING.md](CONTRIBUTING.md) رو ببین)
-
-</div>
+- Changes between versions: [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
