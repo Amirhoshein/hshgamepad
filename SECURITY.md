@@ -1,111 +1,77 @@
-# Security Policy · سیاست امنیتی
+# 🔐 سیاست امنیتی
 
-[**فارسی**](#fa) · [**English**](#en)
+امنیت کاربران **HSH Gamepad** برامون مهمه. ممنون که اگه مشکلی پیدا کردی، مسئولانه گزارشش می‌کنی.
 
 ---
 
-<a id="fa"></a>
+## 📦 نسخه‌های پشتیبانی‌شده
 
-<div dir="rtl">
-
-# 🇮🇷 فارسی
-
-## نسخه‌های پشتیبانی‌شده
+فقط **آخرین نسخه** پشتیبانی امنیتی می‌گیره. لطفاً قبل از گزارش، مطمئن شو از آخرین نسخه‌ی [Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest) استفاده می‌کنی.
 
 | نسخه | پشتیبانی |
 |---|---|
-| 1.0.4 (آخرین نسخه) | ✅ |
-| قدیمی‌تر از 1.0.4 | ❌ لطفاً به آخرین نسخه آپدیت کن |
-
-## گزارش مشکل امنیتی
-
-اگه به یه آسیب‌پذیری رسیدی، لطفاً **تو Issues عمومی گزارشش نکن**. به یکی از این دو روش خصوصی بفرست:
-
-1. **GitHub:** تب [Security](https://github.com/Amirhoshein/hshgamepad/security) ← **Report a vulnerability**
-2. **تلگرام:** پیام خصوصی به [@amir_hoshein](https://t.me/amir_hoshein)
-
-تو گزارشت بنویس:
-- مشکل چیه و چه تاثیری داره
-- مراحل بازتولید (نسخه‌ی برنامه، نسخه‌ی ویندوز، تنظیمات)
-- اگه داری: پیشنهاد برای رفع
-
-این یه پروژه‌ی شخصیه؛ سعی می‌کنم **تو چند روز** جواب بدم و بعد از رفع مشکل، توی آپدیت از تو (اگه بخوای) تشکر کنم. لطفاً تا آماده شدن آپدیت، جزئیات رو جایی منتشر نکن.
-
-## مدل امنیتی برنامه (بدون پیچوندن)
-
-برنامه برای **بازی تو شبکه‌ی خانگی** ساخته شده، نه شبکه‌ی عمومی. چیزایی که باید بدونی:
-
-- 🌐 **بدون رمز و بدون رمزنگاری:** ارتباط گوشی و کامپیوتر از طریق HTTP و WebSocket ساده انجام میشه (نه HTTPS). هر کسی که تو **همون شبکه** باشه و آدرس رو بدونه می‌تونه وصل بشه و یه پلیر رو اشغال کنه. ترافیک هم تو همون شبکه قابل شنود هست.
-- 🖱️ **ماوس و کیبورد از راه دور:** وقتی گزینه‌ی «دسترسی ماوس و کیبورد از گوشی» روشنه، کسی که به پلیر ۱ وصل بشه می‌تونه ماوس و کیبورد کامپیوتر رو کنترل کنه. این پرریسک‌ترین بخش برنامه‌ست.
-- 👑 **اجرا با دسترسی ادمین:** برنامه برای اینکه ورودی به برنامه‌های ادمین هم برسه، با دسترسی ادمین اجرا میشه. پس یه آسیب‌پذیری تو برنامه می‌تونه اثر بیشتری داشته باشه.
-- 🚫 **بدون ارتباط با اینترنت:** صفحه‌ی گوشی از خود برنامه سرو میشه و هیچ درخواستی به سرور بیرونی نمیره؛ هیچ آنالیتیکس، تلمتری یا ارسال داده‌ای وجود نداره. تنظیمات برنامه فقط تو `%AppData%\GamepadServer\settings.txt` و تنظیمات ظاهری تو مرورگر گوشی خودت ذخیره میشه.
-- 🔒 باز کردن آدرس روی خود کامپیوتر (localhost) عمداً بلاک شده.
-
-## توصیه‌ها برای استفاده‌ی امن
-
-- فقط تو **شبکه‌ی خونگی و مورد اعتماد** استفاده کن؛ نه وای‌فای عمومی، کافه، دانشگاه، هتل یا شبکه‌ی مهمان
-- اگه ماوس و کیبورد از گوشی رو لازم نداری، **خاموشش کن** (تیک «دسترسی ماوس و کیبورد از گوشی»)
-- وقتی ازش استفاده نمی‌کنی **از برنامه خارج شو** (راست‌کلیک آیکون تسک‌بار ← خروج از برنامه)
-- فایروال ویندوز رو فقط روی **Private networks** اجازه بده، نه Public
-- آدرس و QR Code رو با غریبه‌ها به اشتراک نذار
-- نصب‌کننده رو فقط از **[Releases رسمی](https://github.com/Amirhoshein/hshgamepad/releases)** دانلود کن
-
-## خارج از محدوده
-
-- حمله‌ای که نیاز به دسترسی فیزیکی یا ادمین از قبل روی کامپیوتر داره
-- نبودن رمزنگاری و رمز عبور (طراحی فعلیه و بالا توضیح داده شد؛ ولی پیشنهاد برای بهبودش، مثلاً کد جفت‌سازی، خوش‌آمده)
-- آسیب‌پذیری‌های خود ViGEmBus یا ویندوز (به پروژه‌ی اصلی‌شون گزارش بده)
-
-</div>
+| 1.0.5 (آخرین) | ✅ |
+| 1.0.4 و قدیمی‌تر | ❌ |
 
 ---
 
-<a id="en"></a>
+## 🚨 گزارش یک آسیب‌پذیری
 
-# 🇬🇧 English
+**لطفاً برای مشکلات امنیتی Issue یا Discussion عمومی باز نکن.**
 
-## Supported versions
+روش پیشنهادی:
 
-| Version | Supported |
-|---|---|
-| 1.0.4 (latest) | ✅ |
-| Older than 1.0.4 | ❌ please update to the latest release |
+1. برو به تب [**Security**](https://github.com/Amirhoshein/hshgamepad/security) ریپو.
+2. روی **Report a vulnerability** بزن.
+3. فرم گزارش رو پر کن.
 
-## Reporting a vulnerability
+این گزارش فقط برای نگه‌دارنده‌ی پروژه قابل مشاهده‌ست و تا زمان رفع مشکل، عمومی نمیشه.
 
-If you found a vulnerability, please **do not open a public issue**. Report it privately through either:
+### چی بنویسی؟
 
-1. **GitHub:** the [Security](https://github.com/Amirhoshein/hshgamepad/security) tab → **Report a vulnerability**
-2. **Telegram:** private message to [@amir_hoshein](https://t.me/amir_hoshein)
+- توضیح مشکل و اینکه چه تأثیری داره
+- نسخه‌ی برنامه و نسخه‌ی ویندوز
+- مراحل دقیق بازتولید (یا کد/اسکریپت اثبات مفهوم)
+- پیشنهاد برای رفع مشکل، اگه داری
 
-Please include:
-- What the problem is and its impact
-- Steps to reproduce (app version, Windows version, settings)
-- A suggested fix, if you have one
+---
 
-This is a personal project; I'll try to reply **within a few days** and, once fixed, credit you in the release notes if you wish. Please don't publish details until a fixed version is available.
+## ⏱️ بعد از گزارش چه اتفاقی میفته؟
 
-## Security model (plainly)
+این پروژه به‌صورت شخصی نگه‌داری میشه، پس زمان‌ها تقریبی‌ان:
 
-The app is designed for **gaming on a home network**, not for public networks. You should know:
+- 📬 تلاش می‌کنم **ظرف چند روز** گزارشت رو بررسی کنم و جواب بدم.
+- 🔧 اگه مشکل تأیید بشه، رفعش رو تو نسخه‌ی بعدی منتشر می‌کنم.
+- 📣 بعد از انتشار نسخه‌ی اصلاح‌شده، مشکل تو [CHANGELOG.md](CHANGELOG.md) ثبت میشه و (اگه بخوای) از تو به‌عنوان گزارش‌دهنده تشکر میشه.
 
-- 🌐 **No password, no encryption:** the phone ↔ PC link uses plain HTTP and WebSocket (not HTTPS). Anyone on the **same network** who knows the address can connect and take a player slot. Traffic can be sniffed on that network.
-- 🖱️ **Remote mouse & keyboard:** while "mouse & keyboard access from phone" is on, whoever connects as Player 1 can control the PC's mouse and keyboard. This is the highest-risk feature.
-- 👑 **Runs as administrator:** so that input can reach admin apps too. A vulnerability in the app can therefore have a bigger impact.
-- 🚫 **No internet communication:** the phone page is served by the app itself and makes no requests to outside servers; there is no analytics, telemetry or data upload. App settings are stored only in `%AppData%\GamepadServer\settings.txt`, and look/layout settings stay in your phone's browser.
-- 🔒 Opening the address on the PC itself (localhost) is blocked on purpose.
+---
 
-## Safe-use recommendations
+## 🛡️ محدوده
 
-- Use it only on a **trusted home network** — not public Wi-Fi, cafés, universities, hotels or guest networks
-- If you don't need mouse & keyboard from the phone, **turn it off** (the "mouse & keyboard access from phone" checkbox)
-- **Exit the app** when you're not using it (taskbar icon right-click → Exit)
-- Allow the Windows Firewall on **Private networks** only, not Public
-- Don't share the address or QR code with strangers
-- Download the installer only from the **[official Releases](https://github.com/Amirhoshein/hshgamepad/releases)**
+مواردی که تو محدوده‌ی گزارش امنیتی هستن:
 
-## Out of scope
+- دسترسی غیرمجاز به کنترل دسته یا کامپیوتر از طریق اتصال برنامه
+- اجرای دستور یا کد دلخواه روی کامپیوتر
+- افشای اطلاعات (مثلاً محتوای صفحه‌ی مانیتور) به افراد غیرمجاز
+- مشکلات مربوط به فایل‌های `json` زبان، چیدمان یا تم که می‌تونن باعث اجرای کد بشن
+- مشکلات نصب‌کننده
 
-- Attacks that require prior physical or administrator access to the PC
-- The lack of encryption/passwords (this is the current design, explained above — but suggestions such as a pairing code are welcome)
-- Vulnerabilities in ViGEmBus or Windows themselves (report those to their own projects)
+مواردی که معمولاً خارج از محدوده‌ان:
+
+- باگ‌های عادی بدون تأثیر امنیتی (برای اینا از [Issues](https://github.com/Amirhoshein/hshgamepad/issues) استفاده کن)
+- مشکلاتی که نیاز به دسترسی فیزیکی کامل به کامپیوتر یا گوشی دارن
+- مشکلات نرم‌افزارهای جانبی (مرورگر، ویندوز، درایور ViGEm و...)
+
+---
+
+## 🧰 توصیه‌هایی برای کاربران
+
+- 🌐 برنامه رو فقط تو **شبکه‌ی مورد اعتماد** (مثل Wi-Fi خونه) استفاده کن، نه تو شبکه‌های عمومی.
+- 🔽 برنامه رو فقط از [صفحه‌ی رسمی Releases](https://github.com/Amirhoshein/hshgamepad/releases) یا کانال [@HSHGamepad](https://t.me/HSHGamepad) دانلود کن.
+- ✅ **چک‌سام SHA-256** هر فایل کنار همون فایل تو بخش Assets نشون داده میشه؛ بعد از دانلود با اون مقایسه‌ش کن.
+- 🧩 فایل‌های JSON چیدمان، تم و زبان رو که از منابع نامعتبر گرفتی، قبل از وارد کردن چک کن.
+- 🔄 همیشه از آخرین نسخه استفاده کن.
+
+---
+
+🎮 کانال تلگرام: [@HSHGamepad](https://t.me/HSHGamepad)
