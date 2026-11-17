@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>HSHGamepad</AssemblyName>
+    <Version>1.0.5</Version>
+    <Product>HSH Gamepad</Product>
+    <AssemblyTitle>HSH Gamepad</AssemblyTitle>
+    <RootNamespace>GamepadServer</RootNamespace>
+    <ApplicationIcon>..\icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Authors>@HSHGamepad</Authors>
+    <Company>@HSHGamepad</Company>
+    <Copyright>Telegram: @HSHGamepad</Copyright>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <Arch Condition="'$(Arch)' == ''">x64</Arch>
+    <PlatformTarget>$(Arch)</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <RuntimeIdentifier>win-$(Arch)</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.256" />
+    <PackageReference Include="SharpDX" Version="4.2.0" />
+    <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\index.html" Link="index.html" />
+    <EmbeddedResource Include="..\lang\*.json" LogicalName="lang.default.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\icon.ico" Link="icon.ico" />
+    <EmbeddedResource Include="..\exit-light.ico" Link="exit-light.ico" />
+    <EmbeddedResource Include="..\exit-dark.ico" Link="exit-dark.ico" />
+    <EmbeddedResource Include="..\icons\telegram.png" Link="icons\telegram.png" />
+    <EmbeddedResource Include="..\icons\github.png" Link="icons\github.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\JumpList.cs" Link="JumpList.cs" />
+    <Compile Include="..\PortGuard.cs" Link="PortGuard.cs" />
+    <Compile Include="..\InputInjector.cs" Link="InputInjector.cs" />
+    <Compile Include="..\ScreenCast.cs" Link="ScreenCast.cs" />
+    <Compile Include="..\DxgiCapture.cs" Link="DxgiCapture.cs" />
+    <Compile Include="..\H264Encoder.cs" Link="H264Encoder.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\GamepadTesterForm.cs" Link="GamepadTesterForm.cs" />
+    <Compile Include="..\MainForm.cs" Link="MainForm.cs" />
+    <Compile Include="..\Clock.cs" Link="Clock.cs" />
+    <Compile Include="..\Lang.cs" Link="Lang.cs" />
+    <Compile Include="..\LanguageForm.cs" Link="LanguageForm.cs" />
+    <Compile Include="..\FirewallGuard.cs" Link="FirewallGuard.cs" />
+    <Compile Include="..\Elevation.cs" Link="Elevation.cs" />
+    <Compile Include="..\AccessGuard.cs" Link="AccessGuard.cs" />
+    <Compile Include="..\Fit.cs" Link="Fit.cs" />
+    <Compile Include="..\KeyBox.cs" Link="KeyBox.cs" />
+  </ItemGroup>
+</Project>
