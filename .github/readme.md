@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="HSH Gamepad/icon.ico" width="96" alt="HSH Gamepad">
+<img src="../HSH Gamepad/icon.ico" width="96" alt="HSH Gamepad">
 
 # HSH Gamepad
 
