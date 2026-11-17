@@ -7,7 +7,7 @@
 
 ---
 
-## [1.0.5] - 2026-11-17
+## V1.0.5 - 2026-11-17
 
 ### ✨ اضافه شد
 - 🖥️ **مانیتور**: از حالت انتخاب دسته، گزینه‌ی «مانیتور» رو انتخاب کن و صفحه‌ی نمایشگر رو روی گوشی ببین
@@ -32,7 +32,7 @@
 
 ---
 
-## [1.0.4] - 2026-11-04
+## V1.0.4 - 2026-11-04
 
 ### ✨ اضافه شد
 - 🖱️ **ماوس و کیبورد**: کنترل مثل لمس‌پد از گوشی
@@ -62,7 +62,7 @@
 
 ---
 
-## [1.0.3] - 2026-10-29
+## V1.0.3 - 2026-10-29
 
 ### ✨ اضافه شد
 - 🕹️ **جدا کردن دکمه‌های D-Pad**: هر جهت رو می‌تونی جداگانه جابه‌جا و تنظیم کنی
@@ -83,7 +83,7 @@
 
 ---
 
-## [1.0.2] - 2026-10-25
+## V1.0.2 - 2026-10-25
 
 ### ✨ اضافه شد
 - 🖥️ **فول‌اسکرین خودکار** با چرخاندن گوشی و لمس صفحه
@@ -114,16 +114,9 @@
 
 ---
 
-## [1.0.1] - 2026-10-22
+## V1.0.1 - 2026-10-22
 
 ### 🎉 انتشار اولیه
 - همه چیز از اینجا شروع شد :)
 
 ---
-
-[Unreleased]: https://github.com/Amirhoshein/hshgamepad/compare/hsh-gamepad-v1.0.5...main
-[1.0.5]: https://github.com/Amirhoshein/hshgamepad/compare/hsh-gamepad-v1.0.4...hsh-gamepad-v1.0.5
-[1.0.4]: https://github.com/Amirhoshein/hshgamepad/compare/hsh-gamepad-v1.0.3...hsh-gamepad-v1.0.4
-[1.0.3]: https://github.com/Amirhoshein/hshgamepad/compare/hsh-gamepad-v1.0.2...hsh-gamepad-v1.0.3
-[1.0.2]: https://github.com/Amirhoshein/hshgamepad/compare/hsh-gamepad-v1.0.1...hsh-gamepad-v1.0.2
-[1.0.1]: https://github.com/Amirhoshein/hshgamepad/releases/tag/hsh-gamepad-v1.0.1
