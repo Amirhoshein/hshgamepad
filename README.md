@@ -194,6 +194,7 @@ Use the phone as a **live view of your PC monitor** and control the PC by touchi
 - Shows the **connection address** + copy button + **QR code**, just scan
 - List of connected players (name, phone model, IP)
 - **Controller tester**: a live 3D window showing which buttons are pressed + gyro log + **rumble test**
+  > double click on player to show Controller tester
 - **Auto-remove idle controllers** after N seconds (optional)
 - **Tray icon**: closing the window keeps the app running in the tray
 - Taskbar right-click menu with **"Exit"**
