@@ -1,7 +1,6 @@
 ```
 redist
 ├── NDP48-x86-x64-AllOS-ENU.exe
-├── README.txt
 ├── vc_redist.x64.exe
 ├── vc_redist.x86.exe
 ├── ViGEmBus_1.22.0_x64_x86_arm64.exe
