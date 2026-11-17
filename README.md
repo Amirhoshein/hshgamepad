@@ -374,14 +374,6 @@ The phone ↔ PC link stays on your local network. Since v1.0.5 you can turn on 
 
 <a id="en-roadmap"></a>
 
-## 🗺️ Roadmap / Ideas
-
-- [x] Optional **secret address / key** and auto ban for connecting a phone *(added in v1.0.5)*
-- [x] **Multi-language** support *(added in v1.0.5)*
-- [x] **Touch Screen** mode *(added in v1.0.5)*
-- [ ] Code signing for the installer and exe (fewer SmartScreen / antivirus warnings)
-- [ ] Demo video and more screenshots
-
 Have an idea? [Open an issue](https://github.com/Amirhoshein/hshgamepad/issues/new/choose) or tell us on Telegram.
 
 ---
