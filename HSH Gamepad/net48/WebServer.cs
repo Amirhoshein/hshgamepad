@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace GamepadServer;
 
+/// <summary>
+/// وب‌سرور خیلی کوچیک روی TCP خام (جای Kestrel): صفحه‌ی HTML روی «/» و WebSocket روی «/ws».
+/// </summary>
 internal sealed class WebServer
 {
     private const string WsGuid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -43,6 +47,7 @@ internal sealed class WebServer
         _port = port;
     }
 
+    /// <summary>اگه پورت اشغال باشه exception میده</summary>
     public void Start()
     {
         _listener = new TcpListener(IPAddress.Any, _port);
@@ -78,6 +83,7 @@ internal sealed class WebServer
 
     private static void EnableKeepAlive(Socket s)
     {
+        // اگه گوشی بی‌خبر قطع بشه (خاموشی/خروج از وای‌فای) ظرف چند ثانیه متوجه میشیم: 20 ثانیه سکوت، بعد هر 5 ثانیه
         try
         {
             var v = new byte[12];
@@ -129,6 +135,7 @@ internal sealed class WebServer
         }
         catch
         {
+            // اتصال نیمه‌کاره/قطع شده؛ مهم نیست
         }
     }
 
@@ -151,6 +158,7 @@ internal sealed class WebServer
 
     private async Task HandleWebSocket(TcpClient tcp, NetworkStream stream, Request req)
     {
+        // خود کامپیوتر سرور (هاست) اجازه‌ی وصل شدن به دسته رو نداره
         if (IsHost(tcp))
         {
             await Respond(stream, 403, "Forbidden", "text/plain", new byte[0]);
@@ -199,7 +207,7 @@ internal sealed class WebServer
                 string? text = await ws.ReceiveTextAsync();
                 if (text == null) break;
 
-                foreach (var line in text.Split('\n'))
+                foreach (var line in text.Split('\n'))          // چند دستور میتونه تو یک پیام بیاد
                     Protocol.Handle(conn, _hub, line);
 
                 conn.Slot?.Submit();
@@ -207,14 +215,16 @@ internal sealed class WebServer
         }
         catch
         {
+            // قطع شدن اتصال
         }
         finally
         {
-            _hub.Remove(conn);
+            _hub.Remove(conn);   // قطع شدن اتصال => همه‌ی دکمه‌های اون پلیر ول میشه و پلیر آزاد میشه
             ws.Abort();
         }
     }
 
+    // ---------------- HTTP ----------------
 
     private static async Task<Request?> ReadRequest(NetworkStream stream)
     {
@@ -222,9 +232,9 @@ internal sealed class WebServer
         int len = 0;
         while (true)
         {
-            if (len == buf.Length) return null;
+            if (len == buf.Length) return null;                        // هدر خیلی بزرگ
             var read = stream.ReadAsync(buf, len, buf.Length - len);
-            if (await Task.WhenAny(read, Task.Delay(10000)) != read) return null;
+            if (await Task.WhenAny(read, Task.Delay(10000)) != read) return null;   // 10 ثانیه فرصت برای فرستادن درخواست
             int n = read.Result;
             if (n <= 0) return null;
             len += n;
@@ -290,6 +300,7 @@ internal sealed class WebServer
         await s.WriteAsync(all, 0, all.Length);
     }
 
+    /// <summary>درخواست از خود همین کامپیوتره؟ (localhost یا یکی از IPهای خود سیستم)</summary>
     private static bool IsHost(TcpClient tcp)
     {
         try
@@ -300,7 +311,7 @@ internal sealed class WebServer
 
             var local = ((IPEndPoint)tcp.Client.LocalEndPoint!).Address;
             if (local.IsIPv4MappedToIPv6) local = local.MapToIPv4();
-            if (ip.Equals(local)) return true;
+            if (ip.Equals(local)) return true;      // مثلاً خود سیستم با IP شبکه‌اش (192.168.x.x) باز کرده
 
             foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
             {

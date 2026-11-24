@@ -1,8 +1,21 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Globalization;
 
 namespace GamepadServer;
 
+/// <summary>
+/// پروتکل (متن کوتاه روی WebSocket، هر خط یک دستور):
+///   cfg &lt;1-9&gt; &lt;xbox|ps4|wheel|mouse|keyboard&gt; (ماوس/کیبورد فقط پلیر ۱)  /  b &lt;KEY&gt; &lt;0|1&gt;  /  l &lt;x&gt; &lt;y&gt;  /  r &lt;x&gt; &lt;y&gt;
+///   ping &lt;t&gt;             (جواب: pong &lt;t&gt; برای نمایش تاخیر)
+///   tr &lt;l|r&gt; &lt;0..1&gt;    (پدال آنالوگ فرمون: l = ترمز/LT ، r = گاز/RT)
+///   gyr &lt;0|1&gt;            (ژیروسکوپ گوشی روشن/خاموش)
+///   gy &lt;gx&gt; &lt;gy&gt; &lt;gz&gt; &lt;ax&gt; &lt;ay&gt; &lt;az&gt;   (نمونه‌ی ژیروسکوپ °/s و شتاب m/s² — جزئیات تو Slot.cs)
+///   mm &lt;dx&gt; &lt;dy&gt; / mw &lt;d&gt; / mb &lt;L|R|M&gt; &lt;0|1&gt; / kb &lt;code&gt; &lt;0|1&gt;   (ماوس و کیبورد؛ جزئیات تو InputInjector.cs)
+///   nm &lt;name&gt;              (عوض کردن اسم)
+///   lay &lt;json&gt;             (گوشی چیدمان ذخیره‌شده‌ی خودش رو میفرسته)
+///   getlay &lt;1-9&gt;           (چیدمان گوشیِ اون پلیر رو بده) -> جواب: {"t":"lay","p":n,"d":json|null}
+/// </summary>
 public static class Protocol
 {
     private const int MaxLayoutChars = 8192;
@@ -10,6 +23,7 @@ public static class Protocol
     private static bool F(string s, out float v) =>
         float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out v);
 
+    /// <summary>بررسی ساده‌ی اینکه متن یه آبجکت JSON سالمه (آکولاد/کروشه‌ها بالانس و رشته‌ها بسته). net48 JsonDocument نداره.</summary>
     private static bool LooksLikeJsonObject(string s)
     {
         if (s.Length < 2 || s[0] != '{' || s[s.Length - 1] != '}') return false;
@@ -36,6 +50,7 @@ public static class Protocol
         return depth == 0 && !inStr;
     }
 
+    /// <summary>جواب getlay: {"t":"lay","p":n,"d":json|null}</summary>
     private static string LayReply(int n, string? json)
     {
         return "{\"t\":\"lay\",\"p\":" + n.ToString(CultureInfo.InvariantCulture) +
@@ -52,13 +67,13 @@ public static class Protocol
         {
             string cmd = p[0];
 
-            if (cmd == "ping" && p.Length == 2)
+            if (cmd == "ping" && p.Length == 2)   // اندازه‌گیری تاخیر: همون عدد رو برمیگردونیم
             {
                 _ = conn.SendAsync("pong " + p[1]);
                 return;
             }
 
-            if (cmd == "lay")
+            if (cmd == "lay")                   // چیدمان این گوشی؛ فقط اگه JSON سالم و کوچیک باشه نگه داشته میشه
             {
                 int sp0 = line.IndexOf(' ');
                 if (sp0 < 0) return;
@@ -76,7 +91,7 @@ public static class Protocol
                 return;
             }
 
-            if (cmd == "nm")
+            if (cmd == "nm")                    // عوض کردن اسم نمایشی (خیلی کم پیش میاد)
             {
                 int sp = line.IndexOf(' ');
                 hub.Rename(conn, sp < 0 ? "" : line.Substring(sp + 1));
@@ -87,12 +102,12 @@ public static class Protocol
             {
                 if (!int.TryParse(p[1], out int n)) return;
                 string mode = p[2];
-                if (InputInjector.IsInputMode(mode))
+                if (InputInjector.IsInputMode(mode))      // ماوس/کیبورد: فقط پلیر ۱ و فقط وقتی تو پنجره‌ی سرور اجازه داده شده؛ وگرنه PS4 میشه
                 {
                     if (n != 1 || !hub.AllowInput) mode = "ps4";
                 }
-                else if (mode != "xbox" && mode != "ps4" && mode != "wheel") return;
-                hub.Claim(conn, n, mode);
+                else if (mode != "xbox" && mode != "ps4" && mode != "wheel") return;   // wheel = فرمون
+                hub.Claim(conn, n, mode);      // جواب (قبول/رد) از طریق پیام state به گوشی میرسه
                 return;
             }
 
@@ -104,16 +119,38 @@ public static class Protocol
                 return;
             }
 
-            if (cmd == "scinfo" || cmd == "sc" || cmd == "scx" || cmd == "sca" || cmd == "tp" || cmd == "tx")
+            if (cmd == "scinfo" || cmd == "sc" || cmd == "scx" || cmd == "sca" || cmd == "tp" || cmd == "tx")      // نمایشگر لمسی (جزئیات تو ScreenCast.cs)
             {
                 ScreenCast.Command(conn, hub, p);
                 return;
             }
 
-            var slot = conn.Slot;
-            if (slot == null) return;
+            if (cmd == "mic")                     // میکروفون گوشی => میکروفون مجازی ویندوز (فقط پلیر ۱؛ جزئیات تو MicBridge.cs)
+            {
+                if (p.Length < 2) return;
+                if (p[1] == "d") { if (p.Length == 3) MicBridge.Push(conn, p[2]); return; }
+                if (p[1] != "1") { MicBridge.Stop(conn); return; }
+                string err = conn.Slot != null && conn.Slot.N == 1 ? MicBridge.Start(conn) : "p1";
+                _ = conn.SendAsync(err.Length == 0 ? "{\"t\":\"mic\",\"on\":1}" : "{\"t\":\"mic\",\"on\":0,\"err\":\"" + err + "\"}");
+                return;
+            }
 
-            if (cmd == "gy")
+            if (cmd == "au")                      // صدای کامپیوتر برای گوشی (جزئیات تو AudioCast.cs)
+            {
+                AudioCast.Command(conn, hub, p);
+                return;
+            }
+
+            if (cmd == "pl" || cmd == "pg" || cmd == "ps" || cmd == "pd")     // چیدمان‌ها و تم‌های ذخیره‌شده رو کامپیوتر (جزئیات تو Presets.cs)
+            {
+                Presets.Command(conn, line);
+                return;
+            }
+
+            var slot = conn.Slot;
+            if (slot == null) return;           // تا پلیر نگرفته، ورودی‌ها نادیده گرفته میشن
+
+            if (cmd == "gy")                    // نمونه‌ی ژیروسکوپ؛ ساده و سریع (۶۰ بار در ثانیه)، بدون ساختن دسته
             {
                 if (conn.GyroOn && p.Length == 7 &&
                     F(p[1], out var gx) && F(p[2], out var gy) && F(p[3], out var gz) &&
@@ -122,7 +159,7 @@ public static class Protocol
                 return;
             }
 
-            if (cmd == "mm" || cmd == "mw" || cmd == "mb" || cmd == "kb")
+            if (cmd == "mm" || cmd == "mw" || cmd == "mb" || cmd == "kb")      // ماوس و کیبورد (فقط پلیر ۱)
             {
                 if (!hub.AllowInput || slot.N != 1 || !InputInjector.IsInputMode(conn.Mode)) return;
                 int a, b;
@@ -137,7 +174,7 @@ public static class Protocol
                     InputInjector.Key(p[1], p[2] == "1");
                 return;
             }
-            if (InputInjector.IsInputMode(conn.Mode)) return;
+            if (InputInjector.IsInputMode(conn.Mode)) return;      // تو حالت ماوس/کیبورد دسته‌ای وجود نداره
 
             if (!slot.HasPad)
             {
@@ -157,12 +194,14 @@ public static class Protocol
             }
             else if (cmd == "tr" && p.Length == 3 && (p[1] == "l" || p[1] == "r"))
             {
+                // پدال آنالوگ فرمون: tr <l|r> <0..1>
                 if (float.TryParse(p[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var tv))
                     slot.Trigger(p[1][0], tv);
             }
         }
         catch
         {
+            // یه دستور خراب نباید کل اتصال رو بندازه
         }
     }
 }

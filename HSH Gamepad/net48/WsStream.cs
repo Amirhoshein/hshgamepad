@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.IO;
 using System.Net.Sockets;
@@ -7,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace GamepadServer;
 
+/// <summary>
+/// یه WebSocket سمت سرور (RFC 6455) روی یه اتصال TCP؛ فقط پیام متنی (دستورهای دسته).
+/// چون .NET Framework تابع WebSocket.CreateFromStream نداره، فریم‌ها رو خودمون میخونیم و میفرستیم.
+/// </summary>
 public sealed class WsStream
 {
     private const int MaxMessage = 64 * 1024;
@@ -26,8 +31,10 @@ public sealed class WsStream
 
     public Task SendTextAsync(string text) => SendFrameAsync(0x1, Encoding.UTF8.GetBytes(text));
 
+    /// <summary>پیام باینری (فریم تصویر نمایشگر لمسی)</summary>
     public Task SendBinaryAsync(byte[] data) => SendFrameAsync(0x2, data);
 
+    /// <summary>اتصال رو فوراً میبنده (حلقه‌ی دریافت با exception تموم میشه)</summary>
     public void Abort()
     {
         _closed = true;
@@ -52,7 +59,7 @@ public sealed class WsStream
         {
             header = new byte[10];
             header[0] = (byte)(0x80 | opcode);
-            header[1] = 127;
+            header[1] = 127;                       // ۸ بایت طول؛ چهار بایت بالا صفره
             header[6] = (byte)(n >> 24);
             header[7] = (byte)(n >> 16);
             header[8] = (byte)(n >> 8);
@@ -86,6 +93,7 @@ public sealed class WsStream
         return true;
     }
 
+    /// <summary>پیام متنی بعدی؛ null = اتصال بسته شد. ping رو خودش جواب میده.</summary>
     public async Task<string?> ReceiveTextAsync()
     {
         MemoryStream? msg = null;
@@ -114,7 +122,7 @@ public sealed class WsStream
                 for (int i = 0; i < 8; i++) len = (len << 8) | b[i];
             }
 
-            if (len < 0 || len > MaxMessage) return null;
+            if (len < 0 || len > MaxMessage) return null;     // پیام عجیب/خیلی بزرگ => قطع
 
             var mask = new byte[4];
             if (masked && !await ReadExactAsync(mask, 4)) return null;
@@ -126,18 +134,18 @@ public sealed class WsStream
 
             switch (op)
             {
-                case 0x8:
+                case 0x8:   // close
                     try { await SendFrameAsync(0x8, data.Length >= 2 ? new[] { data[0], data[1] } : new byte[0]); } catch { }
                     return null;
 
-                case 0x9:
+                case 0x9:   // ping
                     await SendFrameAsync(0xA, data);
                     break;
 
-                case 0x1:
+                case 0x1:   // text (شروع پیام)
                     msg = new MemoryStream();
                     goto case 0x0;
-                case 0x0:
+                case 0x0:   // continuation
                     if (msg == null) break;
                     msg.Write(data, 0, data.Length);
                     if (msg.Length > MaxMessage) return null;
@@ -145,7 +153,7 @@ public sealed class WsStream
                         return Encoding.UTF8.GetString(msg.GetBuffer(), 0, (int)msg.Length);
                     break;
 
-                default:
+                default:    // pong و binary => نادیده
                     break;
             }
         }

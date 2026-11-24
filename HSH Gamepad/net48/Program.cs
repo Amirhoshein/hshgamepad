@@ -1,4 +1,15 @@
+/*
+ By HSH Gamepad (Telegram: @HSHGamepad)
 
+ Phone -> Virtual Xbox 360 / DualShock 4 controller (تا ۹ پلیر)      [نسخه‌ی .NET Framework 4.8]
+
+ یه پنجره باز میشه که آدرس و وضعیت پلیرها رو نشون میده؛ آدرس رو تو مرورگر گوشی باز کن.
+ پیش‌نیاز: درایور ViGEmBus  ->  https://github.com/nefarius/ViGEmBus/releases
+
+ هر شماره‌ی پلیر فقط یه گوشی میتونه داشته باشه.
+ محدودیت ویندوز: XInput (Xbox 360) فقط ۴ اسلات داره => پلیر ۵ تا ۹ باید PS4 باشن.
+ اگه Xbox ساخته نشه سرور خودش PS4 میسازه.
+*/
 using System;
 using System.IO;
 using System.Linq;
@@ -13,15 +24,17 @@ using Nefarius.ViGEm.Client;
 
 internal static class Program
 {
-    private const int PreferredPort = 80;
-    private static int Port = PreferredPort;
+    private const int PreferredPort = 80;      // پورت ۸۰ => تو مرورگر گوشی لازم نیست پورت نوشته بشه
+    private static int Port = PreferredPort;      // پورت واقعی؛ اگه ۸۰ پر بود PortGuard یکی دیگه (1111, 2222, ...) انتخاب میکنه
     private static WebServer? _server;
     private static Hub? _hub;
     private static string _html = "";
 
     private const string ShowEventName = @"Local\GamepadServer.Show";
-    private const string ExitEventName = @"Local\GamepadServer.Exit";
+    private const string ExitEventName = @"Local\GamepadServer.Exit";    // «خروج از برنامه» تو منوی راست‌کلیک taskbar
 
+    // mutex و event ها با دسترسی برای کاربر فعلی ساخته میشن؛ وگرنه نسخه‌ی ادمین فقط به ادمین‌ها اجازه میده و
+    // «خروج از برنامه» / اجرای دوباره‌ی بدون ادمین بهشون نمیرسه (Access denied).
     private static System.Security.Principal.SecurityIdentifier CurrentUserSid()
     {
         using var id = System.Security.Principal.WindowsIdentity.GetCurrent();
@@ -29,7 +42,7 @@ internal static class Program
     }
 
     private static bool _mutexDenied;
-    private static Mutex? _single;
+    private static Mutex? _single;     // تا آخر برنامه نگه داشته میشه (GC نباید آزادش کنه)
 
     private static Mutex CreateSingleMutex(out bool created)
     {
@@ -39,6 +52,7 @@ internal static class Program
         try { return new Mutex(true, @"Local\GamepadServer.Single", out created, sec); }
         catch (UnauthorizedAccessException)
         {
+            // نسخه‌ای با دسترسی محدودتر ساخته بودش؛ یعنی یه نسخه در حال اجراست
             created = false;
             _mutexDenied = true;
             return new Mutex(false);
@@ -56,11 +70,13 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        try { Console.OutputEncoding = Encoding.UTF8; } catch { }
-        try { System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.High; } catch { }
+        try { Console.OutputEncoding = Encoding.UTF8; } catch { }   // WinExe: کنسول نداریم
+        try { System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.High; } catch { }   // وقتی بازی CPU رو میگیره، سرور عقب نمونه
+        // DPI از app.manifest (dpiAware) میاد
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
+        // «خروج از برنامه» تو منوی راست‌کلیک taskbar: فقط به نسخه‌ی در حال اجرا خبر میده؛ هیچوقت درخواست ادمین نمیکنه
         bool exitRequest = args.Contains(JumpListHelper.ExitArg);
         if (exitRequest)
         {
@@ -68,10 +84,12 @@ internal static class Program
             return 0;
         }
 
+        // فقط یک نسخه: چون بستن پنجره برنامه رو میبره tray، اجرای دوباره باید همون پنجره رو نشون بده
         bool restarting = args.Contains(Elevation.RestartArg);
         var single = CreateSingleMutex(out bool firstInstance);
         if (!firstInstance && restarting && !_mutexDenied)
         {
+            // نسخه‌ی قبلی (بدون ادمین) داره بسته میشه؛ چند ثانیه صبر کن تا قفل آزاد بشه
             try { if (single.WaitOne(5000)) firstInstance = true; }
             catch (AbandonedMutexException) { firstInstance = true; }
         }
@@ -81,11 +99,13 @@ internal static class Program
             return 0;
         }
 
+        // برنامه باز شد؛ حالا چک میکنیم ادمینه یا نه. نبود => با UAC دوباره اجرا میشه (ادمین لازمه تا ماوس/کیبورد به برنامه‌های ادمین مثل Task Manager برسه)
         if (!Elevation.IsAdmin())
         {
             try { single.ReleaseMutex(); } catch { }
             single.Dispose();
             if (Elevation.Relaunch(args, true)) return 0;
+            // کاربر UAC رو رد کرد: برنامه بدون ادمین ادامه میده (فقط ورودی به برنامه‌های ادمین کار نمیکنه)
             single = CreateSingleMutex(out firstInstance);
             if (!firstInstance)
             {
@@ -97,6 +117,7 @@ internal static class Program
         var showEvent = CreateEvent(ShowEventName);
         var exitEvent = CreateEvent(ExitEventName);
 
+        // ---------- ViGEm ----------
         ViGEmClient client;
         try
         {
@@ -115,6 +136,9 @@ internal static class Program
         var hub = new Hub(client) { AutoKickSeconds = settings.AutoKick ? settings.Seconds : 0, AllowInput = settings.AllowInput };
         string html = LoadHtml();
 
+        // ---------- وب‌سرور (پشت صحنه) ----------
+        // اگه پورت ۸۰ پر باشه از کاربر اجازه‌ی بستن برنامه‌ی پورت‌گیر رو میپرسه؛ اگه نشد با 1111 (یا بعدی‌ها) ادامه میدیم
+        // و busy اطلاعات برنامه‌ی پورت‌گیر رو برای پنجره‌ی راهنما نگه میداره
         _hub = hub; _html = html;
         PortBusy? busy;
         Port = PortGuard.Choose(PreferredPort, out busy);
@@ -129,9 +153,9 @@ internal static class Program
             }
             catch (Exception ex)
             {
-                int next = PortGuard.NextPort(Port);
+                int next = PortGuard.NextPort(Port);     // همون لحظه یکی پورت رو گرفته؛ پورت بعدی (1111, 2222, ...)
                 if (next != 0) { Port = next; continue; }
-                string owner = PortGuard.OwnerText(Port);
+                string owner = PortGuard.OwnerText(Port);      // اسم و آدرس برنامه‌ی پورت‌گیر (اگه پیدا شد)
                 var msg = L.F("app.listenFail", Port, ex.Message)
                           + (owner.Length > 0 ? "\n\n" + owner : "");
                 MessageBox.Show(msg, "HSH Gamepad", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -150,11 +174,12 @@ internal static class Program
 
         var form = new MainForm(hub, Port, settings);
 
+        // پورت ۸۰ آزاد نشد: برنامه‌ی اصلی با 1111 باز میشه و کنارش پنجره‌ی راهنما (برنامه‌ی پورت‌گیر + آموزش + «بررسی دوباره»)
         if (busy != null && !busy.Declined && Port != PreferredPort)
         {
             int usedPort = Port;
             var b = busy;
-            form.StartHidden();
+            form.StartHidden();     // برنامه‌ی اصلی فقط با «باز کردن برنامه» یا آزاد شدن پورت ۸۰ پیدا میشه
             bool helpShown = false;
             form.HandleCreated += (_, _) =>
             {
@@ -163,10 +188,10 @@ internal static class Program
                 form.BeginInvoke(new Action(() => PortGuard.ShowBusyHelp(null, b, usedPort, SwitchPort,
                     newPort =>
                     {
-                        form.SetPort(newPort);
-                        form.ShowFromTray();
+                        form.SetPort(newPort);      // آدرس بالای پنجره‌ی اصلی بدون پورت میشه
+                        form.ShowFromTray();        // پورت ۸۰ آزاد شد => برنامه خودکار باز میشه
                     },
-                    () => form.ShowFromTray())));
+                    () => form.ShowFromTray())));   // دکمه‌ی «باز کردن برنامه» (یا بستن پنجره‌ی راهنما)
             };
         }
         var showThread = new Thread(() =>
@@ -179,7 +204,7 @@ internal static class Program
             }
         }) { IsBackground = true };
         showThread.Start();
-        JumpListHelper.Register();
+        JumpListHelper.Register();      // راست‌کلیک روی آیکون برنامه تو taskbar: «خروج از برنامه»
         try
         {
             Console.CancelKeyPress += (_, e) =>
@@ -192,13 +217,18 @@ internal static class Program
 
         Application.Run(form);
 
+        // ---------- خاموش کردن ----------
         try { _server?.Stop(); } catch { }
         AccessGuard.Shutdown();
-        hub.Dispose();
+        hub.Dispose();      // همه‌ی دسته‌های مجازی از ویندوز برداشته میشن
         client.Dispose();
         return 0;
     }
 
+    /// <summary>
+    /// سرور رو (بدون بستن برنامه) روی پورت دیگه‌ای میاره: اول سرور جدید بالا میاد، بعد قدیمی بسته میشه.
+    /// از thread دیگه صدا زده میشه (دکمه‌ی «بررسی دوباره» تو PortGuard).
+    /// </summary>
     private static bool SwitchPort(int newPort)
     {
         var old = _server;

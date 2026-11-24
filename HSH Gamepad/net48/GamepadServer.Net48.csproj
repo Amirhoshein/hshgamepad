@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-
+  <!-- نسخه‌ی .NET Framework 4.8: exe چند صد کیلوبایتیه و ران‌تایم رو همراه خودش نداره.
+       ویندوز 10 (1903+) و 11 از قبل 4.8 دارن؛ ویندوز 7 SP1 و 8.1 و ویندوز 10 قدیمی‌تر رو نصب‌کننده دانلود میکنه.
+       وب‌سرور = WebServer.cs (TCP خام + WebSocket دستی)، بدون Kestrel/ASP.NET -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
@@ -9,7 +11,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>HSHGamepad</AssemblyName>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
     <Product>HSH Gamepad</Product>
     <AssemblyTitle>HSH Gamepad</AssemblyTitle>
     <RootNamespace>GamepadServer</RootNamespace>
@@ -22,6 +24,7 @@
     <DebugType>none</DebugType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
 
+    <!-- معماری: dotnet build -c Release -p:Arch=x86  (پیش‌فرض x64) -->
     <Arch Condition="'$(Arch)' == ''">x64</Arch>
     <PlatformTarget>$(Arch)</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
@@ -36,38 +39,58 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- اگه با درایور 1.16 (ویندوز 7) خطای bus version mismatch داد، اینو بذار 1.16.150 -->
     <PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.256" />
+    <!-- ضبط صفحه‌ی سریع (Desktop Duplication / DXGI) برای نمایشگر لمسی -->
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <!-- همون صفحه و آیکون پروژه‌ی اصلی (کپی جدا نداریم) -->
     <EmbeddedResource Include="..\index.html" Link="index.html" />
+    <!-- همه‌ی فایل‌های lang\*.json (فارسی، انگلیسی، آلمانی، ...) -->
     <EmbeddedResource Include="..\lang\*.json" LogicalName="lang.default.%(Filename)%(Extension)" />
     <EmbeddedResource Include="..\icon.ico" Link="icon.ico" />
+    <!-- آیکون «خروج» (منوی راست‌کلیک taskbar و tray): سفید برای تم تیره، تیره برای تم روشن -->
     <EmbeddedResource Include="..\exit-light.ico" Link="exit-light.ico" />
     <EmbeddedResource Include="..\exit-dark.ico" Link="exit-dark.ico" />
+    <!-- آیکون دکمه‌های تلگرام و گیت‌هاب (پایین سمت چپ پنجره) -->
     <EmbeddedResource Include="..\icons\telegram.png" Link="icons\telegram.png" />
     <EmbeddedResource Include="..\icons\github.png" Link="icons\github.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <!-- منوی راست‌کلیک taskbar (Jump List): همون فایل پروژه‌ی اصلی، کپی جدا نداریم -->
     <Compile Include="..\JumpList.cs" Link="JumpList.cs" />
+    <!-- انتخاب پورت + پنجره‌ی راهنمای «پورت ۸۰ اشغاله»: همون فایل پروژه‌ی اصلی -->
     <Compile Include="..\PortGuard.cs" Link="PortGuard.cs" />
+    <!-- ماوس و کیبورد مجازی (SendInput): همون فایل پروژه‌ی اصلی -->
     <Compile Include="..\InputInjector.cs" Link="InputInjector.cs" />
+    <!-- نمایشگر لمسی (ضبط صفحه + پخش برای گوشی): همون فایل پروژه‌ی اصلی -->
     <Compile Include="..\ScreenCast.cs" Link="ScreenCast.cs" />
     <Compile Include="..\DxgiCapture.cs" Link="DxgiCapture.cs" />
     <Compile Include="..\H264Encoder.cs" Link="H264Encoder.cs" />
+    <!-- صدای کامپیوتر برای گوشی (WASAPI loopback + ADPCM): همون فایل پروژه‌ی اصلی -->
+    <Compile Include="..\AudioCast.cs" Link="AudioCast.cs" />
+    <Compile Include="..\MicBridge.cs" Link="MicBridge.cs" />
+    <!-- چیدمان‌ها و تم‌های ذخیره‌شده روی کامپیوتر -->
+    <Compile Include="..\Presets.cs" Link="Presets.cs" />
+    <!-- مسیر پوشه‌ی data کنار برنامه (تنظیمات، چیدمان/تم‌های ذخیره‌شده، لاگ) -->
+    <Compile Include="..\AppPaths.cs" Link="AppPaths.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\GamepadTesterForm.cs" Link="GamepadTesterForm.cs" />
     <Compile Include="..\MainForm.cs" Link="MainForm.cs" />
     <Compile Include="..\Clock.cs" Link="Clock.cs" />
+    <!-- سیستم زبان (json) و پنجره‌ی انتخاب زبان -->
     <Compile Include="..\Lang.cs" Link="Lang.cs" />
     <Compile Include="..\LanguageForm.cs" Link="LanguageForm.cs" />
+    <!-- فایروال ویندوز: بعد از عوض شدن شبکه، قانون «اجازه‌ی ورودی» رو چک میکنه -->
     <Compile Include="..\FirewallGuard.cs" Link="FirewallGuard.cs" />
+    <!-- چک ادمین + اجرای دوباره با UAC -->
     <Compile Include="..\Elevation.cs" Link="Elevation.cs" />
     <Compile Include="..\AccessGuard.cs" Link="AccessGuard.cs" />
     <Compile Include="..\Fit.cs" Link="Fit.cs" />
