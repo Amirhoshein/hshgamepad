@@ -1,3 +1,13 @@
+﻿; HSH Gamepad installer  |  Inno Setup 6.3+ (نسخه‌ی 6)  |  Telegram: @HSHGamepad
+;
+; بیلد:   ISCC.exe /DArch=x64 /DTarget=modern /DFw=net48 GamepadServer.iss
+;         Arch   = x64 | x86
+;         Target = modern (ویندوز 10/11) | legacy (ویندوز 7 SP1 و 8.1، با پیش‌نیازهای درایور)
+;         Fw     = net48 (کم‌حجم؛ اگه .NET Framework 4.8 نبود موقع نصب دانلود میشه)
+;                  full  (نسخه‌ی Full؛ نصب‌کننده‌ی آفلاین .NET Framework 4.8 داخل Setup هست، بدون دانلود)
+;         خودِ برنامه تو هر دو یکیه (net48، چند صد کیلوبایت)؛ فرق فقط تو پیش‌نیازهای همراه Setup ـه.
+;         (build.bat همه‌ی ترکیب‌ها رو میسازه)
+
 #ifndef Arch
   #define Arch "x64"
 #endif
@@ -13,15 +23,33 @@
   #define TargetName "Win10-11"
 #endif
 
+; درایور میکروفون مجازی = VB-Cable (فایل‌ها رو از زیپ VBCABLE_Driver_Pack43 تو redist\vbcable بریز؛ برای هر معماری فقط فایل‌های win7 لازمه)
+;   x64: VBCABLE_Setup_x64.exe + vbaudio_cable64_win7.sys + vbaudio_cable64_win7.cat + vbMmeCable64_win7.inf
+;   x86: VBCABLE_Setup.exe     + vbaudio_cable_win7.sys   + vbaudio_cable_win7.cat   + vbMmeCable_win7.inf
+; (نسخه‌ی win7 برای ویندوز 7/8.1/10/11 همه استفاده میشه؛ فایل‌های xp/vista/2003 لازم نیست.) اگه پوشه نبود نصب‌کننده بدون میکروفون ساخته میشه.
+#if Arch == "x64"
+  #define VbSetup "VBCABLE_Setup_x64.exe"
+  #define VbSys   "vbaudio_cable64_win7.sys"
+  #define VbCat   "vbaudio_cable64_win7.cat"
+  #define VbInf   "vbMmeCable64_win7.inf"
+#else
+  #define VbSetup "VBCABLE_Setup.exe"
+  #define VbSys   "vbaudio_cable_win7.sys"
+  #define VbCat   "vbaudio_cable_win7.cat"
+  #define VbInf   "vbMmeCable_win7.inf"
+#endif
+#define HaveVb FileExists(AddBackslash(SourcePath) + "..\redist\vbcable\" + VbSetup)
+
 #define AppName     "HSH Gamepad"
 #define AppExe      "HSHGamepad.exe"
-#define AppVer      "1.0.5"
+#define AppVer      "1.0.6"
 #define ViGEmModern "ViGEmBus_1.22.0_x64_x86_arm64.exe"
 #define ViGEmLegacy "ViGEmBus_Setup_1.16.116.exe"
 #define Net48Url    "https://go.microsoft.com/fwlink/?LinkId=2085155"
 #if Fw == "net48"
   #define Net48File "ndp48-web.exe"
 #else
+  ; نصب‌کننده‌ی آفلاین (~112MB) تو redist\ ؛ build.bat دانلودش میکنه
   #define Net48File "ndp48-x86-x64-allos-enu.exe"
 #endif
 
@@ -56,16 +84,20 @@ Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 #if Target == "legacy"
+; ویندوز 7 (با سرویس‌پک 1) و 8 / 8.1 ؛ ویندوز 10 به بالا باید نسخه‌ی Win10-11 رو بگیره
 MinVersion=6.1sp1
 OnlyBelowVersion=10.0
 #else
 MinVersion=10.0
 #endif
+; نصب درایور و قانون فایروال ادمین میخواد
 PrivilegesRequired=admin
 #if Arch == "x64"
+; این نصب‌کننده فقط برای ویندوز 64 بیتی
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 #else
+; این نصب‌کننده فقط برای ویندوز 32 بیتی
 ArchitecturesAllowed=x86os
 #endif
 CloseApplications=yes
@@ -74,6 +106,9 @@ LanguageDetectionMethod=uilanguage
 RestartApplications=no
 
 [Languages]
+; پنجره‌ی انتخاب زبان خودِ Inno Setup (قبل از شروع نصب): «Installer Language / Please select a language»
+; زبان‌هایی که ترجمه‌ی رسمی دارن از compiler:Languages ؛ فارسی/چینی/کره‌ای ترجمه‌ی رسمی ندارن،
+; پس فقط اسمشون (isl\*.isl) روی متن انگلیسی گذاشته میشه. اسم هر زبان = کد زبان برنامه (همون lang\xx.json)
 Name: "en"; MessagesFile: "compiler:Default.isl"
 Name: "fa"; MessagesFile: "compiler:Default.isl,isl\fa.isl"
 Name: "de"; MessagesFile: "compiler:Languages\German.isl"
@@ -97,6 +132,13 @@ Type: files; Name: "{autoprograms}\Gamepad Server.lnk"
 Type: files; Name: "{autodesktop}\Gamepad Server.lnk"
 
 [Files]
+#if HaveVb
+; درایور میکروفون مجازی (VB-Cable): فقط فایل‌های همین معماری + win7؛ تو temp کپی و بعد از نصب پاک میشه
+Source: "..\redist\vbcable\{#VbSetup}"; DestDir: "{tmp}\vbcable"; Flags: deleteafterinstall; Check: NeedsVbCable
+Source: "..\redist\vbcable\{#VbSys}";   DestDir: "{tmp}\vbcable"; Flags: deleteafterinstall; Check: NeedsVbCable
+Source: "..\redist\vbcable\{#VbCat}";   DestDir: "{tmp}\vbcable"; Flags: deleteafterinstall; Check: NeedsVbCable
+Source: "..\redist\vbcable\{#VbInf}";   DestDir: "{tmp}\vbcable"; Flags: deleteafterinstall; Check: NeedsVbCable
+#endif
 ; خروجی کامل پوشه‌ی build (exe + ViGEmClient.dll + ...) ؛ ران‌تایم نیست، .NET Framework 4.8 باید رو سیستم باشه
 Source: "..\publish\net48\{#Arch}\*"; DestDir: "{app}"; Excludes: "*.pdb,*.xml"; Flags: ignoreversion recursesubdirs createallsubdirs
 #if Fw != "net48"
@@ -115,7 +157,7 @@ Source: "..\redist\win7\{#X360File}"; DestDir: "{tmp}"; Flags: deleteafterinstal
 Source: "..\redist\{#VcFile}"; DestDir: "{tmp}"; Flags: deleteafterinstall; Check: NeedsVcRedist
 #else
 ; --- ویندوز 10/11 ---
-; خودش تو [Code] (InstallModernViGEm) اجرا میشه تا نتیجه‌ی نصب چک بشه؛ پس اینجا فقط داخل exe جاسازی میشه
+; ViGEmBus ویندوز 10/11: توسط [Code] (InstallModernViGEm) اجرا میشه تا نتیجه‌ی نصب چک بشه؛ پس اینجا فقط داخل exe جاسازی میشه
 Source: "..\redist\{#ViGEmModern}"; DestDir: "{tmp}"; Flags: dontcopy
 #endif
 
@@ -140,10 +182,20 @@ Filename: "{tmp}\{#ViGEmLegacy}"; StatusMsg: "Installing ViGEmBus driver (legacy
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Gamepad Server"""; Flags: runhidden waituntilterminated
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#AppName}"""; Flags: runhidden waituntilterminated
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""{#AppName}"" dir=in action=allow program=""{app}\{#AppExe}"" enable=yes profile=any"; StatusMsg: "Configuring firewall..."; Flags: runhidden waituntilterminated
+#if HaveVb
+; 3.5) درایور میکروفون مجازی (VB-Cable)؛ ⚠ سوییچ «-i -h» (نصب بی‌صدا) از حافظه‌ست و تست نشده؛ اگه جواب نداد «-h» رو بردار تا پنجره‌ی خودش باز شه
+Filename: "{tmp}\vbcable\{#VbSetup}"; Parameters: "-i -h"; WorkingDir: "{tmp}\vbcable"; StatusMsg: "Installing virtual microphone driver..."; Flags: waituntilterminated; Check: NeedsVbCable
+#endif
 ; 4) اجرای برنامه
 Filename: "{app}\{#AppExe}"; Description: "Launch {#AppName}"; Flags: nowait postinstall skipifsilent
 
+[Dirs]
+; پوشه‌ی data کنار برنامه: تنظیمات و چیدمان/تم‌های ذخیره‌شده؛ کاربر عادی هم باید بتونه توش بنویسه
+Name: "{app}\data"; Permissions: users-modify
+
 [UninstallDelete]
+; پوشه‌ی data رو هم خود برنامه پر میکنه؛ موقع حذف برنامه پاک میشه
+Type: filesandordirs; Name: "{app}\data"
 Type: files; Name: "{app}\setup-language.txt"
 ; پوشه‌ی lang رو خود برنامه موقع اجرا میسازه (نصب‌کننده نمیشناسدش)؛ پس باید صریح پاک بشه
 Type: filesandordirs; Name: "{app}\lang"
@@ -152,7 +204,16 @@ Type: filesandordirs; Name: "{app}\lang"
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""{#AppName}"""; Flags: runhidden; RunOnceId: "DelFirewallRule"
 
 [Code]
-function IsLegacyOS: Boolean;
+function NeedsVbCable: Boolean;   // میکروفون مجازی: اگه درایور VB-Cable از قبل نصب نیست
+var Names: TArrayOfString; I: Integer;
+begin
+  Result := True;
+  if RegGetSubkeyNames(HKLM, 'SYSTEM\CurrentControlSet\Services', Names) then
+    for I := 0 to GetArrayLength(Names) - 1 do
+      if Pos('vbaudio', Lowercase(Names[I])) > 0 then begin Result := False; Exit; end;
+end;
+
+function IsLegacyOS: Boolean;      // قدیمی‌تر از ویندوز 10
 var V: TWindowsVersion;
 begin
   GetWindowsVersionEx(V);
@@ -168,6 +229,7 @@ end;
 
 function HasViGEm: Boolean;
 begin
+  // فقط کلید سرویس کافی نیست (بعد از آنینستال ناقص یا نصب خراب میمونه)؛ فایل درایور هم باید باشه
   Result := RegKeyExists(HKLM, 'SYSTEM\CurrentControlSet\Services\ViGEmBus')
             and FileExists(ExpandConstant('{sys}\drivers\ViGEmBus.sys'));
 end;
@@ -184,14 +246,19 @@ end;
 
 function NeedsX360Driver: Boolean;
 begin
+  // ویندوز 8 به بعد خودش درایور داره؛ ویندوز 7 اگه xusb21.sys داشته باشه یعنی قبلاً نصب شده
   Result := (not HasViGEm) and IsWin7 and (not FileExists(ExpandConstant('{sys}\drivers\xusb21.sys')));
 end;
 
 function NeedsVcRedist: Boolean;
 begin
+  // UCRT (ucrtbase.dll) تو ویندوز 10 هست؛ تو ویندوز 7/8.1 فقط با آپدیت KB2999226 یا نصب VC++ میاد.
+  // vcruntime140.dll رو هم چک میکنیم چون ممکنه ViGEmClient.dll (بخش native) بخوادش.
   Result := IsLegacyOS and ((not FileExists(ExpandConstant('{sys}\ucrtbase.dll'))) or (not FileExists(ExpandConstant('{sys}\vcruntime140.dll'))));
 end;
 
+// ---------------- آنینستال: بستن برنامه‌ی در حال اجرا ----------------
+// چک میکنه پروسه‌ای با این اسم در حال اجراست یا نه
 function IsProcessRunning(const ExeName: String): Boolean;
 var
   rc: Integer;
@@ -201,6 +268,8 @@ begin
     '', SW_HIDE, ewWaitUntilTerminated, rc) and (rc = 0);
 end;
 
+// اول مودبانه (WM_CLOSE) میبنده، اگه تا 3 ثانیه بسته نشد اجباری میکشه (/F /T)
+// برمیگردونه True اگه برنامه دیگه در حال اجرا نیست
 function CloseProcess(const ExeName: String): Boolean;
 var
   rc, i: Integer;
@@ -224,9 +293,11 @@ begin
   Result := not IsProcessRunning(ExeName);
 end;
 
+// قبل از شروع آنینستال صدا زده میشه؛ اگه False برگردونه آنینستال لغو میشه
 function InitializeUninstall: Boolean;
 begin
   Result := True;
+  // اسم قبلی برنامه (Gamepad Server) هم چک میشه، برای نصب‌های قدیمی
   if not (CloseProcess('{#AppExe}') and CloseProcess('GamepadServer.exe')) then
   begin
     SuppressibleMsgBox(
@@ -236,11 +307,13 @@ begin
     Result := False;
   end;
 end;
+// ---------------------------------------------------------------------
 
 var
   ViGEmNeedsReboot: Boolean;
 
 #if Target != "legacy"
+// نصب‌کننده‌ی ViGEmBus رو اجرا میکنه و فقط وقتی True برمیگردونه که درایور واقعاً نصب شده باشه
 function RunViGEmSetup(const Params: String; ShowCmd: Integer): Boolean;
 var
   rc: Integer;
@@ -248,6 +321,7 @@ begin
   Result := False;
   if Exec(ExpandConstant('{tmp}\{#ViGEmModern}'), Params, '', ShowCmd, ewWaitUntilTerminated, rc) then
   begin
+    // 3010 / 1641 = نصب شد ولی ویندوز ریستارت میخواد
     if (rc = 3010) or (rc = 1641) then ViGEmNeedsReboot := True;
     Result := HasViGEm;
   end;
@@ -258,8 +332,10 @@ begin
   if not NeedsModernViGEm then Exit;
   WizardForm.StatusLabel.Caption := 'Installing ViGEmBus driver...';
   ExtractTemporaryFile('{#ViGEmModern}');
+  // 1) بی‌صدا
   if RunViGEmSetup('/exenoui /qn /norestart', SW_HIDE) then Exit;
   if ViGEmNeedsReboot then Exit;
+  // 2) بی‌صدا جواب نداد (مثلاً ویندوز 11 با تنظیمات امنیتی): خود پنجره‌ی نصب‌کننده‌ی درایور رو نشون بده
   WizardForm.StatusLabel.Caption := 'Installing ViGEmBus driver (follow the driver setup window)...';
   if RunViGEmSetup('/norestart', SW_SHOWNORMAL) then Exit;
   if ViGEmNeedsReboot then Exit;
@@ -282,11 +358,13 @@ begin
   if CurStep = ssPostInstall then HshWriteLanguage;
 end;
 
+// اگه درایور نصب شده ولی ویندوز ریستارت خواسته، آخر نصب پیشنهاد ریستارت میده
 function NeedRestart(): Boolean;
 begin
   Result := ViGEmNeedsReboot;
 end;
 
+// .NET Framework 4.8 (Release >= 528040). ویندوز 10 نسخه‌ی 1903 به بعد و ویندوز 11 از قبل دارن.
 function NeedsNet48: Boolean;
 var
   Rel: Cardinal;
@@ -296,6 +374,10 @@ begin
     Result := Rel < 528040;
 end;
 
+// ---------------- زبان برنامه ----------------
+// زبانی که کاربر تو پنجره‌ی «Installer Language» اول نصب انتخاب میکنه (ActiveLanguage = کد زبان، مثلاً fa)
+// تو {app}\setup-language.txt نوشته میشه و برنامه بار اول زبانش رو از روی اون تنظیم میکنه.
+// نصب بی‌صدا:  Setup.exe /VERYSILENT /LANG=de   (یا /APPLANG=de)
 procedure HshWriteLanguage;
 var
   Code, Stamp: String;
@@ -303,9 +385,11 @@ begin
   Code := ExpandConstant('{param:APPLANG|}');
   if Code = '' then Code := ActiveLanguage;
   if Code = '' then Exit;
+  // مهر یکتا برای هر نصب؛ برنامه با اون میفهمه این انتخابِ جدیده
   Stamp := GetDateTimeString('yyyymmddhhnnss', #0, #0) + IntToStr(Random(100000));
   SaveStringToFile(ExpandConstant('{app}\setup-language.txt'), Code + #13#10 + Stamp + #13#10, False);
 end;
+// ---------------------------------------------------------------------
 
 #if Fw == "net48"
 var
@@ -325,6 +409,8 @@ begin
 #endif
 end;
 
+// (نسخه‌ی کم‌حجم) قبل از شروع نصب، اگه .NET 4.8 نیست
+// نصب‌کننده‌ی کوچیک مایکروسافت (~1.5MB) رو دانلود میکنه
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
@@ -354,6 +440,8 @@ begin
 #endif
 end;
 
+// آپدیت SHA-2 درایور (فقط ویندوز 7) و بعدش .NET 4.8 ؛ اگه ویندوز ریستارت بخواد، ریستارت میکنه
+// و بعدش خودکار نصب رو ادامه میده.
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   rc: Integer;
@@ -366,6 +454,7 @@ begin
     Exec(ExpandConstant('{sys}\wusa.exe'),
          '"' + ExpandConstant('{tmp}\{#KbFile}') + '" /quiet /norestart',
          '', SW_HIDE, ewWaitUntilTerminated, rc);
+    // 3010 = نیاز به ریستارت؛ 2359302 = از قبل نصب بوده
     if rc = 3010 then
     begin
       NeedsRestart := True;
@@ -379,6 +468,7 @@ begin
     if not FileExists(ExpandConstant('{tmp}\{#Net48File}')) then
     begin
 #if Fw == "net48"
+      // بعد از ریستارتِ خودکار، فایل دانلودشده‌ی قبلی از بین رفته؛ دوباره دانلودش کن
       try
         DownloadTemporaryFile('{#Net48Url}', '{#Net48File}', '', @OnDownloadProgress);
       except
@@ -387,6 +477,7 @@ begin
         Exit;
       end;
 #else
+      // نسخه‌ی Full: از داخل خود Setup استخراج میشه، اینترنت لازم نیست
       ExtractTemporaryFile('{#Net48File}');
 #endif
     end;
