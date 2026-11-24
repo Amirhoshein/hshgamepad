@@ -1,47 +1,18 @@
----
-name: ✨ پیشنهاد قابلیت (Feature request)
-about: یه ایده یا قابلیت جدید پیشنهاد بده
-title: "[Feature] "
-labels: enhancement
-assignees: ""
----
-
-## 💡 قابلیت پیشنهادی
-<!-- قابلیت یا ایده‌ات رو کوتاه و واضح بنویس -->
+## 💡 Suggested Feature
+<!-- Describe your feature or idea briefly and clearly -->
 
 
-## 🎯 چه مشکلی رو حل می‌کنه؟
-<!-- الان چه چیزی کم میاد یا اذیتت می‌کنه؟ مثلاً: «وقتی ... می‌خوام، نمی‌تونم ...» -->
+## 🎯 What problem does it solve?
+<!-- What is currently missing or causing you trouble? For example: "When I want to..., I can't..." -->
 
 
-## 🛠️ راه‌حل پیشنهادی
-<!-- دوست داری چطور کار کنه؟ -->
+## 🛠️ Proposed Solution
+<!-- How would you like it to work? -->
 
 
-## 🔀 راه‌حل‌های جایگزین
-<!-- راه‌های دیگه‌ای که به ذهنت رسید یا الان استفاده می‌کنی (اختیاری) -->
+## 🔀 Alternative Solutions
+<!-- Other approaches you’ve considered or are currently using (optional) -->
 
 
-## 🎮 بازی یا موقعیت استفاده
-<!-- تو چه بازی یا شرایطی بهش نیاز داری؟ -->
-
-
-## 📍 بخش مربوطه
-<!-- هر کدوم که مربوطه رو علامت بزن -->
-- [ ] برنامه‌ی ویندوز
-- [ ] صفحه‌ی گوشی (دسته)
-- [ ] ویرایش چیدمان
-- [ ] تم و ظاهر
-- [ ] ماکرو
-- [ ] ماوس و کیبورد
-- [ ] مانیتور
-- [ ] زبان‌ها
-- [ ] مورد دیگه:
-
-## 📸 تصویر یا نمونه
-<!-- اسکرین‌شات، طرح دستی یا مثالی از برنامه‌ی مشابه (اختیاری) -->
-
-
-## ☑️ چک‌لیست
-- [ ] تو [Issues](https://github.com/Amirhoshein/hshgamepad/issues) دنبال پیشنهاد مشابه گشتم
-- [ ] از **آخرین نسخه** استفاده می‌کنم و این قابلیت هنوز نیست
+## 🎮 Game or Use Case
+<!-- In which game or situation do you need this? -->
