@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,12 +8,13 @@ using System.Windows.Forms;
 
 namespace GamepadServer;
 
+/// <summary>وضعیت لحظه‌ای دسته برای نمایش زنده در پنجره‌ی تستر</summary>
 public struct PadState
 {
     public int N;
     public bool Connected;
-    public string Mode;
-    public bool FellBack;
+    public string Mode;     // "ps4" ، "xbox" ، "wheel" (فرمون) ، "keyboard" یا "mouse"
+    public bool FellBack;   // آیا از Xbox به PS4 تغییر خودکار داشته؟
     public string Name;
     public string Device;
     public string Ip;
@@ -23,17 +25,20 @@ public struct PadState
     public bool L3, R3;
     public bool DU, DD, DL, DR;
     public float LX, LY, RX, RY;
-    public float LTV, RTV;
+    public float LTV, RTV;          // مقدار آنالوگ ماشه‌ها ۰..۱ (حالت فرمون: LTV = پدال ترمز ، RTV = پدال گاز)
 
-    public int GyroState;
-    public float GyroHz;
-    public long GyroCount;
-    public float GX, GY, GZ;
-    public float AX, AY, AZ;
+    // ژیروسکوپ گوشی (برای لاگ زنده‌ی تستر)
+    public int GyroState;           // 0 = خاموش/داده‌ای نمیاد، 1 = داره به دسته‌ی PS4 میره، 2 = دسته Xbox هست (ژیروسکوپ نداره)، 3 = درایور ViGEmBus ریپورت خام رو قبول نمیکنه
+    public float GyroHz;            // نرخ نمونه‌ها (تعداد در ثانیه)
+    public long GyroCount;          // تعداد کل نمونه‌های رسیده
+    public float GX, GY, GZ;        // سرعت چرخش °/s (محورهای صفحه‌ی گوشی: x راست، y بالا، z سمت کاربر)
+    public float AX, AY, AZ;        // شتاب m/s²
 }
 
+/// <summary>پنجره‌ی گرافیکی سه‌بعدی و وکتور تست دسته (PS4 DualShock 4 / Xbox) با نورپردازی حجمی و حس لمس واقعی در GDI+</summary>
 public sealed class GamepadTesterForm : Form
 {
+    // رنگ‌های تم اصلی برنامه (MainForm) و استودیوی سه‌بعدی
     private static readonly Color cBg = Color.FromArgb(10, 14, 21);
     private static readonly Color cPanel = Color.FromArgb(18, 23, 34);
     private static readonly Color cCell = Color.FromArgb(24, 28, 41);
@@ -42,6 +47,7 @@ public sealed class GamepadTesterForm : Form
     private static readonly Color cMuted = Color.FromArgb(138, 150, 176);
     private static readonly Color cGrid = Color.FromArgb(34, 42, 60);
 
+    // رنگ‌های پایه و متریال سه‌بعدی بدنه و خطوط وکتور
     private static readonly Color cPadBody = Color.FromArgb(22, 28, 42);
     private static readonly Color cPadGrip = Color.FromArgb(14, 18, 28);
     private static readonly Color cPadBorder = Color.FromArgb(156, 172, 198);
@@ -52,27 +58,30 @@ public sealed class GamepadTesterForm : Form
     private static readonly Color cBadgeIdle = Color.FromArgb(234, 238, 246);
     private static readonly Color cBadgeDarkText = Color.FromArgb(14, 18, 26);
 
+    // رنگ‌های جواهری و روانشناختی دکمه‌های Xbox (درخشش نئونی و کریستالی)
     private static readonly Color cXboxY = Color.FromArgb(255, 204, 68);
     private static readonly Color cXboxB = Color.FromArgb(255, 92, 100);
     private static readonly Color cXboxA = Color.FromArgb(79, 224, 116);
     private static readonly Color cXboxX = Color.FromArgb(78, 168, 255);
 
+    // رنگ‌های نمادهای هندسی DualShock 4 (مطابق تصویر دوم با درخشش کریستالی)
     private static readonly Color cPsTriangle = Color.FromArgb(68, 212, 188);
     private static readonly Color cPsCircle = Color.FromArgb(242, 104, 108);
     private static readonly Color cPsCross = Color.FromArgb(108, 162, 242);
     private static readonly Color cPsSquare = Color.FromArgb(222, 136, 208);
 
+    // رنگ‌های اختصاصی هر پلیر (دقیقاً مطابق index.html در گوشی)
     private static readonly Color[] PlayerAccents = new[]
     {
-        Color.FromArgb(91, 146, 255),
-        Color.FromArgb(239, 90, 90),
-        Color.FromArgb(79, 207, 106),
-        Color.FromArgb(229, 139, 208),
-        Color.FromArgb(166, 120, 255),
-        Color.FromArgb(255, 159, 67),
-        Color.FromArgb(72, 219, 251),
-        Color.FromArgb(242, 196, 65),
-        Color.FromArgb(200, 204, 216),
+        Color.FromArgb(91, 146, 255),   // P1 آبی
+        Color.FromArgb(239, 90, 90),    // P2 قرمز
+        Color.FromArgb(79, 207, 106),   // P3 سبز
+        Color.FromArgb(229, 139, 208),  // P4 صورتی
+        Color.FromArgb(166, 120, 255),  // P5 بنفش
+        Color.FromArgb(255, 159, 67),   // P6 نارنجی
+        Color.FromArgb(72, 219, 251),   // P7 فیروزه‌ای
+        Color.FromArgb(242, 196, 65),   // P8 زرد
+        Color.FromArgb(200, 204, 216),  // P9 نقره‌ای
     };
 
     private static readonly Color cXboxGreen = Color.FromArgb(79, 207, 106);
@@ -85,8 +94,8 @@ public sealed class GamepadTesterForm : Form
     private readonly float _k;
     private readonly System.Windows.Forms.Timer _timer;
     private PadState _s;
-    private readonly Button _btnRumble;
-    private readonly System.Windows.Forms.Timer _rumTestTimer;
+    private readonly Button _btnRumble;                      // دکمه‌ی «تست لرزش» بالای پنجره
+    private readonly System.Windows.Forms.Timer _rumTestTimer;   // بعد از ~۱.۲ ثانیه لرزش رو قطع میکنه
     private bool _rumTesting;
 
     private float S(float px) => px * _k;
@@ -146,7 +155,7 @@ public sealed class GamepadTesterForm : Form
         };
         _btnRumble.Enabled = _s.Connected;
 
-        _timer = new System.Windows.Forms.Timer { Interval = 16 };
+        _timer = new System.Windows.Forms.Timer { Interval = 16 }; // ~60 FPS
         _timer.Tick += (_, _) =>
         {
             var next = _hub.GetPadState(_playerN);
@@ -155,13 +164,14 @@ public sealed class GamepadTesterForm : Form
             PollMk();
             bool mk = IsMkMode;
             if (mk != _btnIsClear) { _btnIsClear = mk; if (!_rumTesting) _btnRumble.Text = mk ? L.T("tester.Clear") : L.T("tester.RumbleTest"); }
-            if (!_rumTesting) _btnRumble.Enabled = mk || next.Connected;
+            if (!_rumTesting) _btnRumble.Enabled = mk || next.Connected;   // بدون گوشی نمیشه تست کرد
             if (modeChanged) UpdateWindowTitle();
             Invalidate();
         };
         _timer.Start();
     }
 
+    /// <summary>دکمه‌ی تست لرزش رو سمت چپِ نشانِ XBOX/PS4 تو نوار بالا میذاره</summary>
     private void LayoutTopButton()
     {
         int w = Si(112), h = Si(32);
@@ -169,11 +179,12 @@ public sealed class GamepadTesterForm : Form
         _btnRumble.SetBounds(Math.Max(Si(8), x), Si(12), w, h);
     }
 
+    /// <summary>لرزش کامل (۲۵۵ / ۲۵۵) رو مثل یه بازی به گوشی میفرسته و بعد از ~۱.۲ ثانیه قطع میکنه</summary>
     private void OnRumbleTestClick(object? sender, EventArgs e)
     {
-        if (IsMkMode) { ClearMkTested(); return; }
+        if (IsMkMode) { ClearMkTested(); return; }   // تو حالت کیبرد/ماوس این دکمه «پاک کردن» ـه
         if (_rumTesting) return;
-        if (!_hub.TestRumble(_playerN, 255, 255)) return;
+        if (!_hub.TestRumble(_playerN, 255, 255)) return;   // گوشی وصل نیست
         _rumTesting = true;
         _btnRumble.Enabled = false;
         _btnRumble.Text = L.T("tester.Rumbling");
@@ -223,7 +234,7 @@ public sealed class GamepadTesterForm : Form
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
         bool isWheel = _s.Mode == "wheel";
-        bool isXbox = _s.Mode == "xbox" || isWheel;
+        bool isXbox = _s.Mode == "xbox" || isWheel;      // فرمون هم پشت صحنه همون دسته‌ی Xbox 360 مجازیه
         Color playerColor = PlayerAccents[(_playerN - 1) % PlayerAccents.Length];
         Color accent = isWheel ? playerColor : (isXbox ? cXboxGreen : playerColor);
 
@@ -262,6 +273,7 @@ public sealed class GamepadTesterForm : Form
         g.Restore(state);
     }
 
+    // ==================== نوار وضعیت بالا (با عمق و درخشش سه‌بعدی) ====================
     private void DrawTopBar(Graphics g, bool isXbox, Color accent)
     {
         var r = new RectangleF(0, 0, Math.Max(1f, ClientSize.Width), S(56));
@@ -319,6 +331,7 @@ public sealed class GamepadTesterForm : Form
         }
     }
 
+    // ==================== خط لاگ ژیروسکوپ (زیر نوار بالا) ====================
     private void DrawGyroStrip(Graphics g)
     {
         var inv = System.Globalization.CultureInfo.InvariantCulture;
@@ -336,6 +349,7 @@ public sealed class GamepadTesterForm : Form
         }
         if (_s.Mode == "wheel")
         {
+            // فرمون: زاویه رو خود گوشی از ژیروسکوپ حساب میکنه و فقط مقدار فرمون (محور X استیک چپ) و پدال‌ها رو میفرسته
             text = string.Format(inv, "Wheel mode: steering = left stick X ({0:+0.00;-0.00;0.00}),  gas = RT ({1:0}%),  brake = LT ({2:0}%)",
                 _s.LX, _s.RTV * 100f, _s.LTV * 100f);
             using (var wf = new Font("Consolas", 9f))
@@ -369,6 +383,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawString(text, f, br, S(16), S(62));
     }
 
+    // ==================== نوار اطلاعات پایین ====================
     private void DrawBottomBar(Graphics g, bool isXbox, Color accent)
     {
         float h = S(52);
@@ -409,6 +424,7 @@ public sealed class GamepadTesterForm : Form
         }
     }
 
+    // ==================== داده‌های هندسی دقیق کنترلر رسمی Xbox Wireless Controller (Series X|S / One) ====================
     private static readonly float[][] VecXboxBody =
     {
         new float[] { -82, -138 },
@@ -464,6 +480,7 @@ public sealed class GamepadTesterForm : Form
         new float[] { -130, 112, -148, 150, -174, 166 },
     };
 
+    // ==================== داده‌های هندسی وکتور کنترلر دوم (تصویر ۲: PS4 DualShock 4) ====================
     private static readonly float[][] VecPs4Body =
     {
         new float[] { -132, -144 },
@@ -540,8 +557,10 @@ public sealed class GamepadTesterForm : Form
         return p;
     }
 
+    // ==================== موتور نورپردازی و سایه‌زنی سه‌بعدی بدنه (3D Studio Shell Engine) ====================
     private void Draw3DAmbientAndShadow(Graphics g, float[][] bodySegs, Color accent)
     {
+        // ۱. هاله‌ی نوری پس‌زمینه (Ambient Backlight Aura) متناسب با رنگ پلیر
         using (var auraPath = new GraphicsPath())
         {
             auraPath.AddEllipse(-310f, -210f, 620f, 420f);
@@ -554,6 +573,7 @@ public sealed class GamepadTesterForm : Form
             g.FillPath(pgb, auraPath);
         }
 
+        // ۲. سایه‌ی حجمی چندلایه زیر دسته (Multi-Layer 3D Drop Shadow) برای ایجاد حس شناوری
         (float dy, int alpha)[] shadowLayers =
         {
             (18f, 18),
@@ -574,6 +594,7 @@ public sealed class GamepadTesterForm : Form
 
     private void Draw3DBodyShell(Graphics g, GraphicsPath body, bool isXbox, Color accent)
     {
+        // ۱. گرادیان سه‌بعدی متالیک-مات بدنه (از تاج روشن بالا تا دستگیره‌های تیره پایین)
         var bounds = new RectangleF(-260f, -185f, 520f, 375f);
         using (var bodyGrad = new LinearGradientBrush(bounds, Color.Black, Color.Black, LinearGradientMode.Vertical))
         {
@@ -582,15 +603,16 @@ public sealed class GamepadTesterForm : Form
                 Positions = new[] { 0f, 0.36f, 0.72f, 1f },
                 Colors = new[]
                 {
-                    Color.FromArgb(48, 58, 82),
-                    Color.FromArgb(26, 33, 48),
-                    Color.FromArgb(16, 21, 32),
-                    Color.FromArgb(10, 14, 22)
+                    Color.FromArgb(48, 58, 82),   // تاج بالایی روشن زیر نور استودیو
+                    Color.FromArgb(26, 33, 48),   // صفحه میانی ساتن
+                    Color.FromArgb(16, 21, 32),   // بخش پایینی بدنه
+                    Color.FromArgb(10, 14, 22)    // نوک پایینی دستگیره‌ها در سایه
                 }
             };
             g.FillPath(bodyGrad, body);
         }
 
+        // ۲. حجم‌پردازی ارگونومیک دستگیره‌های چپ و راست + بافت ضدلغزش (3D Grip Swells)
         var oldClip = g.Clip;
         g.SetClip(body, CombineMode.Intersect);
 
@@ -608,6 +630,7 @@ public sealed class GamepadTesterForm : Form
             };
             g.FillPath(pgb, swellPath);
 
+            // شیارهای ظریف بافت گریپ (Micro-Textured Grip Ribs) روی لبه‌ی بیرونی دستگیره‌ها
             using var ribPen = new Pen(Color.FromArgb(26, 190, 210, 240), 1.1f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
             for (int i = 0; i < 8; i++)
             {
@@ -618,6 +641,7 @@ public sealed class GamepadTesterForm : Form
             }
         }
 
+        // بازتاب ظریف نور از بالا روی تاج دسته (Top Crown Specular Glaze)
         using (var crownPath = new GraphicsPath())
         {
             crownPath.AddEllipse(-185f, -195f, 370f, 110f);
@@ -630,26 +654,33 @@ public sealed class GamepadTesterForm : Form
             g.FillPath(crownGrad, crownPath);
         }
 
+        // لبه‌ی پخ‌خورده‌ی داخلی (3D Inner Bevel Rim)
         using (var innerBevel = new Pen(Color.FromArgb(55, 140, 168, 210), 6f) { LineJoin = LineJoin.Round })
             g.DrawPath(innerBevel, body);
 
         g.Clip = oldClip;
     }
 
+    // ==================== ۱. رسم کنترلر سه‌بعدی رسمی Xbox Wireless Controller (بدون هیچ دکمه اضافه) ====================
     private void DrawXboxVectorController(Graphics g, Color accent)
     {
+        // ۱. سایه و هاله‌ی نوری سه‌بعدی پشت دسته
         Draw3DAmbientAndShadow(g, VecXboxBody, accent);
 
+        // ۲. تریگرهای سه‌بعدی LT و RT در پشت شانه
         DrawXboxShoulderZone(g, VecXboxTriggerZone, mirror: false, _s.LT, accent, isTrigger: true, amt: TrigAmt(_s.LT, _s.LTV));
         DrawXboxShoulderZone(g, VecXboxTriggerZone, mirror: true, _s.RT, accent, isTrigger: true, amt: TrigAmt(_s.RT, _s.RTV));
 
+        // ۳. بامپرهای سه‌بعدی LB و RB روی شانه‌های شیب‌دار Xbox
         DrawXboxShoulderZone(g, VecXboxBumperZone, mirror: false, _s.LB, accent, isTrigger: false);
         DrawXboxShoulderZone(g, VecXboxBumperZone, mirror: true, _s.RB, accent, isTrigger: false);
 
+        // ۴. بدنه‌ی اصلی ارگونومیک Xbox با حجم‌پردازی سه‌بعدی و درزهای واقعی بدنه
         using (var body = MakePath(VecXboxBody, mirror: false, close: true))
         {
             Draw3DBodyShell(g, body, isXbox: true, accent);
 
+            // خطوط درز معروف یقه بالایی Xbox (Nexus Collar) و درزهای ارگونومیک دستگیره‌ها
             using (var shadowPen = new Pen(Color.FromArgb(145, 5, 8, 14), 2.4f) { LineJoin = LineJoin.Round })
             using (var nexusPen = new Pen(Color.FromArgb(205, 138, 158, 190), 1.5f) { LineJoin = LineJoin.Round })
             using (var gripPen = new Pen(Color.FromArgb(170, 104, 122, 152), 1.3f) { LineJoin = LineJoin.Round })
@@ -662,28 +693,35 @@ public sealed class GamepadTesterForm : Form
                 using (var igR = MakePath(VecXboxInnerGripSeam, mirror: true, close: false)) { g.DrawPath(shadowPen, igR); g.DrawPath(gripPen, igR); }
             }
 
+            // خط کروم/نقره‌ای دور تا دور بدنه با گرادیان نور از بالا (3D Chrome Contour)
             var rimBounds = new RectangleF(-260f, -165f, 520f, 355f);
             using (var rimBrush = new LinearGradientBrush(rimBounds, Color.FromArgb(236, 242, 252), Color.FromArgb(132, 150, 180), LinearGradientMode.Vertical))
             using (var outerPen = new Pen(rimBrush, 2.6f) { LineJoin = LineJoin.Round })
                 g.DrawPath(outerPen, body);
         }
 
+        // ۵. دکمه مرکزی رسمی Xbox Guide در بالای مرکز دسته با لوگوی کروی X
         DrawXboxNexusGuideButton(g, 0, -108, 19.5f, _s.GUIDE, accent);
 
+        // ۶. فقط دو دکمه دایره‌ای رسمی View (BACK) و Menu (START) در مرکز دسته
         DrawXboxSystemCircleButton(g, -44, -56, 11.2f, _s.BACK, accent, isMenu: false);
         DrawXboxSystemCircleButton(g, 44, -56, 11.2f, _s.START, accent, isMenu: true);
 
+        // ۷. چیدمان نامتقارن اصیل Xbox:
+        // استیک چپ (بالا-چپ)، D-Pad هیبریدی چندوجهی (پایین-چپ)، استیک راست (پایین-راست) و دکمه‌های Y B A X (بالا-راست)
         DrawXboxVectorThumbstick(g, -134, -56, 38.5f, 30.5f, 23.5f, _s.LX, _s.LY, _s.L3, accent);
         DrawXboxHybridDpad(g, -74, 14, 37.5f, accent);
         DrawXboxVectorThumbstick(g, 74, 14, 38.5f, 30.5f, 23.5f, _s.RX, _s.RY, _s.R3, accent);
         DrawXboxVectorActionButtons(g, 134, -56, 34.5f, 17.2f);
 
+        // ۸. ستون نشانگرهای کناری (LB / LT / BACK / L3 در چپ و RB / RT / START / R3 در راست)
         DrawXboxSideHud(g, leftSide: true, accent);
         DrawXboxSideHud(g, leftSide: false, accent);
     }
 
+    // مقدار ماشه ۰..۱ (کشش دستی = آنالوگ؛ دکمه‌ی معمولی = ۰ یا ۱)
     private static float TrigAmt(bool pressed, float v) => v > 0.001f ? (v > 1f ? 1f : v) : (pressed ? 1f : 0f);
-    private static int TrigAlpha(float amt, int max) => amt >= 0.999f ? max : (int)(max * (0.16f + 0.84f * amt));
+    private static int TrigAlpha(float amt, int max) => amt >= 0.999f ? max : (int)(max * (0.16f + 0.84f * amt));   // شفافیت: هرچی بیشتر فشرده، کدرتر؛ کامل = کدر کامل
     private static string TrigPct(float amt) => ((int)Math.Round(amt * 100f)).ToString() + "%";
 
     private void DrawXboxShoulderZone(Graphics g, float[][] segs, bool mirror, bool pressed, Color accent, bool isTrigger, float amt = 1f)
@@ -751,9 +789,11 @@ public sealed class GamepadTesterForm : Form
             g.DrawEllipse(innerPen, cx - ir, py - ir, ir * 2, ir * 2);
         }
 
+        // بازتاب عدسی شیشه‌ای بالای دکمه Xbox
         using (var specPen = new Pen(Color.FromArgb(pressed ? 195 : 130, Color.White), 1.6f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
             g.DrawArc(specPen, cx - r + 3.2f, py - r + 2.2f, (r - 3.2f) * 2, (r - 3.2f) * 2, 200f, 140f);
 
+        // رسم نشان کروی X رسمی Xbox با خطوط منحنی
         Color xCol = pressed ? cBadgeDarkText : accent;
         if (!pressed)
         {
@@ -799,12 +839,14 @@ public sealed class GamepadTesterForm : Form
 
         if (isMenu)
         {
+            // آیکون رسمی Menu (سه خط افقی)
             g.DrawLine(symPen, cx - 4.5f, py - 3.2f, cx + 4.5f, py - 3.2f);
             g.DrawLine(symPen, cx - 4.5f, py, cx + 4.5f, py);
             g.DrawLine(symPen, cx - 4.5f, py + 3.2f, cx + 4.5f, py + 3.2f);
         }
         else
         {
+            // آیکون رسمی View (دو مستطیل روی هم)
             g.DrawLines(symPen, new[]
             {
                 new PointF(cx - 5f, py + 1f),
@@ -815,6 +857,7 @@ public sealed class GamepadTesterForm : Form
         }
     }
 
+    // ==================== استیک آنالوگ سه‌بعدی با گودی واقعی، میله‌ی متحرک و بافت لاستیکی ====================
     private void DrawXboxVectorThumbstick(Graphics g, float cx, float cy, float rOuter, float rMid, float rCap,
         float lx, float ly, bool pressed, Color accent)
     {
@@ -824,6 +867,7 @@ public sealed class GamepadTesterForm : Form
         if (len > 1f) { dx /= len; dy /= len; }
         bool moved = len > 0.08f;
 
+        // ۱. حفره عمیق کروی استیک (Recessed Socket با گرادیان معکوس)
         var outerRect = new RectangleF(cx - rOuter, cy - rOuter, rOuter * 2, rOuter * 2);
         var midRect = new RectangleF(cx - rMid, cy - rMid, rMid * 2, rMid * 2);
         using (var wellGrad = new LinearGradientBrush(outerRect, Color.FromArgb(7, 9, 15), Color.FromArgb(26, 33, 48), LinearGradientMode.Vertical))
@@ -841,6 +885,7 @@ public sealed class GamepadTesterForm : Form
         float kx = cx + dx * maxTravel;
         float ky = cy + dy * maxTravel;
 
+        // ۲. سایه‌ی متحرک کلاهک داخل حفره و میله‌ی فلزی استیک (3D Shaft & Cast Shadow)
         using (var castShadow = new SolidBrush(Color.FromArgb(185, 2, 4, 8)))
             g.FillEllipse(castShadow, kx - rCap + 2f, ky - rCap + 5.5f, rCap * 2, rCap * 2);
 
@@ -856,6 +901,7 @@ public sealed class GamepadTesterForm : Form
             g.FillEllipse(glow, kx - rCap - 5, ky - rCap - 5, (rCap + 5) * 2, (rCap + 5) * 2);
         }
 
+        // ۳. کلاهک گنبدی لاستیکی + گودی مقعر وسط شست + ۱۶ نقطه برجسته ضدلغزش
         var capRect = new RectangleF(kx - rCap, ky - rCap, rCap * 2, rCap * 2);
         float rDish = rCap - 5.5f;
         var dishRect = new RectangleF(kx - rDish, ky - rDish, rDish * 2, rDish * 2);
@@ -878,6 +924,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawEllipse(dishPen, dishRect);
         }
 
+        // نقاط برجسته لاستیکی دور کلاهک (Knurled Tactile Grip Dots)
         float rKnurl = rCap - 2.7f;
         using var dotBrush = new SolidBrush(pressed ? Color.FromArgb(160, cBadgeDarkText) : Color.FromArgb(155, 195, 212, 238));
         for (int a = 0; a < 360; a += 24)
@@ -889,6 +936,7 @@ public sealed class GamepadTesterForm : Form
         }
     }
 
+    // ==================== D-Pad هیبریدی چندوجهی سه‌بعدی رسمی Xbox Series X|S ====================
     private void DrawXboxHybridDpad(Graphics g, float cx, float cy, float dishR, Color accent)
     {
         var dishRect = new RectangleF(cx - dishR, cy - dishR, dishR * 2, dishR * 2);
@@ -899,6 +947,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawEllipse(dishPen, dishRect);
         }
 
+        // خطوط چندوجهی (Faceted Octagonal Dish) داخل بشقاب D-Pad هیبریدی Xbox
         var octPts = new PointF[8];
         float rOct = dishR - 4.5f;
         for (int i = 0; i < 8; i++)
@@ -914,6 +963,7 @@ public sealed class GamepadTesterForm : Form
         }
 
         float w = 10.2f, L = 29f;
+        // سایه زیر صلیب D-Pad
         using (var shCross = MakeRoundedCross(cx, cy + 3.2f, w, L, 3.2f))
         using (var shBrush = new SolidBrush(Color.FromArgb(195, 3, 5, 10)))
             g.FillPath(shBrush, shCross);
@@ -927,6 +977,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawPath(pen, cross);
         }
 
+        // گودی دایره‌ای ظریف در مرکز صلیب (Tactile Center Pivot)
         var pivotRect = new RectangleF(cx - 7f, cy - 7f, 14f, 14f);
         using (var pivotGrad = new LinearGradientBrush(pivotRect, Color.FromArgb(12, 16, 24), Color.FromArgb(34, 42, 58), LinearGradientMode.ForwardDiagonal))
             g.FillEllipse(pivotGrad, pivotRect);
@@ -974,6 +1025,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawPath(border, path);
         }
 
+        // خط برجسته لمسی روی هر بازوی D-Pad
         using var ridgePen = new Pen(pressed ? cBadgeDarkText : Color.FromArgb(130, cVecOuterWhite), 1.6f)
         {
             StartCap = LineCap.Round,
@@ -983,6 +1035,7 @@ public sealed class GamepadTesterForm : Form
         g.DrawLine(ridgePen, cx + dx * rStart, cy + dy * rStart, cx + dx * rEnd, cy + dy * rEnd);
     }
 
+    // ==================== دکمه‌های اکشن کریستالی سه‌بعدی (3D Glassmorphic Action Buttons) ====================
     private void DrawXboxVectorActionButtons(Graphics g, float cx, float cy, float dist, float r)
     {
         DrawXboxVectorLetterBtn(g, cx, cy - dist, r, "Y", _s.Y, cXboxY);
@@ -993,8 +1046,10 @@ public sealed class GamepadTesterForm : Form
 
     private void DrawXboxVectorLetterBtn(Graphics g, float x, float y, float r, string letter, bool pressed, Color jewelCol)
     {
+        // فیزیک فشرده شدن دکمه: در حالت عادی برجسته است و با فشردن ۲ پیکسل به داخل حفره فرو می‌رود
         float py = pressed ? y + 2.0f : y;
 
+        // ۱. حفره و سایه سه‌بعدی زیر دکمه
         using (var socketBrush = new SolidBrush(Color.FromArgb(220, 4, 6, 11)))
             g.FillEllipse(socketBrush, x - r, y - r + 3.6f, r * 2, r * 2);
 
@@ -1006,6 +1061,7 @@ public sealed class GamepadTesterForm : Form
             g.FillEllipse(glowInner, x - r - 3, py - r - 3, (r + 3) * 2, (r + 3) * 2);
         }
 
+        // ۲. گنبد کریستالی دکمه با گرادیان سه‌بعدی
         var btnRect = new RectangleF(x - r, py - r, r * 2, r * 2);
         using (var domeGrad = new LinearGradientBrush(btnRect,
             pressed ? Color.FromArgb(255, jewelCol) : Color.FromArgb(46, 56, 78),
@@ -1017,6 +1073,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawEllipse(rimPen, btnRect);
         }
 
+        // ۳. هاله‌ی نوری زیرسطحی (Subsurface Jewel Glow) در حالت عادی
         if (!pressed)
         {
             using var subPath = new GraphicsPath();
@@ -1030,9 +1087,11 @@ public sealed class GamepadTesterForm : Form
             g.FillPath(pgb, subPath);
         }
 
+        // ۴. بازتاب هلالی شیشه‌ای بالای عدسی دکمه (Top Specular Lens Reflection)
         using (var specPen = new Pen(Color.FromArgb(pressed ? 210 : 135, Color.White), 1.8f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
             g.DrawArc(specPen, x - r + 3.2f, py - r + 2.4f, (r - 3.2f) * 2, (r - 3.2f) * 2, 200f, 140f);
 
+        // ۵. حرف وسط دکمه با سایه ظریف
         using var f = new Font("Segoe UI", 11f, FontStyle.Bold);
         using var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
         if (!pressed)
@@ -1065,16 +1124,21 @@ public sealed class GamepadTesterForm : Form
         DrawHudStickIcon(g, x, 42, leftSide ? "L3" : "R3", bStick, accent);
     }
 
+    // ==================== ۲. رسم کنترلر سه‌بعدی/وکتور منطبق با تصویر دوم (PS4 DualShock 4) ====================
     private void DrawPs4VectorController(Graphics g, Color accent)
     {
+        // ۱. سایه و هاله‌ی نوری سه‌بعدی پشت دسته
         Draw3DAmbientAndShadow(g, VecPs4Body, accent);
 
+        // ۲. تریگرهای سه‌بعدی L2 و R2 پشت شانه‌ها
         DrawPs4ShoulderPart(g, VecPs4Trigger, mirror: false, _s.LT, accent, isTrigger: true, amt: TrigAmt(_s.LT, _s.LTV));
         DrawPs4ShoulderPart(g, VecPs4Trigger, mirror: true, _s.RT, accent, isTrigger: true, amt: TrigAmt(_s.RT, _s.RTV));
 
+        // ۳. بامپرهای سه‌بعدی L1 و R1 بالای شانه‌ها
         DrawPs4ShoulderPart(g, VecPs4Bumper, mirror: false, _s.LB, accent, isTrigger: false);
         DrawPs4ShoulderPart(g, VecPs4Bumper, mirror: true, _s.RB, accent, isTrigger: false);
 
+        // ۴. بدنه‌ی اصلی سه‌بعدی DualShock 4
         using (var body = MakePath(VecPs4Body, mirror: false, close: true))
         {
             Draw3DBodyShell(g, body, isXbox: false, accent);
@@ -1085,6 +1149,7 @@ public sealed class GamepadTesterForm : Form
                 g.DrawPath(pen, body);
         }
 
+        // ۵. خطوط درز و انحنای سه‌بعدی داخلی دستگیره‌های چپ و راست (با سایه و هایلایت پخ‌خورده)
         using (var seamShadow = new Pen(Color.FromArgb(145, 5, 8, 14), 2.4f) { LineJoin = LineJoin.Round })
         using (var seamPen = new Pen(Color.FromArgb(195, 118, 136, 165), 1.4f) { LineJoin = LineJoin.Round })
         {
@@ -1094,24 +1159,32 @@ public sealed class GamepadTesterForm : Form
             using (var ogR = MakePath(VecPs4OuterGripSeam, mirror: true, close: false)) { g.DrawPath(seamShadow, ogR); g.DrawPath(seamPen, ogR); }
         }
 
+        // ۶. دو قاب دایره‌ای فرورفته‌ی سه‌بعدی چپ (D-Pad) و راست (Action Buttons) + زبانه هلالی بالای آن‌ها
         DrawPs4FaceDish(g, -168, -64, 62f);
         DrawPs4FaceDish(g, 168, -64, 62f);
 
+        // ۷. تاچ‌پد مرکزی سه‌بعدی (با بافت نقطه‌ای ظریف، درخشش لایت‌بار و واکنش به کلید TP)
         DrawPs4VectorTouchpad(g, accent);
 
+        // ۸. دکمه‌های کپسولی سه‌بعدی عمودی SHARE و OPTIONS کنار تاچ‌پد
         DrawPs4ShareOptionsCapsule(g, -114, -126, 14f, 30f, _s.BACK, accent);
         DrawPs4ShareOptionsCapsule(g, 114, -126, 14f, 30f, _s.START, accent);
 
+        // ۹. سوراخ‌های اسپیکر سه‌بعدی وسط و دکمه کریستالی PS Home زیر آن
         DrawPs4SpeakerGrille(g, 0, -32);
         DrawPs4HomeButton(g, 0, 14, 14f, _s.GUIDE, accent);
 
+        // ۱۰. D-Pad چهار تکه‌ی سه‌بعدی پلی‌استیشن با مثلث‌های جهت بیرونی (سمت چپ)
         DrawPs4SplitDpad(g, -168, -64, accent);
 
+        // ۱۱. دکمه‌های کریستالی چهارگانه پلی‌استیشن (△ ○ ✕ □) با حلقه راهنمای میانی (سمت راست)
         DrawPs4VectorActionButtons(g, 168, -64);
 
+        // ۱۲. دو آنالوگ استیک سه‌بعدی چپ و راست با ۴ حلقه هم‌مرکز که از پایین بدنه بیرون زده‌اند
         DrawPs4VectorThumbstick(g, -86, 12, _s.LX, _s.LY, _s.L3, accent);
         DrawPs4VectorThumbstick(g, 86, 12, _s.RX, _s.RY, _s.R3, accent);
 
+        // ۱۳. ستون نشانگرهای سه‌بعدی سمت چپ و راست (L1 / L2 / SHARE و R1 / R2 / OPTIONS)
         DrawPs4SideHud(g, leftSide: true, accent);
         DrawPs4SideHud(g, leftSide: false, accent);
     }
@@ -1159,6 +1232,7 @@ public sealed class GamepadTesterForm : Form
             g.FillEllipse(dishGrad, rect);
             g.DrawEllipse(pen, rect);
             g.DrawArc(hiPen, cx - r + 1.5f, cy - r + 1.5f, (r - 1.5f) * 2, (r - 1.5f) * 2, 20f, 140f);
+            // هلال کوچک بالای قاب دایره‌ای مطابق تصویر دوم
             g.DrawArc(pen, cx - 20f, cy - r - 7f, 40f, 14f, 195f, 150f);
         }
     }
@@ -1170,6 +1244,7 @@ public sealed class GamepadTesterForm : Form
         using var outerPath = RoundRect(outer, 8f);
         using var innerPath = RoundRect(inner, 6f);
 
+        // سایه زیر تاچ‌پد
         var shRect = new RectangleF(-92, -145, 184, 104);
         using (var shPath = RoundRect(shRect, 8f))
         using (var shBrush = new SolidBrush(Color.FromArgb(160, 4, 6, 11)))
@@ -1190,10 +1265,12 @@ public sealed class GamepadTesterForm : Form
         {
             g.FillPath(fill, outerPath);
 
+            // بازتاب نوری لایت‌بار روی بخش بالایی تاچ‌پد
             var glowRect = new RectangleF(-76, -148, 152, 28);
             using (var lbGlow = new LinearGradientBrush(glowRect, Color.FromArgb(_s.Connected ? 70 : 20, accent), Color.FromArgb(0, accent), LinearGradientMode.Vertical))
                 g.FillRectangle(lbGlow, glowRect);
 
+            // شبکه‌ی نقاط ظریف خازنی روی سطح تاچ‌پد (Capacitive Micro-Dot Matrix)
             using (var dotBrush = new SolidBrush(Color.FromArgb(_s.TP ? 95 : 55, 150, 170, 205)))
             {
                 for (float gx = -72f; gx <= 72f; gx += 12f)
@@ -1207,6 +1284,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawPath(innerPen, innerPath);
         }
 
+        // نوار درخشان لایت‌بار بالای تاچ‌پد با هاله‌ی نئونی چندلایه
         int lbAlpha = _s.Connected ? 245 : 100;
         using (var bloom1 = new Pen(Color.FromArgb(lbAlpha / 4, accent), 7f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
         using (var bloom2 = new Pen(Color.FromArgb(lbAlpha / 2, accent), 4f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
@@ -1320,6 +1398,7 @@ public sealed class GamepadTesterForm : Form
         float px = -dy, py = dx;
         float offY = pressed ? 1.8f : 0f;
 
+        // ۱. سایه سه‌بعدی زیر هر قطعه D-Pad
         if (!pressed)
         {
             var shPts = new[]
@@ -1363,6 +1442,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawPath(pen, path);
         }
 
+        // مثلث جهت کوچک بیرون هر بازو (با درخشش هنگام فشرده شدن)
         var tri = new[]
         {
             new PointF(cx + dx * 51f, cy + dy * 51f),
@@ -1382,22 +1462,24 @@ public sealed class GamepadTesterForm : Form
     {
         float dist = 35.5f, r = 18.5f;
 
+        // حلقه‌های راهنمای ظریف بین ۴ دکمه (در پس‌زمینه‌ی دکمه‌ها، مطابق تصویر دوم)
         using (var ringPen = new Pen(cVecSubtle, 1.2f))
         {
             g.DrawEllipse(ringPen, cx - 25f, cy - 25f, 50f, 50f);
             g.DrawEllipse(ringPen, cx - 46f, cy - 46f, 92f, 92f);
         }
 
-        DrawPs4VectorShapeBtn(g, cx, cy - dist, r, 'Y', _s.Y, cPsTriangle);
-        DrawPs4VectorShapeBtn(g, cx + dist, cy, r, 'B', _s.B, cPsCircle);
-        DrawPs4VectorShapeBtn(g, cx, cy + dist, r, 'A', _s.A, cPsCross);
-        DrawPs4VectorShapeBtn(g, cx - dist, cy, r, 'X', _s.X, cPsSquare);
+        DrawPs4VectorShapeBtn(g, cx, cy - dist, r, 'Y', _s.Y, cPsTriangle); // △ بالا
+        DrawPs4VectorShapeBtn(g, cx + dist, cy, r, 'B', _s.B, cPsCircle);   // ○ راست
+        DrawPs4VectorShapeBtn(g, cx, cy + dist, r, 'A', _s.A, cPsCross);    // ✕ پایین
+        DrawPs4VectorShapeBtn(g, cx - dist, cy, r, 'X', _s.X, cPsSquare);   // □ چپ
     }
 
     private void DrawPs4VectorShapeBtn(Graphics g, float x, float y, float r, char kind, bool pressed, Color symColor)
     {
         float py = pressed ? y + 2.0f : y;
 
+        // ۱. سایه سه‌بعدی زیر دکمه
         using (var socketBrush = new SolidBrush(Color.FromArgb(220, 4, 6, 11)))
             g.FillEllipse(socketBrush, x - r, y - r + 3.6f, r * 2, r * 2);
 
@@ -1409,6 +1491,7 @@ public sealed class GamepadTesterForm : Form
             g.FillEllipse(glowInner, x - r - 3, py - r - 3, (r + 3) * 2, (r + 3) * 2);
         }
 
+        // ۲. گنبد کریستالی دکمه
         var btnRect = new RectangleF(x - r, py - r, r * 2, r * 2);
         using (var domeGrad = new LinearGradientBrush(btnRect,
             pressed ? Color.FromArgb(255, symColor) : Color.FromArgb(46, 56, 78),
@@ -1423,9 +1506,11 @@ public sealed class GamepadTesterForm : Form
             g.DrawEllipse(innerPen, x - ir, py - ir, ir * 2, ir * 2);
         }
 
+        // ۳. بازتاب هلالی شیشه‌ای بالای دکمه
         using (var specPen = new Pen(Color.FromArgb(pressed ? 210 : 135, Color.White), 1.7f) { StartCap = LineCap.Round, EndCap = LineCap.Round })
             g.DrawArc(specPen, x - r + 3.2f, py - r + 2.4f, (r - 3.2f) * 2, (r - 3.2f) * 2, 200f, 140f);
 
+        // ۴. نماد هندسی پلی‌استیشن با درخشش ظریف نئونی
         Color fg = pressed ? cBadgeDarkText : symColor;
         using var glowSymPen = new Pen(Color.FromArgb(pressed ? 0 : 55, symColor), 4.5f)
         {
@@ -1443,7 +1528,7 @@ public sealed class GamepadTesterForm : Form
         float s = r * 0.48f;
         switch (kind)
         {
-            case 'Y':
+            case 'Y': // مثلث △
                 var tri = new[]
                 {
                     new PointF(x, py - s),
@@ -1453,11 +1538,11 @@ public sealed class GamepadTesterForm : Form
                 if (!pressed) g.DrawPolygon(glowSymPen, tri);
                 g.DrawPolygon(symPen, tri);
                 break;
-            case 'B':
+            case 'B': // دایره ○
                 if (!pressed) g.DrawEllipse(glowSymPen, x - s, py - s, s * 2, s * 2);
                 g.DrawEllipse(symPen, x - s, py - s, s * 2, s * 2);
                 break;
-            case 'A':
+            case 'A': // ضربدر ✕
                 if (!pressed)
                 {
                     g.DrawLine(glowSymPen, x - s, py - s, x + s, py + s);
@@ -1466,7 +1551,7 @@ public sealed class GamepadTesterForm : Form
                 g.DrawLine(symPen, x - s, py - s, x + s, py + s);
                 g.DrawLine(symPen, x + s, py - s, x - s, py + s);
                 break;
-            case 'X':
+            case 'X': // مربع □
                 if (!pressed) g.DrawRectangle(glowSymPen, x - s, py - s, s * 2, s * 2);
                 g.DrawRectangle(symPen, x - s, py - s, s * 2, s * 2);
                 break;
@@ -1486,6 +1571,7 @@ public sealed class GamepadTesterForm : Form
         if (len > 1f) { dx /= len; dy /= len; }
         bool moved = len > 0.08f;
 
+        // ۱. سایه پایینی محفظه استیک + بدنه‌ی برجسته‌ی محفظه + حفره مقعر داخلی
         using (var housingSh = new SolidBrush(Color.FromArgb(175, 3, 5, 10)))
             g.FillEllipse(housingSh, cx - rHousing, cy - rHousing + 5.5f, rHousing * 2, rHousing * 2);
 
@@ -1503,6 +1589,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawEllipse(wellPen, wellRect);
         }
 
+        // ۲. سایه متحرک، میله‌ی استیک و کلاهک لاستیکی سه‌بعدی با گودی وسط
         float maxTravel = 11.5f;
         float kx = cx + dx * maxTravel;
         float ky = cy + dy * maxTravel;
@@ -1543,6 +1630,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawEllipse(inPen, inRect);
         }
 
+        // ۱۶ نقطه برجسته ضدلغزش روی لبه‌ی کلاهک استیک
         float rKnurl = rCap - 2.8f;
         using var dotBrush = new SolidBrush(pressed ? Color.FromArgb(160, cBadgeDarkText) : Color.FromArgb(155, 195, 212, 238));
         for (int a = 0; a < 360; a += 24)
@@ -1573,6 +1661,7 @@ public sealed class GamepadTesterForm : Form
         DrawHudCapsuleLabelBadge(g, x, 14, leftSide ? "SHARE" : "OPTIONS", bMenu, accent);
     }
 
+    // ==================== ابزارهای مشترک رسم بج‌های کناری سه‌بعدی (3D HUD Badges) ====================
     private void DrawHudBumperBadge(Graphics g, float cx, float cy, string label, bool pressed, Color accent)
     {
         var r = new RectangleF(cx - 14, cy - 9, 28, 18);
@@ -1726,6 +1815,7 @@ public sealed class GamepadTesterForm : Form
         g.DrawString(label, f, tb, new RectangleF(cx - 10, cy - 10, 20, 14), sf);
     }
 
+    // ==================== بنر قطع اتصال و توابع کمکی ====================
     private void DrawDisconnectedBanner(Graphics g)
     {
         var br = new RectangleF(-190, -28, 380, 56);
@@ -1746,15 +1836,19 @@ public sealed class GamepadTesterForm : Form
         g.DrawString(lost, f, tb, br, sf);
     }
 
-    private const float WheelShowLock = 270f;
+    // ==================== حالت فرمون (Steering Wheel) ====================
+    // فرمون با مقدار LX میچرخه (همونی که گوشی از روی ژیروسکوپ حساب کرده و میفرسته)؛
+    // پدال گاز = ماشه‌ی راست (RTV)، پدال ترمز = ماشه‌ی چپ (LTV)، پدال‌های شیفت = LB / RB، بوق = L3 (وسط فرمون)، دوربین = R3
+    private const float WheelShowLock = 270f;    // چرخش نمایشی فرمون در قفل کامل (درجه)؛ با پیش‌فرض index.html یکیه
 
     private void DrawWheelController(Graphics g, Color accent)
     {
-        const float f = 0.47f;
+        const float f = 0.47f;                   // هندسه‌ی فرمون (شعاع حدود ۲۵۰) × این = اندازه‌ی نهایی
         const float wx = 0f, wy = -14f;
         float lx = Math.Max(-1f, Math.Min(1f, _s.LX));
         float angle = lx * WheelShowLock;
 
+        // ---- قاب ثابت دور فرمون + تیک‌های زاویه + نقطه‌ی زاویه‌ی فعلی ----
         float bzR = 325f * f;
         using (var glow = new Pen(Color.FromArgb(_s.Connected ? 60 : 20, accent), 9f))
             g.DrawEllipse(glow, wx - bzR, wy - bzR, bzR * 2, bzR * 2);
@@ -1778,6 +1872,7 @@ public sealed class GamepadTesterForm : Form
             g.FillEllipse(db, dx - 5f, dy - 5f, 10f, 10f);
         }
 
+        // ---- خود فرمون (میچرخه) ----
         var saved = g.Save();
         g.TranslateTransform(wx, wy);
         g.RotateTransform(angle);
@@ -1831,18 +1926,22 @@ public sealed class GamepadTesterForm : Form
         }
         g.Restore(saved);
 
+        // ---- پدال‌های شیفت (پشت فرمون): چپ = LB (دنده کم) ، راست = RB (دنده زیاد) ----
         DrawWheelPaddle(g, -190f, -46f, 24f, 84f, _s.LB, "-", accent);
         DrawWheelPaddle(g, 166f, -46f, 24f, 84f, _s.RB, "+", accent);
 
+        // ---- پدال‌های ترمز و گاز (پر شدنشون = مقدار آنالوگ) ----
         DrawWheelPedal(g, -300f, -46f, 54f, 170f, _s.LTV, "BRAKE", cXboxB);
         DrawWheelPedal(g, 246f, -46f, 54f, 170f, _s.RTV, "GAS", cXboxA);
 
+        // ---- دکمه‌ها ----
         DrawXboxHybridDpad(g, -262f, -118f, 37.5f, accent);
         DrawXboxVectorActionButtons(g, 262f, -118f, 34.5f, 17.2f);
         DrawXboxSystemCircleButton(g, -52f, -186f, 11.2f, _s.BACK, accent, isMenu: false);
         DrawXboxSystemCircleButton(g, 52f, -186f, 11.2f, _s.START, accent, isMenu: true);
         DrawXboxNexusGuideButton(g, 0f, 172f, 16f, _s.GUIDE, accent);
 
+        // R3 (دوربین) کنار پدال گاز
         {
             float rx = 206f, ry = -186f, rr = 12f;
             using var bb = new SolidBrush(_s.R3 ? accent : cBtnIdle);
@@ -1911,6 +2010,10 @@ public sealed class GamepadTesterForm : Form
             g.DrawString(sym, fnt, tb, r, sf);
     }
 
+    // ==================== تستر کیبرد و ماوس ====================
+    // وقتی گوشی روی «کیبرد» یا «ماوس» هست دسته‌ای در کار نیست و ورودی‌ها مستقیم تو ویندوز تزریق میشن.
+    // پس تستر وضعیت کلیدها و دکمه‌های ماوس رو از خود ویندوز میخونه (GetAsyncKeyState) و برای چرخ ماوس یه هوک سبک میذاره.
+    // یعنی ورودی واقعیِ همین کامپیوتر هم نشون داده میشه، نه فقط ورودی گوشی.
 
     [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int vKey);
     [DllImport("user32.dll")] private static extern bool GetCursorPos(out MkPoint p);
@@ -1932,6 +2035,7 @@ public sealed class GamepadTesterForm : Form
         public int Vk;
     }
 
+    // چیدمان دقیقاً مثل کیبرد داخل index.html (۶ ردیف ، عرض هر ردیف = ۱۵ واحد)
     private static readonly KbKey[][] KbRows = BuildKbRows();
     private static KbKey Kk(string code, string label, int vk, float w = 1f) => new KbKey { Code = code, Label = label, Vk = vk, W = w };
 
@@ -1997,12 +2101,14 @@ public sealed class GamepadTesterForm : Form
         return n;
     }
 
+    // وضعیت لحظه‌ای کیبرد
     private readonly HashSet<string> _kbHeld = new();
     private readonly HashSet<string> _kbPrev = new();
     private readonly HashSet<string> _kbTested = new();
     private readonly List<string> _kbNames = new();
     private string _kbLast = "—";
 
+    // وضعیت لحظه‌ای ماوس
     private bool _msL, _msR, _msM, _msX1, _msX2;
     private readonly HashSet<string> _msTested = new();
     private readonly List<MsStep> _msTrail = new();
@@ -2011,16 +2117,16 @@ public sealed class GamepadTesterForm : Form
     private long _msLastTick;
     private float _msVx, _msVy, _msDist;
     private int _msDx, _msDy;
-    private int _wheelAccum;
-    private float _msWheelTotal;
+    private int _wheelAccum;            // جمع دلتای چرخ که هوک میریزه ، تو تیک تایمر مصرف میشه
+    private float _msWheelTotal;        // جمع کل ، بر حسب «تیک» (هر تیک = 120)
     private int _msWheelDir;
     private long _msWheelTick;
     private IntPtr _mouseHook = IntPtr.Zero;
     private MkHookProc? _mouseProc;
     private bool _hookFailed;
-    private bool _btnIsClear;
+    private bool _btnIsClear;           // دکمه‌ی بالای پنجره تو حالت کیبرد/ماوس «پاک کردن» میشه
 
-    private bool IsMouseLike => _s.Mode == "mouse" || _s.Mode == "screen";
+    private bool IsMouseLike => _s.Mode == "mouse" || _s.Mode == "screen";      // نمایشگر لمسی هم نشانگر واقعی ماوس رو حرکت میده
 
     private bool IsMkMode => _s.Mode == "keyboard" || IsMouseLike;
 
@@ -2057,6 +2163,7 @@ public sealed class GamepadTesterForm : Form
                 bool d = VkDown(k.Vk);
                 if (!d)
                 {
+                    // بعضی برنامه‌ها شیفت/کنترل/آلت رو بدون چپ و راست تزریق میکنن
                     if (k.Code == "ShiftLeft") d = shiftAny && !VkDown(0xA1);
                     else if (k.Code == "ControlLeft") d = ctrlAny && !VkDown(0xA3);
                     else if (k.Code == "AltLeft") d = altAny && !VkDown(0xA5);
@@ -2112,7 +2219,7 @@ public sealed class GamepadTesterForm : Form
         try
         {
             _mouseProc = MouseHookCb;
-            _mouseHook = SetWindowsHookEx(14, _mouseProc, GetModuleHandle(null), 0);
+            _mouseHook = SetWindowsHookEx(14, _mouseProc, GetModuleHandle(null), 0);   // 14 = WH_MOUSE_LL
             if (_mouseHook == IntPtr.Zero) _hookFailed = true;
         }
         catch { _hookFailed = true; }
@@ -2129,7 +2236,7 @@ public sealed class GamepadTesterForm : Form
     {
         try
         {
-            if (code >= 0 && (int)wParam == 0x020A)
+            if (code >= 0 && (int)wParam == 0x020A)   // WM_MOUSEWHEEL
             {
                 var d = Marshal.PtrToStructure<MsLlHook>(lParam);
                 _wheelAccum += unchecked((short)(d.MouseData >> 16));
@@ -2152,6 +2259,7 @@ public sealed class GamepadTesterForm : Form
         return list;
     }
 
+    // ---------- رسم کیبرد ----------
     private void DrawKeyboardTester(Graphics g, Color accent)
     {
         const float U = 40f, H = 38f, G = 4f;
@@ -2224,6 +2332,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawString(cap, fc, cb, new RectangleF(x0 - 14f, plate.Bottom + 6f, totalW + 28f, 22f), sf);
     }
 
+    // ---------- رسم ماوس ----------
     private void DrawMouseBtnZone(Graphics g, RectangleF zone, bool pressed, bool tested, Color accent)
     {
         if (pressed)
@@ -2261,6 +2370,7 @@ public sealed class GamepadTesterForm : Form
         long now = Clock.Ms;
         using var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
 
+        // ===== بدنه‌ی ماوس =====
         var st = g.Save();
         g.TranslateTransform(-190f, -14f);
         var bodyR = new RectangleF(-78f, -118f, 156f, 236f);
@@ -2294,6 +2404,7 @@ public sealed class GamepadTesterForm : Form
                 g.DrawString("R", fl, tb, new RectangleF(12f, -96f, 66f, 60f), sf);
         }
 
+        // چرخ وسط (با خط‌های متحرک موقع اسکرول)
         bool wFlash = now - _msWheelTick < 220;
         var wr = new RectangleF(-8f, -98f, 16f, 44f);
         using (var wp = RoundRect(wr, 8f))
@@ -2326,6 +2437,7 @@ public sealed class GamepadTesterForm : Form
                 g.DrawString(_msWheelDir > 0 ? "▲" : "▼", fa, ab, new RectangleF(-12f, _msWheelDir > 0 ? -114f : -52f, 24f, 14f), sf);
         }
 
+        // دکمه‌های کناری X1 / X2
         DrawMouseSideBtn(g, new RectangleF(-88f, -6f, 16f, 28f), _msX1, _msTested.Contains("X1"), accent);
         DrawMouseSideBtn(g, new RectangleF(-88f, 28f, 16f, 28f), _msX2, _msTested.Contains("X2"), accent);
 
@@ -2334,6 +2446,7 @@ public sealed class GamepadTesterForm : Form
             g.DrawString(string.Format(inv, "Scroll: {0:+0.#;-0.#;0}", _msWheelTotal), fs, sb, new RectangleF(-100f, 128f, 200f, 18f), sf);
         g.Restore(st);
 
+        // ===== رادار حرکت ماوس =====
         st = g.Save();
         g.TranslateTransform(120f, -14f);
         const float R = 140f;
@@ -2349,6 +2462,7 @@ public sealed class GamepadTesterForm : Form
         using (var bp = new Pen(cPadBorder, 1.8f))
             g.DrawEllipse(bp, disk);
 
+        // مسیر 1.5 ثانیه‌ی اخیر؛ سر مسیر (جای فعلی ماوس) وسط رادار میمونه
         int n = _msTrail.Count;
         if (n > 0)
         {

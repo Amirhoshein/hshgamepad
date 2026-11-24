@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -7,6 +8,11 @@ using System.Windows.Forms;
 
 namespace GamepadServer;
 
+/// <summary>
+/// فایروال ویندوز قانون «اجازه‌ی ورودی» رو برای هر نوع شبکه (Domain / Private / Public) جدا نگه میداره.
+/// وقتی کاربر شبکه رو عوض کنه (مثلاً وای‌فای دیگه‌ای که Public حساب میشه) IP جدید درست نشون داده میشه ولی گوشی بهش وصل نمیشه.
+/// این کلاس چک میکنه برای شبکه‌ی فعلی قانونی هست یا نه، و (با اجازه‌ی کاربر) یه قانون برای همه‌ی شبکه‌ها اضافه میکنه.
+/// </summary>
 internal static class FirewallGuard
 {
     private const string RuleName = "HSH Gamepad";
@@ -16,6 +22,7 @@ internal static class FirewallGuard
         return o.GetType().InvokeMember(name, BindingFlags.GetProperty, null, o, args);
     }
 
+    /// <summary>true = فایروال برای شبکه‌ی فعلی روشنه و هیچ قانون «اجازه‌ی ورودی»ای برای این برنامه / این پورت نیست</summary>
     public static bool NeedsRule(int port, out string key)
     {
         key = "";
@@ -43,8 +50,8 @@ internal static class FirewallGuard
                 try
                 {
                     if (!Convert.ToBoolean(Get(r, "Enabled"))) continue;
-                    if (Convert.ToInt32(Get(r, "Direction")) != 1) continue;
-                    if (Convert.ToInt32(Get(r, "Action")) != 1) continue;
+                    if (Convert.ToInt32(Get(r, "Direction")) != 1) continue;     // ورودی
+                    if (Convert.ToInt32(Get(r, "Action")) != 1) continue;        // اجازه
                     if ((Convert.ToInt32(Get(r, "Profiles")) & cur) == 0) continue;
 
                     string app = Convert.ToString(Get(r, "ApplicationName")) ?? "";
@@ -52,11 +59,11 @@ internal static class FirewallGuard
                     {
                         string full = Environment.ExpandEnvironmentVariables(app);
                         if (string.Equals(full, exe, StringComparison.OrdinalIgnoreCase)) return false;
-                        continue;
+                        continue;       // قانون برنامه‌ی دیگه‌ای
                     }
 
                     int proto = Convert.ToInt32(Get(r, "Protocol"));
-                    if (proto != 6 && proto != 256) continue;
+                    if (proto != 6 && proto != 256) continue;                    // TCP یا هر پروتکلی
                     string ports = Convert.ToString(Get(r, "LocalPorts")) ?? "";
                     if (PortListed(ports, port)) return false;
                 }
@@ -66,7 +73,7 @@ internal static class FirewallGuard
         }
         catch
         {
-            return false;
+            return false;       // نمیدونیم؛ مزاحم کاربر نشو
         }
     }
 
@@ -87,6 +94,11 @@ internal static class FirewallGuard
         return false;
     }
 
+    /// <summary>
+    /// قانون‌های قدیمیِ همین برنامه (مثلاً «Block» که ویندوز وقتی کاربر Cancel میزنه میسازه) رو پاک میکنه و یه قانون
+    /// «اجازه‌ی ورودی» برای همه‌ی شبکه‌ها اضافه میکنه. ویندوز خودش دسترسی ادمین (UAC) میخواد.
+    /// خروجی: 1 = انجام شد، 0 = کاربر UAC رو رد کرد، -1 = شکست
+    /// </summary>
     public static int AddRule()
     {
         try

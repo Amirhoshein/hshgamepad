@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ using Nefarius.ViGEm.Client;
 
 namespace GamepadServer;
 
+/// <summary>یک گوشی که وصله (یک WebSocket)</summary>
 public sealed class Conn
 {
     private readonly SemaphoreSlim _sendLock = new(1, 1);
@@ -20,18 +22,25 @@ public sealed class Conn
     public string Device { get; }
     public string Ip { get; }
 
+    /// <summary>اسمی که کاربر خودش گذاشته (فقط برای نمایش)</summary>
     public string Name { get; set; }
     public string Display => Name.Length > 0 ? Name : Device;
 
+    /// <summary>پلیری که این گوشی گرفته (null = هنوز هیچی نگرفته)</summary>
     public Slot? Slot { get; set; }
     public string Mode { get; set; } = "ps4";
 
+    /// <summary>چیدمان دکمه‌های این گوشی (JSON معتبر، همون که گوشی با "lay" فرستاده)؛ خالی = هنوز نفرستاده.
+    /// برای "کپی چیدمان از بقیه" نگه داشته میشه.</summary>
     public volatile string LayoutJson = "";
 
+    /// <summary>گوشی ژیروسکوپ رو روشن کرده ("gyr 1")؛ تا روشن نباشه پیام‌های "gy" نادیده گرفته میشن</summary>
     public volatile bool GyroOn;
 
+    // ---- نمایشگر لمسی (ScreenCast.cs) ----
     private readonly object _castLock = new object();
     private ScreenCast.Caster? _cast;
+    /// <summary>نمایشگر انتخاب‌شده و محدوده‌ش (برای تبدیل جای انگشت به مختصات دسکتاپ)</summary>
     public int ScreenMon, ScrX, ScrY, ScrW, ScrH;
     public bool IsOpen => Ws.State == WebSocketState.Open;
 
@@ -44,6 +53,7 @@ public sealed class Conn
         }
     }
 
+    /// <summary>گوشی میگه یه فریم رو نمایش داد (برای کنترل صف فریم‌ها)</summary>
     public void CastAck()
     {
         ScreenCast.Caster? c;
@@ -60,6 +70,31 @@ public sealed class Conn
         }
     }
 
+    // ---- صدای کامپیوتر برای گوشی (AudioCast.cs) ----
+    private readonly object _audLock = new object();
+    private AudioCast.Caster? _aud;
+
+    public void AudioStart(Hub hub)
+    {
+        lock (_audLock)
+        {
+            if (_aud != null && _aud.Running) return;
+            _aud?.Stop();
+            _aud = new AudioCast.Caster(this, hub);
+            _aud.Start();
+        }
+    }
+
+    public void AudioStop()
+    {
+        lock (_audLock)
+        {
+            _aud?.Stop();
+            _aud = null;
+        }
+    }
+
+    /// <summary>ارسال یک فریم تصویر (پیام باینری)</summary>
     public async Task SendBinaryAsync(byte[] data)
     {
         try
@@ -77,6 +112,7 @@ public sealed class Conn
         }
         catch
         {
+            // گوشی رفته
         }
     }
 
@@ -116,6 +152,7 @@ public sealed class Conn
         }
         catch
         {
+            // گوشی رفته؛ حلقه‌ی دریافت خودش جمعش میکنه
         }
     }
 
@@ -129,6 +166,7 @@ public sealed record SlotInfo(
     int N, bool HasPad, string? Mode, bool FellBack,
     string? Name, string? Device, string? Ip, double? IdleSeconds);
 
+/// <summary>مدیریت ۹ اسلات و گوشی‌های وصل. هر پلیر فقط یک گوشی میتونه داشته باشه.</summary>
 public sealed class Hub : IDisposable
 {
     private readonly Dictionary<int, Slot> _slots = new();
@@ -136,10 +174,13 @@ public sealed class Hub : IDisposable
 
     public object Sync { get; } = new();
 
+    /// <summary>بعد از چند ثانیه بی‌گوشی ماندن، دسته‌ی مجازی حذف بشه (0 = هیچ وقت)</summary>
     public int AutoKickSeconds { get; set; }
 
+    /// <summary>اجازه‌ی کنترل ماوس و کیبورد PC از گوشی (فقط پلیر ۱). مقدار اولیه‌ش از تنظیمات میاد (پیش‌فرض روشن)؛ از تیک پایین پنجره‌ی سرور عوض میشه.</summary>
     public volatile bool AllowInput;
 
+    /// <summary>هر وقت وضعیت عوض بشه (از هر ترد) صدا زده میشه</summary>
     public event Action? Changed;
 
     public Hub(ViGEmClient client)
@@ -151,6 +192,7 @@ public sealed class Hub : IDisposable
     {
         lock (Sync)
         {
+            // همون گوشی (با همون ClientId) دوباره وصل شده؛ اتصال قبلی‌ش احتمالاً نیمه‌مرده‌ست => کنار بره
             if (c.ClientId.Length > 0)
             {
                 foreach (var old in _conns.Where(x => x.ClientId == c.ClientId).ToList())
@@ -166,6 +208,7 @@ public sealed class Hub : IDisposable
 
     public void Remove(Conn c)
     {
+        MicBridge.Stop(c);      // گوشی رفت => میکروفون مجازی (اگه مال این گوشی بود) در میاد
         bool removed;
         lock (Sync) removed = RemoveLocked(c);
         if (removed) Notify(null);
@@ -182,10 +225,12 @@ public sealed class Hub : IDisposable
             s.IdleSince = DateTime.UtcNow;
         }
         c.Slot = null;
-        c.CastStop();
+        c.CastStop();         // پخش تصویر نمایشگر لمسی هم قطع بشه
+        c.AudioStop();        // صدا هم قطع بشه
         return true;
     }
 
+    /// <summary>گرفتن پلیر n با نوع دسته‌ی mode. اگه یکی دیگه ازش استفاده میکنه false برمیگردونه.</summary>
     public bool Claim(Conn c, int n, string mode)
     {
         bool ok;
@@ -202,7 +247,7 @@ public sealed class Hub : IDisposable
                 var prev = c.Slot;
                 if (prev != null && !ReferenceEquals(prev, next))
                 {
-                    prev.Release();
+                    prev.Release();          // پلیر قبلی این گوشی ول بشه
                     prev.Owner = null;
                     prev.IdleSince = DateTime.UtcNow;
                 }
@@ -217,6 +262,7 @@ public sealed class Hub : IDisposable
         return ok;
     }
 
+    /// <summary>تست لرزش: به گوشیِ پلیر n دستور لرزش میفرسته (۰ و ۰ = قطع). اگه گوشی وصل نباشه false.</summary>
     public bool TestRumble(int n, byte large, byte small)
     {
         Slot? s;
@@ -229,12 +275,14 @@ public sealed class Hub : IDisposable
         return true;
     }
 
+    /// <summary>عوض کردن اسم نمایشی یه گوشی</summary>
     public void Rename(Conn c, string name)
     {
         c.Name = Conn.CleanName(name);
         Notify(null);
     }
 
+    /// <summary>چیدمانِ گوشیِ پلیر n (JSON). اگه پلیر خالیه یا گوشی هنوز چیدمانش رو نفرستاده null برمیگردونه.</summary>
     public string? LayoutOf(int n)
     {
         lock (Sync)
@@ -245,6 +293,7 @@ public sealed class Hub : IDisposable
         }
     }
 
+    /// <summary>دسته‌ی مجازی یه پلیر آزاد رو از ویندوز برمیداره. اگه گوشی پشتشه کاری نمیکنه.</summary>
     public bool RemovePad(int n)
     {
         bool done = false;
@@ -260,11 +309,12 @@ public sealed class Hub : IDisposable
         return done;
     }
 
+    /// <summary>هر ثانیه صدا زده میشه؛ دسته‌های آزادِ قدیمی رو (اگه حذف خودکار روشنه) برمیداره</summary>
     public void Tick()
     {
         lock (Sync)
         {
-            foreach (var s in _slots.Values) s.GyroWatchdog();
+            foreach (var s in _slots.Values) s.GyroWatchdog();   // گوشی وسط چرخش ساکت شد => سرعت چرخش صفر
         }
 
         int secs = AutoKickSeconds;
@@ -309,6 +359,7 @@ public sealed class Hub : IDisposable
         }
     }
 
+    /// <summary>به همه‌ی گوشی‌ها وضعیت پلیرها رو میفرسته. گوشی ack فقط جواب درخواست خودشه.</summary>
     private void Notify(Conn? ack)
     {
         List<(Conn, string)> msgs;
@@ -321,7 +372,7 @@ public sealed class Hub : IDisposable
             msgs = _conns.Select(c => (c, JsonSerializer.Serialize(new
             {
                 t = "state",
-                lay = 1,
+                lay = 1,                // این سرور کپی چیدمان ("lay" / "getlay") رو پشتیبانی میکنه
                 taken,
                 you = c.Slot?.N ?? 0,
                 mode = c.Slot != null ? c.Mode : null,
@@ -342,6 +393,7 @@ public sealed class Hub : IDisposable
     }
 }
 
+/// <summary>اسم تقریبی دستگاه از روی User-Agent مرورگر (مرورگر اسم واقعی گوشی رو نمیده)</summary>
 public static class DeviceInfo
 {
     public static string FromUserAgent(string? ua)
@@ -354,6 +406,7 @@ public static class DeviceInfo
             if (m.Success)
             {
                 var model = Regex.Replace(m.Groups[1].Value, @"\s*Build/.*$", "").Trim();
+                // کروم مدل رو مخفی میکنه و فقط "K" میذاره
                 if (model.Length > 1) return "Android " + model;
             }
             return "Android phone";

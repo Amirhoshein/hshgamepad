@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -9,6 +10,11 @@ using MapFlags = SharpDX.Direct3D11.MapFlags;
 
 namespace GamepadServer;
 
+/// <summary>
+/// ضبط صفحه با Desktop Duplication (DXGI): ویندوز خودش فریم نهایی دسکتاپ رو از کارت گرافیک میده و میگه کی عوض شده.
+/// چندین برابر سریع‌تر از BitBlt/GDI هست و تمام‌صفحه‌ی بازی‌ها رو هم میگیره. ویندوز 8 به بالا؛ تو ویندوز 7 (یا اگه نشد) TryCreate
+/// null برمیگردونه و ScreenCast خودش با GDI ادامه میده.
+/// </summary>
 internal sealed class DxgiCapture : IDisposable
 {
     private Device? _dev;
@@ -19,6 +25,7 @@ internal sealed class DxgiCapture : IDisposable
     public int Width { get; private set; }
     public int Height { get; private set; }
 
+    /// <summary>deviceName مثل \\.\DISPLAY1 (همون Screen.DeviceName)</summary>
     public static DxgiCapture? TryCreate(string deviceName)
     {
         DxgiCapture? c = null;
@@ -83,6 +90,10 @@ internal sealed class DxgiCapture : IDisposable
         return false;
     }
 
+    /// <summary>
+    /// منتظر فریم جدید میمونه (حداکثر timeoutMs) و اگه اومد تو dst (Format32bppRgb هم‌اندازه‌ی Width×Height) میریزه.
+    /// 1 = فریم جدید تو dst ریخته شد ؛ 0 = تغییری نبود ؛ -1 = دوپلیکیت از دست رفت (تغییر رزولوشن، UAC، قفل...) و باید دوباره ساخته بشه
+    /// </summary>
     public int Grab(Bitmap dst, int timeoutMs)
     {
         var dup = _dup; var dev = _dev; var stage = _stage;
@@ -104,6 +115,7 @@ internal sealed class DxgiCapture : IDisposable
                 return -1;
             }
 
+            // LastPresentTime == 0 یعنی فقط نشانگر ماوس عوض شده (خود تصویر نه)؛ ولی فریم اول رو همیشه میگیریم
             if (_gotFirst && info.LastPresentTime == 0) return 0;
 
             var ctx = dev.ImmediateContext;

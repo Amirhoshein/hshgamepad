@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,15 +16,30 @@ using System.Windows.Forms;
 
 namespace GamepadServer;
 
+/// <summary>یکی از نمایشگرهای کامپیوتر (برای انتخاب نمایشگر و محدود کردن کیفیت/هرتز)</summary>
 public sealed class MonInfo
 {
     public int Index, X, Y, W, H, Hz;
     public bool Primary;
-    public string Name = "";
+    public string Name = "";        // مثل \\.\DISPLAY1 (برای پیدا کردنش تو DXGI)
 }
 
+/// <summary>
+/// حالت «نمایشگر لمسی» (فقط پلیر ۱ و فقط وقتی اجازه‌ی ماوس/کیبورد تو پنجره‌ی سرور روشنه):
+///   گوشی  ->  sc &lt;نمایشگر&gt; &lt;ارتفاع&gt; &lt;fps&gt; &lt;نشانگر 0|1&gt; [&lt;بافر 1..12&gt;]   شروع / عوض کردن پخش تصویر (بافر بیشتر = روان‌تر و fps بالاتر ولی با کمی تاخیر)
+///   گوشی  ->  scx                                    توقف پخش
+///   گوشی  ->  sca                                    «این فریم نمایش داده شد» (فریم بعدی بیاد)
+///   گوشی  ->  scinfo                                 لیست نمایشگرها  (جواب: {"t":"scr","mons":[...]})
+///   گوشی  ->  tp &lt;x 0..1&gt; &lt;y 0..1&gt;                  جای انگشت روی تصویر (مثل نمایشگر لمسی) => نشانگر ماوس اونجا میره
+///   گوشی  ->  tx &lt;متن URL-encode شده&gt;                 تایپ متن (یونیکد؛ فارسی هم میشه)
+///   سرور  ->  فریم JPEG به‌صورت پیام باینری WebSocket  ،  {"t":"scs",...} وضعیت اعمال‌شده
+/// کلیک/اسکرول/کیبورد از همون mb / mw / kb معمولی میان (InputInjector).
+/// تصویر با GDI گرفته میشه (درایور اضافه نمیخواد، روی ویندوز 7 هم کار میکنه). رزولوشن واقعی کامپیوتر هیچ‌وقت عوض نمیشه؛
+/// فقط تصویری که برای گوشی فرستاده میشه کوچیک میشه (مثل کیفیت 480p / 720p / 1080p تو ویدیو).
+/// </summary>
 public static class ScreenCast
 {
+    // ---------------- نمایشگرها ----------------
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     private struct DEVMODE
@@ -49,14 +65,14 @@ public static class ScreenCast
         {
             var dm = new DEVMODE();
             dm.dmSize = (ushort)Marshal.SizeOf(typeof(DEVMODE));
-            if (EnumDisplaySettings(deviceName, -1, ref dm))
+            if (EnumDisplaySettings(deviceName, -1, ref dm))      // -1 = ENUM_CURRENT_SETTINGS
             {
                 int hz = (int)dm.dmDisplayFrequency;
                 if (hz > 1) return hz;
             }
         }
         catch { }
-        return 60;
+        return 60;      // 0 یا 1 یعنی «پیش‌فرض درایور»؛ ۶۰ فرض میکنیم
     }
 
     public static List<MonInfo> Monitors()
@@ -94,10 +110,12 @@ public static class ScreenCast
         return sb.ToString();
     }
 
+    // ---------------- دستورهای گوشی ----------------
 
     private static bool I(string s, out int v) => int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out v);
     private static bool F(string s, out float v) => float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out v);
 
+    /// <summary>sc / scx / scinfo / tp / tx</summary>
     public static void Command(Conn conn, Hub hub, string[] p)
     {
         string cmd = p[0];
@@ -108,6 +126,7 @@ public static class ScreenCast
             return;
         }
 
+        // بقیه فقط تو حالت «نمایشگر لمسی» برای پلیر ۱ و وقتی سرور اجازه داده
         if (!hub.AllowInput || conn.Mode != "screen" || conn.Slot == null || conn.Slot.N != 1) return;
 
         if (cmd == "sca")
@@ -133,6 +152,7 @@ public static class ScreenCast
             }
             var m = mons[mon];
 
+            // سقف: نه بالاتر از رزولوشن نمایشگر، نه بالاتر از هرتز نمایشگر (سقف گوشی رو خود صفحه رعایت میکنه)
             h = Math.Max(120, Math.Min(h, m.H));
             fps = Math.Max(5, Math.Min(fps, Math.Max(5, m.Hz)));
 
@@ -167,6 +187,7 @@ public static class ScreenCast
         }
     }
 
+    // ---------------- ضبط تصویر ----------------
 
     [StructLayout(LayoutKind.Sequential)]
     private struct POINT { public int x, y; }
@@ -189,6 +210,11 @@ public static class ScreenCast
     [DllImport("user32.dll")] private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
     [DllImport("gdi32.dll")] private static extern bool BitBlt(IntPtr hdcDest, int xDest, int yDest, int w, int h, IntPtr hdcSrc, int xSrc, int ySrc, int rop);
 
+    /// <summary>
+    /// گرفتن تصویر نمایشگر روی g. Graphics.CopyFromScreen ترکیب SourceCopy|CaptureBlt رو قبول نمیکنه (InvalidEnumArgumentException)،
+    /// پس مستقیم BitBlt با CAPTUREBLT صدا زده میشه (پنجره‌های نیمه‌شفاف هم تو تصویر میان)؛ اگه نشد، CopyFromScreen ساده.
+    /// </summary>
+    // CAPTUREBLT کُنده و باعث چشمک زدن نشانگر میشه؛ از ویندوز 8 به بعد (DWM همیشه روشنه) لازم نیست
     private static readonly bool UseCaptureBlt = Environment.OSVersion.Version < new Version(6, 2);
 
     private static void CaptureScreen(Graphics g, Rectangle b)
@@ -198,7 +224,7 @@ public static class ScreenCast
         if (src != IntPtr.Zero)
         {
             IntPtr dst = g.GetHdc();
-            try { ok = BitBlt(dst, 0, 0, b.Width, b.Height, src, b.X, b.Y, UseCaptureBlt ? (0x00CC0020 | 0x40000000) : 0x00CC0020); }
+            try { ok = BitBlt(dst, 0, 0, b.Width, b.Height, src, b.X, b.Y, UseCaptureBlt ? (0x00CC0020 | 0x40000000) : 0x00CC0020); }      // SRCCOPY (| CAPTUREBLT فقط ویندوز 7)
             finally
             {
                 g.ReleaseHdc(dst);
@@ -213,7 +239,7 @@ public static class ScreenCast
         try
         {
             var ci = new CURSORINFO { cbSize = Marshal.SizeOf(typeof(CURSORINFO)) };
-            if (!GetCursorInfo(ref ci) || (ci.flags & 1) == 0 || ci.hCursor == IntPtr.Zero) return;
+            if (!GetCursorInfo(ref ci) || (ci.flags & 1) == 0 || ci.hCursor == IntPtr.Zero) return;   // 1 = CURSOR_SHOWING
 
             int hx = 0, hy = 0;
             if (GetIconInfo(ci.hCursor, out ICONINFO ii))
@@ -223,17 +249,21 @@ public static class ScreenCast
                 if (ii.hbmColor != IntPtr.Zero) DeleteObject(ii.hbmColor);
             }
 
-            int size = Math.Max(14, (int)Math.Round(GetSystemMetrics(13) * scale));
+            int size = Math.Max(14, (int)Math.Round(GetSystemMetrics(13) * scale));      // 13 = SM_CXCURSOR
             int x = (int)Math.Round((ci.ptScreenPos.x - b.X - hx) * scale);
             int y = (int)Math.Round((ci.ptScreenPos.y - b.Y - hy) * scale);
 
             IntPtr hdc = g.GetHdc();
-            try { DrawIconEx(hdc, x, y, ci.hCursor, size, size, 0, IntPtr.Zero, 3); }
+            try { DrawIconEx(hdc, x, y, ci.hCursor, size, size, 0, IntPtr.Zero, 3); }      // 3 = DI_NORMAL
             finally { g.ReleaseHdc(hdc); }
         }
         catch { }
     }
 
+    /// <summary>
+    /// کوچیک کردن سریع (میانگین‌گیری جعبه‌ای، چندهسته‌ای). جایگزین Graphics.DrawImage با HighQualityBilinear که روی CPU خیلی کنده
+    /// (همون دلیل اینکه رزولوشن پایین‌تر fps کمتر میداد). dst باید کوچیک‌تر یا مساوی src باشه.
+    /// </summary>
     private static unsafe void FastScale(Bitmap srcBmp, Bitmap dstBmp)
     {
         int sw = srcBmp.Width, sh = srcBmp.Height, dw = dstBmp.Width, dh = dstBmp.Height;
@@ -285,6 +315,7 @@ public static class ScreenCast
         }
     }
 
+    /// <summary>امضای نشانگر ماوس (جا + شکل)؛ وقتی فقط ماوس تکون خورده تصویر رو دوباره بسازیم</summary>
     private static long CursorSig()
     {
         try
@@ -305,6 +336,7 @@ public static class ScreenCast
         return null;
     }
 
+    /// <summary>هش سریع تصویر (برای اینکه وقتی صفحه عوض نشده فریم تکراری نفرستیم)</summary>
     private static uint HashBitmap(Bitmap bmp, ref int[]? row)
     {
         int w = bmp.Width, h = bmp.Height;
@@ -326,6 +358,7 @@ public static class ScreenCast
         return hash;
     }
 
+    /// <summary>یک گوشی => یک ترد ضبط. فریم‌ها JPEG و پیام باینری WebSocket هستن.</summary>
     internal sealed class Caster
     {
         private readonly Conn _conn;
@@ -335,15 +368,15 @@ public static class ScreenCast
         private volatile int _mon, _height = 720, _fps = 60;
         private volatile bool _cursor = true, _force = true;
         private int _ver;
-        private int _pending;
-        private int _lastAckTick;
+        private int _pending;           // فریم‌هایی که فرستاده شده ولی گوشی هنوز نمایششون رو تایید نکرده
+        private int _lastAckTick;      // آخرین باری که پیشرفتی بود (ارسال یا تایید)، برای رها کردن قفل اگه گوشی تایید نفرستاد
         private volatile int _maxPending = 4;
-        private volatile bool _wantH264;
-        private volatile bool _h264Failed;
+        private volatile bool _wantH264;          // گوشی H.264 خواسته
+        private volatile bool _h264Failed;        // انکودر H.264 راه نیفتاد/خطا داد => JPEG
         private bool _jobH264;
         private int _jobFps, _jobBps;
         private readonly AutoResetEvent _wake = new AutoResetEvent(false);
-        private BlockingCollection<byte[]>? _txq;
+        private BlockingCollection<byte[]>? _txq;     // صف ارسال H.264: ترد انکود منتظر نوشتن رو سوکت نمیمونه و فریم بعدی رو همزمان انکود میکنه (ترتیب حفظ میشه)
 
         private void TxLoop(BlockingCollection<byte[]> q)
         {
@@ -381,6 +414,7 @@ public static class ScreenCast
 
         public void Stop() { _stop = true; }
 
+        /// <summary>گوشی نمایش یک فریم رو تایید کرد</summary>
         public void Ack()
         {
             if (Interlocked.Decrement(ref _pending) < 0) Interlocked.Exchange(ref _pending, 0);
@@ -406,11 +440,13 @@ public static class ScreenCast
 
         private bool Alive() => !_stop && _hub.AllowInput && _conn.Mode == "screen" && _conn.IsOpen;
 
+        // ---- خط لوله: ترد ضبط (Run) فریم بعدی رو میگیره/کوچیک میکنه، همزمان ترد انکود (EncodeLoop) فریم قبلی رو JPEG میکنه و میفرسته ----
+        // هیچ آبجکت GDI+ بین دو ترد مشترک نیست (قبلاً خطای «Object is currently in use elsewhere» میداد)؛ فقط پیکسل‌های خام (byte[]) رد و بدل میشن
         private byte[]? _jobBuf;
         private int _jobW, _jobH;
         private long _jobQ;
-        private int _jobBusy;
-        private int _tEncUs;
+        private int _jobBusy;                 // 1 = ترد انکود هنوز پیکسل‌های _jobBuf رو برنداشته
+        private int _tEncUs;                  // میانگین زمان انکود (میکروثانیه)
         private volatile bool _encStop;
         private readonly AutoResetEvent _jobEvt = new AutoResetEvent(false);
         private readonly AutoResetEvent _freeEvt = new AutoResetEvent(false);
@@ -420,6 +456,7 @@ public static class ScreenCast
             while (Volatile.Read(ref _jobBusy) == 1 && Alive()) _freeEvt.WaitOne(5);
         }
 
+        /// <summary>کپی پیکسل‌های بیت‌مپ به آرایه (ترد ضبط)</summary>
         private static void CopyOut(Bitmap bmp, byte[] dst)
         {
             int w = bmp.Width, h = bmp.Height;
@@ -431,6 +468,7 @@ public static class ScreenCast
             finally { bmp.UnlockBits(bd); }
         }
 
+        /// <summary>کپی آرایه تو بیت‌مپ مخصوص ترد انکود</summary>
         private static void CopyIn(byte[] src, Bitmap bmp)
         {
             int w = bmp.Width, h = bmp.Height;
@@ -446,7 +484,7 @@ public static class ScreenCast
         {
             var ms = new MemoryStream(1 << 18);
             var sw = new Stopwatch();
-            Bitmap? eb = null;
+            Bitmap? eb = null;          // بیت‌مپ مخصوص همین ترد (JPEG)
             H264Encoder? h264 = null;
             var packets = new List<H264Packet>();
             bool initSent = false;
@@ -468,6 +506,7 @@ public static class ScreenCast
 
                         if (want264 && buf != null && w > 0 && h > 0)
                         {
+                            // ---------- H.264 ----------
                             sw.Restart();
                             if (h264 == null || h264.Width != w || h264.Height != h || h264.Fps != _jobFps)
                             {
@@ -478,8 +517,8 @@ public static class ScreenCast
                             }
                             if (h264 != null)
                             {
-                                h264.SetFrame(buf);
-                                Volatile.Write(ref _jobBusy, 0);
+                                h264.SetFrame(buf);                    // BGRA -> NV12
+                                Volatile.Write(ref _jobBusy, 0);       // پیکسل‌ها برداشته شد
                                 _freeEvt.Set();
                                 packets.Clear();
                                 h264.Encode(packets);
@@ -491,7 +530,7 @@ public static class ScreenCast
                                 {
                                     if (!initSent)
                                     {
-                                        if (!pk.Key || h264.Sps == null || h264.Pps == null) continue;
+                                        if (!pk.Key || h264.Sps == null || h264.Pps == null) continue;       // دیکودر باید با کلیدفریم شروع کنه
                                         SendInit(h264);
                                         initSent = true;
                                     }
@@ -507,6 +546,7 @@ public static class ScreenCast
                         }
                         if (!(want264 && h264 != null) && buf != null && w > 0 && h > 0 && JpegCodec != null)
                         {
+                            // ---------- JPEG ----------
                             sw.Restart();
                             if (eb == null || eb.Width != w || eb.Height != h)
                             {
@@ -514,7 +554,7 @@ public static class ScreenCast
                                 eb = new Bitmap(w, h, PixelFormat.Format32bppRgb);
                             }
                             CopyIn(buf, eb);
-                            Volatile.Write(ref _jobBusy, 0);
+                            Volatile.Write(ref _jobBusy, 0);       // پیکسل‌ها برداشته شد؛ ترد ضبط میتونه فریم بعدی رو بسازه
                             _freeEvt.Set();
                             using (var ep = new EncoderParameters(1))
                             {
@@ -532,7 +572,7 @@ public static class ScreenCast
                     {
                         if (_jobH264)
                         {
-                            _h264Failed = true;
+                            _h264Failed = true;                    // از این به بعد JPEG
                             try { h264?.Dispose(); } catch { }
                             h264 = null;
                             ReportError(L.F("cast.H264FellBackTo", ex.GetType().Name, ex.Message));
@@ -552,13 +592,14 @@ public static class ScreenCast
 
                     if (data != null)
                     {
-                        try { _conn.SendBinaryAsync(data).Wait(3000); } catch { }
+                        try { _conn.SendBinaryAsync(data).Wait(3000); } catch { }      // تا نوشتن رو سوکت تموم نشه فریم بعدی انکود نمیشه
                     }
                 }
             }
             finally { h264?.Dispose(); eb?.Dispose(); ms.Dispose(); }
         }
 
+        /// <summary>init segment H.264 برای گوشی: [1][طول کدک][کدک][عرض 2بایت][ارتفاع 2بایت][init]</summary>
         private void SendInit(H264Encoder enc)
         {
             var init = Fmp4.Init(enc.Sps!, enc.Pps!, enc.Width, enc.Height);
@@ -577,12 +618,12 @@ public static class ScreenCast
             try { timeBeginPeriod(1); } catch { }
             Bitmap? src = null;
             Bitmap? cur = null;
-            DxgiCapture? dx = null;
-            bool haveSrc = false;
+            DxgiCapture? dx = null;           // ضبط سریع با DXGI (اگه نشد: GDI)
+            bool haveSrc = false;             // تو حالت DXGI: src آخرین تصویر کامل رو داره
             int dxFails = 0; bool dxOff = false, dxWorked = false; long dxTryAt = -100000;
             bool wasDx = false;
-            bool dirty = false;
-            int qAdj = 0; bool sawBlock = false; long qAdjAt = 0;
+            bool dirty = false;               // DXGI: فریم جدیدی گرفتیم ولی هنوز نوبتش نشده بود بفرستیم
+            int qAdj = 0; bool sawBlock = false; long qAdjAt = 0;      // کیفیت خودکار: وقتی شبکه/گوشی عقبه، JPEG کم‌حجم‌تر
             string devName = "";
             long lastCs = 0;
             int[]? rowBuf = null;
@@ -595,17 +636,17 @@ public static class ScreenCast
             long boundsAt = -100000;
             int seenVer = -1;
             bool notifyOff = false;
-            int fails = 0;
+            int fails = 0;          // چند بار پشت‌سرهم ضبط صفحه خطا داده
             string? errText = null;
             long lastSentAt = 0;
-            double lastSentTicks = 0;
-            double nextDue = 0;
-            int monHz = 0;
-            long wdAt = 0;
-            double lastAcceptTicks = 0;
+            double lastSentTicks = 0;      // مثل lastSentAt ولی دقیق‌تر (ms اعشاری)
+            double nextDue = 0;            // موعد قبول فریم بعدی (ms)
+            int monHz = 0;                 // هرتز نمایشگر انتخابی
+            long wdAt = 0;                 // آخرین بار که نگهبان ضبط رو از نو ساخت
+            double lastAcceptTicks = 0;    // لحظه‌ی رسیدن آخرین فریمی که قبول کردیم (نه بعد از پردازشش)؛ ریتم فریم‌ها از همین حساب میشه
             long tmAt = 0;
             double capMs = 0, sclMs = 0;
-            int unchanged = 0;
+            int unchanged = 0;      // چند فریم پشت‌سرهم صفحه عوض نشده (وقتی صفحه ساکنه CPU کمتر مصرف بشه)
 
             Volatile.Write(ref _jobBusy, 0);
             _encStop = false;
@@ -620,6 +661,7 @@ public static class ScreenCast
             {
                 while (Alive())
                 {
+                    // زمان‌های ضبط / کوچیک کردن / انکود (ms) برای نمایش تو آمار گوشی
                     if (clock.ElapsedMilliseconds - tmAt >= 1000)
                     {
                         tmAt = clock.ElapsedMilliseconds;
@@ -631,30 +673,35 @@ public static class ScreenCast
                     double now = clock.Elapsed.TotalMilliseconds;
                     int fps = Math.Max(1, _fps);
                     double interval = 1000.0 / fps;
-                    if (unchanged > fps * 2) interval = Math.Max(interval, 50);
+                    if (unchanged > fps * 2) interval = Math.Max(interval, 50);      // صفحه ۲ ثانیه ساکنه: ۲۰ بار در ثانیه فقط چک میکنیم
 
+                    // گوشی هنوز فریم‌های قبلی رو تایید نکرده => صبر میکنیم (ولی نوبت این فریم هدر نمیره)
+                    // وای‌فای کند: ویندوز فریم‌ها رو تو بافر سوکت جمع میکنه و گوشی چند ثانیه عقب میافته (تصویر مثل عکس ثابت میمونه).
+                    // پس بیشتر از MaxPending فریم بدون تایید گوشی نمیفرستیم. اگه تایید نیومد (مثلاً گوشی قدیمی) بعد از ۱.۵ ثانیه قفل باز میشه. «بافر» = همین سقف؛ از تنظیمات گوشی عوض میشه.
                     if (Interlocked.CompareExchange(ref _pending, 0, 0) >= _maxPending)
                     {
                         if (unchecked(Environment.TickCount - Volatile.Read(ref _lastAckTick)) > 1500) Interlocked.Exchange(ref _pending, 0);
                         else
                         {
                             sawBlock = true;
-                            _wake.WaitOne(2);
+                            _wake.WaitOne(2);          // با رسیدن تایید فوراً بیدار میشه
                             continue;
                         }
                     }
 
+                    // نگهبان: بیشتر از ۳ ثانیه هیچ فریمی نرفته (مثلاً بعد از Win+P / روشن و خاموش شدن مانیتور دوم) => ضبط رو از نو میسازه
+                    // (همون کاری که عوض کردن نمایشگر تو گوشی میکرد). صفحه‌ی ساکن هم هر ۱ ثانیه فریم میفرسته، پس ۳ ثانیه بدون فریم یعنی گیر کرده.
                     if (clock.ElapsedMilliseconds - lastSentAt > 3000 && clock.ElapsedMilliseconds - wdAt > 3000)
                     {
                         wdAt = clock.ElapsedMilliseconds;
                         try { dx?.Dispose(); } catch { }
                         dx = null; haveSrc = false; dirty = false; haveHash = false;
                         dxFails = 0; dxOff = false; dxWorked = false; dxTryAt = -100000;
-                        seenVer = -1;
+                        seenVer = -1;                 // لیست نمایشگرها و مرزها دوباره خونده میشه
                         _force = true;
                     }
 
-                    if (!wasDx && now < nextAt)
+                    if (!wasDx && now < nextAt)                // هنوز وقت فریم بعدی نشده (فقط GDI؛ تو DXGI خود Grab منتظر میمونه)
                     {
                         double left = nextAt - now;
                         if (left > 2.5) Thread.Sleep(1); else Thread.Sleep(0);
@@ -671,11 +718,11 @@ public static class ScreenCast
                         if (mi < 0 || mi >= mons.Count) mi = 0;
                         var m = mons[mi];
                         b = new Rectangle(m.X, m.Y, m.W, m.H);
-                        _conn.ScrX = m.X; _conn.ScrY = m.Y; _conn.ScrW = m.W; _conn.ScrH = m.H;
+                        _conn.ScrX = m.X; _conn.ScrY = m.Y; _conn.ScrW = m.W; _conn.ScrH = m.H;      // نگاشت لمس با تغییر چیدمان نمایشگرها هماهنگ بمونه
                         boundsAt = clock.ElapsedMilliseconds;
                         monHz = m.Hz;
                         seenVer = ver;
-                        if (m.Name != devName)
+                        if (m.Name != devName)                 // نمایشگر عوض شده: دوپلیکیت جدید
                         {
                             devName = m.Name;
                             try { dx?.Dispose(); } catch { }
@@ -688,7 +735,7 @@ public static class ScreenCast
                     {
                         dxTryAt = clock.ElapsedMilliseconds;
                         dx = DxgiCapture.TryCreate(devName);
-                        if (dx == null) { if (!dxWorked && ++dxFails >= 3) dxOff = true; }
+                        if (dx == null) { if (!dxWorked && ++dxFails >= 3) dxOff = true; }      // ۳ بار نشد و هیچ‌وقت کار نکرده (مثلاً ویندوز 7) => همیشه GDI؛ اگه قبلاً کار کرده (UAC، قفل...) هر ثانیه دوباره تلاش میکنه
                         else haveSrc = false;
                     }
                     bool useDx = dx != null;
@@ -701,7 +748,7 @@ public static class ScreenCast
                     if (dstW < 2) dstW = 2;
                     if (dstH < 2) dstH = 2;
                     bool want264 = _wantH264 && !_h264Failed;
-                    if (want264) { dstW &= ~1; dstH &= ~1; if (dstW < 2) dstW = 2; if (dstH < 2) dstH = 2; }
+                    if (want264) { dstW &= ~1; dstH &= ~1; if (dstW < 2) dstW = 2; if (dstH < 2) dstH = 2; }      // H.264 اندازه‌ی زوج میخواد
                     bool direct = dstW == srcW && dstH == srcH;
                     bool drawCur = _cursor;
 
@@ -728,7 +775,8 @@ public static class ScreenCast
                         double t1, t2 = 0;
                         if (useDx)
                         {
-                            double minGap = 1000.0 / fps;
+                            // DXGI: منتظر فریم جدید میمونیم؛ تغییر رو خود ویندوز میگه (هش لازم نیست)
+                            double minGap = 1000.0 / fps;                  // (interval وقتی صفحه ساکنه بلندتر میشه؛ اینجا لازم نیست)
                             double sinceSent = clock.Elapsed.TotalMilliseconds - lastAcceptTicks;
                             int wait = dirty ? (int)Math.Max(1, Math.Min(minGap - sinceSent, 16)) : (int)Math.Max(2, Math.Min(minGap, 16));
                             int rc = dx!.Grab(src!, wait);
@@ -742,16 +790,21 @@ public static class ScreenCast
                             dxFails = 0; dxWorked = true;
                             if (rc == 1) haveSrc = true;
                             if (!haveSrc) continue;
-                            double tArr = clock.Elapsed.TotalMilliseconds;
+                            double tArr = clock.Elapsed.TotalMilliseconds;      // لحظه‌ی رسیدن فریم (قبل از کپی/کوچیک کردن)
 
                             long cs = drawCur ? CursorSig() : 0;
-                            bool due = clock.ElapsedMilliseconds - lastSentAt >= 1000;
+                            bool due = clock.ElapsedMilliseconds - lastSentAt >= 1000;     // هر ۱ ثانیه یک فریم حتی اگه چیزی عوض نشده
                             bool changed = rc == 1 || cs != lastCs;
                             if (changed) dirty = true;
                             if (!dirty && !_force && !due) { unchanged++; continue; }
+                            // قبلاً فاصله از «بعد از پردازش فریم قبلی» حساب میشد؛ پس هر چی پردازش کندتر (مثلاً کوچیک کردن) فریم‌ها «زود» حساب میشدن و نصف میافتادن (۶۰ => ۳۰).
+                            // حالا از لحظه‌ی رسیدن فریم‌ها حساب میشه، پس ریتم میشه همون ریتم خود نمایشگر.
+                            // زمان‌بندی تجمعی: فریم‌های نمایشگر رو شبکه‌ی ثابتی (مثلاً هر ۱۰ms برای ۱۰۰ هرتز) میرسن، ولی fps خواسته شده (مثلاً ۹۰ => هر ۱۱.۱ms) رو این شبکه نمیخونه.
+                            // قبلاً «حداقل فاصله از فریم قبلی» چک میشد و فریم‌های کمی زود (با لرزش زمانی) میافتادن (۹۰ => ۸۳). حالا «موعد» هر فریم جمع میشه و
+                            // فریمی که تا نصف دوره‌ی نمایشگر زودتر از موعدش برسه قبول میشه؛ پس میانگین دقیقاً به fps خواسته شده میرسه.
                             double halfV = monHz > 0 ? 500.0 / monHz : minGap * 0.5;
-                            if (!_force && !due && tArr + halfV < nextDue) continue;
-                            nextDue = Math.Max(nextDue + minGap, tArr - halfV);
+                            if (!_force && !due && tArr + halfV < nextDue) continue;   // هنوز موعدش نشده؛ dirty میمونه تا نوبتش بشه
+                            nextDue = Math.Max(nextDue + minGap, tArr - halfV);          // (اگه مدتی بیکار بودیم موعد عقب نمیمونه)
                             lastAcceptTicks = tArr;
                             dirty = false;
                             lastCs = cs;
@@ -796,7 +849,10 @@ public static class ScreenCast
                     }
                     catch (Exception ex)
                     {
+                        // قفل بودن ویندوز / صفحه‌ی UAC / عوض شدن رزولوشن: چند لحظه صبر و دوباره
+                        // اگه چند بار پشت‌سرهم خطا بده، متنش به گوشی هم میرسه (تا بی‌صدا گیر نکنه)
                         if (++fails == 4) ReportError(L.F("cast.ScreenCapture", ex.GetType().Name, ex.Message));
+                        // بیت‌مپ‌ها دور ریخته میشن تا اگه یکیشون خراب شده باشه، دوباره از نو ساخته بشن
                         try { src?.Dispose(); } catch { }
                         try { cur?.Dispose(); } catch { }
                         src = null; cur = null;
@@ -810,10 +866,10 @@ public static class ScreenCast
                     {
                         uint hash = HashBitmap(cur, ref rowBuf);
                         bool force = _force;
-                        if (!force && haveHash && hash == lastHash)
+                        if (!force && haveHash && hash == lastHash)                                   // صفحه عوض نشده
                         {
                             unchanged++;
-                            if (clock.ElapsedMilliseconds - lastSentAt < 1000) continue;
+                            if (clock.ElapsedMilliseconds - lastSentAt < 1000) continue;             // ولی هر ۱ ثانیه یک فریم میفرستیم (اگه هش اشتباه کرده باشه تصویر هیچ‌وقت بیشتر از ۱ ثانیه کهنه نمیمونه)
                         }
                         lastHash = hash;
                         haveHash = true;
@@ -824,9 +880,9 @@ public static class ScreenCast
                     if (JpegCodec == null) { ReportError(L.T("cast.JPEGEncoderNotFound")); Thread.Sleep(2000); continue; }
 
                     double waitFrom = clock.Elapsed.TotalMilliseconds;
-                    WaitEncIdle();
+                    WaitEncIdle();                             // ترد انکود هنوز پیکسل‌های فریم قبلی رو برنداشته
                     if (!Alive()) break;
-                    if (clock.Elapsed.TotalMilliseconds - waitFrom > 4) sawBlock = true;
+                    if (clock.Elapsed.TotalMilliseconds - waitFrom > 4) sawBlock = true;      // انکود/ارسال فریم قبلی طول کشیده (شبکه کند) => کیفیت پایین‌تر
 
                     int need = dstW * dstH * 4;
                     if (_jobBuf == null || _jobBuf.Length < need) _jobBuf = new byte[need];
@@ -846,13 +902,13 @@ public static class ScreenCast
                     if (lastSentAt - qAdjAt > 300)
                     {
                         qAdjAt = lastSentAt;
-                        qAdj = sawBlock ? Math.Max(-40, qAdj - 6) : Math.Min(0, qAdj + 2);
+                        qAdj = sawBlock ? Math.Max(-40, qAdj - 6) : Math.Min(0, qAdj + 2);     // وقتی صف پر شده (شبکه کند) کیفیت کم میشه تا فریم کوچیک‌تر و fps بالاتر بشه
                         sawBlock = false;
                     }
                     _jobQ = Math.Max(30, (dstH <= 540 ? 62 : dstH <= 800 ? 56 : 50) + qAdj);
                     lastSentAt = clock.ElapsedMilliseconds;
                     lastSentTicks = clock.Elapsed.TotalMilliseconds;
-                    if (!want264 && Interlocked.Increment(ref _pending) == 1) Volatile.Write(ref _lastAckTick, Environment.TickCount);
+                    if (!want264 && Interlocked.Increment(ref _pending) == 1) Volatile.Write(ref _lastAckTick, Environment.TickCount);      // H.264: تو ترد انکود، به‌ازای هر بسته‌ی ارسالی
                     Volatile.Write(ref _jobBusy, 1);
                     _jobEvt.Set();
                 }
@@ -875,6 +931,7 @@ public static class ScreenCast
                 cur?.Dispose();
             }
 
+            // خودش تموم شد (نه با دستور توقف): مثلاً اجازه‌ی ماوس/کیبورد تو پنجره‌ی سرور خاموش شد
             if (notifyOff && _conn.IsOpen)
                 _ = _conn.SendAsync("{\"t\":\"scs\",\"off\":1" + (errText != null ? ",\"err\":\"" + Esc(errText) + "\"" : "") + "}");
         }

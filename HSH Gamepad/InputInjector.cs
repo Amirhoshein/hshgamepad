@@ -1,12 +1,19 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace GamepadServer;
 
+/// <summary>
+/// ماوس و کیبورد مجازی برای پلیر ۱ (وقتی گوشی روی «ماوس» یا «کیبورد» باشه). با SendInput ویندوز کار میکنه، درایور اضافه نمیخواد.
+/// کلیدها با اسکن‌کد فرستاده میشن (مثل کیبورد واقعی)، پس تو بازی‌ها هم کار میکنن و با زبان کیبورد ویندوز درست ترجمه میشن.
+/// نکته: ویندوز اجازه نمیده برنامه‌ی عادی به پنجره‌ی «Run as administrator» ورودی بفرسته؛ برای اون HSHGamepad رو هم Run as administrator کن.
+/// پیام‌های گوشی:  mm dx dy | mw d (120 = یک تیک، مثبت = بالا) | mb L/R/M 0/1 | kb KeyboardEvent.code 0/1
+/// </summary>
 public static class InputInjector
 {
-    public static bool IsInputMode(string? mode) => mode == "mouse" || mode == "keyboard" || mode == "screen";
+    public static bool IsInputMode(string? mode) => mode == "mouse" || mode == "keyboard" || mode == "screen";   // screen = نمایشگر لمسی (ScreenCast.cs)
 
     private const uint INPUT_MOUSE = 0, INPUT_KEYBOARD = 1;
     private const uint MOUSEEVENTF_MOVE = 0x0001, MOUSEEVENTF_LEFTDOWN = 0x0002, MOUSEEVENTF_LEFTUP = 0x0004,
@@ -33,6 +40,7 @@ public static class InputInjector
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
 
+    // اسکن‌کد (Set 1)؛ بیت 0x100 = کلید extended
     private static readonly Dictionary<string, int> Keys = BuildKeys();
 
     private static Dictionary<string, int> BuildKeys()
@@ -77,11 +85,13 @@ public static class InputInjector
     [DllImport("user32.dll")]
     private static extern bool SetCursorPos(int x, int y);
 
+    /// <summary>گذاشتن نشانگر ماوس روی نقطه‌ی مشخص (پیکسل، مختصات دسکتاپ) — برای نمایشگر لمسی</summary>
     public static void MoveTo(int x, int y)
     {
         try { SetCursorPos(x, y); } catch { }
     }
 
+    /// <summary>تایپ متن یونیکد (هر حرفی از جمله فارسی)، مستقل از زبان کیبورد ویندوز. حداکثر ۶۴ حرف تو هر دستور.</summary>
     public static void TypeText(string text)
     {
         if (string.IsNullOrEmpty(text)) return;
@@ -89,7 +99,7 @@ public static class InputInjector
         var list = new List<INPUT>();
         foreach (char ch in text)
         {
-            if (ch < 0x20) continue;
+            if (ch < 0x20) continue;       // Enter و Tab و ... از kb میان
             var down = new INPUT { type = INPUT_KEYBOARD };
             down.u.ki = new KEYBDINPUT { wVk = 0, wScan = ch, dwFlags = KEYEVENTF_UNICODE };
             var up = new INPUT { type = INPUT_KEYBOARD };
@@ -101,18 +111,21 @@ public static class InputInjector
         try { SendInput((uint)list.Count, list.ToArray(), Marshal.SizeOf(typeof(INPUT))); } catch { }
     }
 
+    /// <summary>حرکت نسبی ماوس (پیکسل)</summary>
     public static void MouseMove(int dx, int dy)
     {
         if (dx == 0 && dy == 0) return;
         SendMouse(MOUSEEVENTF_MOVE, dx, dy);
     }
 
+    /// <summary>چرخ ماوس: 120 = یک تیک؛ مثبت = بالا</summary>
     public static void Wheel(int delta)
     {
         if (delta == 0) return;
         SendMouse(MOUSEEVENTF_WHEEL, 0, 0, unchecked((uint)delta));
     }
 
+    /// <summary>b = L / R / M</summary>
     public static void Button(char b, bool down)
     {
         uint flag;
@@ -131,6 +144,7 @@ public static class InputInjector
         }
     }
 
+    /// <summary>code = KeyboardEvent.code (مثل KeyA، Space، ShiftLeft، ArrowUp)</summary>
     public static void Key(string code, bool down)
     {
         if (!Keys.TryGetValue(code, out int v)) return;
@@ -152,6 +166,7 @@ public static class InputInjector
         Send(i);
     }
 
+    /// <summary>هر کلید و دکمه‌ی ماوسی که گیر کرده آزاد بشه (قطع شدن گوشی، عوض شدن حالت، خاموش کردن اجازه)</summary>
     public static void ReleaseAll()
     {
         lock (_l)

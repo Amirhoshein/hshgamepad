@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace GamepadServer;
 
+// =====================================================================================================
+//  انکود H.264 با Media Foundation (بدون هیچ کتابخونه‌ی اضافه) + بسته‌بندی fMP4 برای پخش زنده تو مرورگر (MSE)
+//  مرحله‌ی ۱: انکودر نرم‌افزاری خود ویندوز (CMSH264EncoderMFT). مرحله‌ی ۲ (بعداً): انکودر سخت‌افزاری کارت گرافیک.
+//  اگه هر مرحله‌ای خطا بده، ScreenCast خودش به JPEG برمیگرده.
+// =====================================================================================================
 
 #region COM
 [StructLayout(LayoutKind.Sequential)]
@@ -155,6 +161,7 @@ internal interface ICodecAPI
 }
 #endregion
 
+/// <summary>یک فریم انکودشده: AVCC (طول‌دار) + کلیدفریم بودن</summary>
 internal sealed class H264Packet
 {
     public byte[] Avcc = Array.Empty<byte>();
@@ -182,6 +189,7 @@ internal sealed class H264Encoder : IDisposable
     private static Guid MFVideoFormat_NV12 = new Guid("3231564e-0000-0010-8000-00aa00389b71");
     private static readonly Guid CLSID_CMSH264EncoderMFT = new Guid("6ca50344-051a-4ded-9779-a43305165e35");
 
+    // ICodecAPI (همه‌شون اختیاری‌ان؛ اگه انکودر نپذیرفت مهم نیست)
     private static Guid CODECAPI_RateControlMode = new Guid("1c0608e9-370c-4710-8a58-cb6181c42423");
     private static Guid CODECAPI_MeanBitRate = new Guid("f7222374-2144-4815-b550-a37f8e12ee52");
     private static Guid CODECAPI_GOPSize = new Guid("95f31b26-95a4-41aa-9303-246a7fc6eef1");
@@ -200,7 +208,7 @@ internal sealed class H264Encoder : IDisposable
     private int _outSize;
     private byte[] _nv12 = Array.Empty<byte>();
     private long _idx;
-    private readonly long _dur;
+    private readonly long _dur;      // 100ns
 
     public int Width { get; }
     public int Height { get; }
@@ -245,11 +253,11 @@ internal sealed class H264Encoder : IDisposable
         Check(t.SetUINT64(ref MF_MT_FRAME_SIZE, ((ulong)(uint)Width << 32) | (uint)Height), "size");
         Check(t.SetUINT64(ref MF_MT_FRAME_RATE, ((ulong)(uint)Fps << 32) | 1u), "rate");
         Check(t.SetUINT64(ref MF_MT_PIXEL_ASPECT_RATIO, (1UL << 32) | 1u), "aspect");
-        Check(t.SetUINT32(ref MF_MT_INTERLACE_MODE, 2), "interlace");
+        Check(t.SetUINT32(ref MF_MT_INTERLACE_MODE, 2), "interlace");       // MFVideoInterlace_Progressive
         if (output)
         {
             Check(t.SetUINT32(ref MF_MT_AVG_BITRATE, (uint)bitrate), "bitrate");
-            Check(t.SetUINT32(ref MF_MT_MPEG2_PROFILE, 66), "profile");
+            Check(t.SetUINT32(ref MF_MT_MPEG2_PROFILE, 66), "profile");     // Baseline: بدون B-frame، همه‌ی گوشی‌ها دیکدش میکنن
         }
         return t;
     }
@@ -265,14 +273,15 @@ internal sealed class H264Encoder : IDisposable
         var type = Type.GetTypeFromCLSID(CLSID_CMSH264EncoderMFT) ?? throw new InvalidOperationException(L.T("enc.TheWindowsH264Encoder"));
         _mft = (IMFTransform)Activator.CreateInstance(type)!;
 
+        // تنظیمات کم‌تاخیر (قبل از نوع‌ها)
         ICodecAPI? api = null;
         try { api = (ICodecAPI)_mft; } catch { }
         Codec(api, CODECAPI_LowLatency, true);
-        Codec(api, CODECAPI_RateControlMode, 0u);
+        Codec(api, CODECAPI_RateControlMode, 0u);                 // CBR
         Codec(api, CODECAPI_MeanBitRate, (uint)bitrate);
-        Codec(api, CODECAPI_GOPSize, (uint)(Fps * 2));
+        Codec(api, CODECAPI_GOPSize, (uint)(Fps * 2));            // هر ۲ ثانیه یک کلیدفریم
         Codec(api, CODECAPI_BFrames, 0u);
-        Codec(api, CODECAPI_QualityVsSpeed, 0u);
+        Codec(api, CODECAPI_QualityVsSpeed, 0u);                  // سریع‌ترین
 
         var outType = MakeType(MFVideoFormat_H264, true, bitrate);
         Check(_mft.SetOutputType(0, outType, 0), "SetOutputType");
@@ -281,15 +290,16 @@ internal sealed class H264Encoder : IDisposable
         try { Marshal.ReleaseComObject(outType); Marshal.ReleaseComObject(inType); } catch { }
 
         Check(_mft.GetOutputStreamInfo(0, out var info), "GetOutputStreamInfo");
-        _provides = (info.dwFlags & 0x100) != 0 || (info.dwFlags & 0x200) != 0;
+        _provides = (info.dwFlags & 0x100) != 0 || (info.dwFlags & 0x200) != 0;      // PROVIDES_SAMPLES / CAN_PROVIDE_SAMPLES
         _outSize = (int)Math.Max(info.cbSize, (uint)(Width * Height));
         _nv12 = new byte[Width * Height * 3 / 2];
 
-        _mft.ProcessMessage(0x10000000, IntPtr.Zero);
-        _mft.ProcessMessage(0x10000003, IntPtr.Zero);
+        _mft.ProcessMessage(0x10000000, IntPtr.Zero);             // NOTIFY_BEGIN_STREAMING
+        _mft.ProcessMessage(0x10000003, IntPtr.Zero);             // NOTIFY_START_OF_STREAM
         FetchSequenceHeader();
     }
 
+    /// <summary>SPS/PPS از نوع خروجی (اگه انکودر همون اول بده)</summary>
     private void FetchSequenceHeader()
     {
         if ((Sps != null && Pps != null) || _mft == null) return;
@@ -309,8 +319,10 @@ internal sealed class H264Encoder : IDisposable
         catch { }
     }
 
+    /// <summary>مرحله‌ی ۱: BGRA (Width*Height*4) رو به NV12 تبدیل میکنه (بعد از این، آرایه‌ی ورودی دیگه لازم نیست)</summary>
     public void SetFrame(byte[] bgra) => BgraToNv12(bgra, Width, Height, _nv12);
 
+    /// <summary>مرحله‌ی ۲: فریم آخرِ SetFrame رو انکود میکنه؛ بسته‌ها رو تو output میریزه (ممکنه صفر یا چندتا باشه)</summary>
     public void Encode(List<H264Packet> output)
     {
         if (_mft == null) throw new ObjectDisposedException("H264Encoder");
@@ -394,9 +406,10 @@ internal sealed class H264Encoder : IDisposable
         }
     }
 
+    /// <summary>Annex-B -> AVCC. SPS/PPS رو نگه میداره و از جریان بیرون میکشه؛ کلیدفریم = وجود NAL نوع 5</summary>
     private void ParseAnnexB(byte[] d, List<H264Packet>? output)
     {
-        var nals = new List<int[]>();
+        var nals = new List<int[]>();       // {offset, length}
         int n = d.Length, start = -1, i = 0;
         while (i + 2 < n)
         {
@@ -416,12 +429,12 @@ internal sealed class H264Encoder : IDisposable
         foreach (var nal in nals)
         {
             int off = nal[0], len = nal[1];
-            while (len > 0 && d[off + len - 1] == 0) len--;
+            while (len > 0 && d[off + len - 1] == 0) len--;          // صفرهای انتهایی
             if (len <= 0) continue;
             int type = d[off] & 0x1F;
             if (type == 7) { Sps = Slice(d, off, len); continue; }
             if (type == 8) { Pps = Slice(d, off, len); continue; }
-            if (type == 9 || type == 6) continue;
+            if (type == 9 || type == 6) continue;                    // AUD / SEI لازم نیست
             if (type == 5) key = true;
             ms.WriteByte((byte)(len >> 24)); ms.WriteByte((byte)(len >> 16)); ms.WriteByte((byte)(len >> 8)); ms.WriteByte((byte)len);
             ms.Write(d, off, len);
@@ -431,8 +444,10 @@ internal sealed class H264Encoder : IDisposable
 
     private static byte[] Slice(byte[] d, int off, int len) { var r = new byte[len]; Buffer.BlockCopy(d, off, r, 0, len); return r; }
 
+    /// <summary>BGRA -> NV12 (BT.601). ردیف‌های رنگ نصفه‌ان (۲×۲ => یک نمونه)</summary>
     private static unsafe void BgraToNv12(byte[] src, int w, int h, byte[] dst)
     {
+        // چندهسته‌ای + بدون بررسی محدوده (قبلاً تک‌هسته و مدیریت‌شده بود: تو 1080p حدود ۱۰ میلی‌ثانیه فقط همین)
         int ySize = w * h;
         int pairs = h / 2;
         fixed (byte* sp0 = src, dp0 = dst)
@@ -481,6 +496,7 @@ internal sealed class H264Encoder : IDisposable
     }
 }
 
+/// <summary>fMP4 (یک فریم = یک fragment) برای MediaSource تو مرورگر</summary>
 internal static class Fmp4
 {
     private const uint Timescale = 90000;
@@ -506,6 +522,7 @@ internal static class Fmp4
 
     private static byte[] Matrix() => Cat(U32(0x00010000), U32(0), U32(0), U32(0), U32(0x00010000), U32(0), U32(0), U32(0), U32(0x40000000));
 
+    /// <summary>init segment (ftyp + moov)</summary>
     public static byte[] Init(byte[] sps, byte[] pps, int w, int h)
     {
         var ftyp = Box("ftyp", System.Text.Encoding.ASCII.GetBytes("isom"), U32(0x200),
@@ -531,12 +548,13 @@ internal static class Fmp4
         return Cat(ftyp, moov);
     }
 
+    /// <summary>یک فریم = moof + mdat</summary>
     public static byte[] Fragment(uint seq, ulong decodeTime, uint duration, bool key, byte[] avcc)
     {
         byte[] Build(int dataOffset)
         {
             var mfhd = Full("mfhd", 0, 0, U32(seq));
-            var tfhd = Full("tfhd", 0, 0x020000, U32(1));
+            var tfhd = Full("tfhd", 0, 0x020000, U32(1));                       // default-base-is-moof
             var tfdt = Full("tfdt", 1, 0, U64(decodeTime));
             var trun = Full("trun", 0, 0x000701, U32(1), U32((uint)dataOffset), U32(duration), U32((uint)avcc.Length), U32(key ? 0x02000000u : 0x01010000u));
             var traf = Box("traf", tfhd, tfdt, trun);

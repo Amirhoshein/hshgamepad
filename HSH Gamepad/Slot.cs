@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +12,7 @@ using Nefarius.ViGEm.Client.Targets.Xbox360;
 
 namespace GamepadServer;
 
+/// <summary>یک پلیر = یک دسته‌ی مجازی (Xbox 360 یا DualShock 4). دسته فقط وقتی ساخته میشه که لازم باشه.</summary>
 public sealed class Slot : IDisposable
 {
     private static readonly Dictionary<string, Xbox360Button> XboxButtons = new()
@@ -51,12 +53,12 @@ public sealed class Slot : IDisposable
 
     private IXbox360Controller? _x;
     private IDualShock4Controller? _d;
-    private bool _fellBack;
-    private bool _du, _dd, _dl, _dr;
+    private bool _fellBack;               // Xbox جا نداشت و خودکار PS4 شد
+    private bool _du, _dd, _dl, _dr;      // وضعیت D-Pad برای PS4
 
     private bool _bA, _bB, _bX, _bY, _bLB, _bRB, _bLT, _bRT, _bBack, _bStart, _bGuide, _bTp, _bL3, _bR3;
     private float _lx, _ly, _rx, _ry;
-    private byte _lt8, _rt8;
+    private byte _lt8, _rt8;            // مقدار آنالوگ ماشه‌ها (۰-۲۵۵): دکمه‌ی LT/RT = ۰ یا ۲۵۵، پدال فرمون = هر مقداری بین این دو
 
     public int N { get; }
     public string? Mode { get; private set; }
@@ -84,7 +86,7 @@ public sealed class Slot : IDisposable
         {
             var owner = Owner;
             int gyAge = _gyroLive ? AgeMs(_gyTs) : -1;
-            int gyMode = 0;
+            int gyMode = 0;                                   // 0 = خاموش / داده‌ای نمیاد
             if (_gyroLive && gyAge >= 0 && gyAge < 1500)
                 gyMode = _d == null && _x != null ? 2 : (_rawUnsupported ? 3 : 1);
             return new PadState
@@ -116,7 +118,7 @@ public sealed class Slot : IDisposable
     {
         lock (_lock)
         {
-            if (InputInjector.IsInputMode(mode))
+            if (InputInjector.IsInputMode(mode))      // ماوس/کیبورد: دسته‌ی مجازی نمیخواد
             {
                 if (Mode == mode && _x == null && _d == null) return Mode;
                 DisposePad();
@@ -127,14 +129,14 @@ public sealed class Slot : IDisposable
                 Console.WriteLine($"  player {N} -> {mode}");
                 return Mode;
             }
-            if (InputInjector.IsInputMode(Mode)) InputInjector.ReleaseAll();
-            if (mode != "xbox" && mode != "ps4" && mode != "wheel") return Mode;
+            if (InputInjector.IsInputMode(Mode)) InputInjector.ReleaseAll();      // از ماوس/کیبورد رفت روی دسته: کلید گیرکرده آزاد بشه
+            if (mode != "xbox" && mode != "ps4" && mode != "wheel") return Mode;   // wheel = فرمون (همون دسته‌ی Xbox 360 مجازی، فقط نمایشش تو تستر فرق داره)
 
             bool has = _x != null || _d != null;
             if (mode == Mode && has) return Mode;
             if (_x != null && ((mode == "wheel" && Mode == "xbox") || (mode == "xbox" && Mode == "wheel")))
             {
-                Mode = mode;
+                Mode = mode;      // همون دسته‌ی Xbox مجازیه؛ فقط بین «فرمون» و «دسته» عوض شد، دوباره ساخته نمیشه
                 return Mode;
             }
             if ((mode == "xbox" || mode == "wheel") && _fellBack && Mode == "ps4" && has) return Mode;
@@ -166,7 +168,7 @@ public sealed class Slot : IDisposable
         {
             var pad = _client.CreateXbox360Controller();
             pad.AutoSubmitReport = false;
-            pad.FeedbackReceived += OnXboxFeedback;
+            pad.FeedbackReceived += OnXboxFeedback;     // لرزش بازی -> گوشی
             pad.Connect();
             _x = pad;
             return true;
@@ -180,19 +182,22 @@ public sealed class Slot : IDisposable
         {
             var pad = _client.CreateDualShock4Controller();
             pad.AutoSubmitReport = false;
-#pragma warning disable CS0618
-            pad.FeedbackReceived += OnDs4Feedback;
+#pragma warning disable CS0618   // رویداد DS4 در ViGEm قدیمی (deprecated) علامت خورده ولی هنوز کار میکنه
+            pad.FeedbackReceived += OnDs4Feedback;      // لرزش بازی -> گوشی
 #pragma warning restore CS0618
             pad.Connect();
             _d = pad;
-            StartDs4Pump(pad);
+            StartDs4Pump(pad);      // خوندن گزارش خروجی خام (لرزش) از بازی
             return true;
         }
         catch { return false; }
     }
 
+    // ---------- لرزش (Rumble): بازی -> ViGEm -> گوشی ----------
+    // فرمت پیام: "rum <موتور سنگین ۰-۲۵۵> <موتور سبک ۰-۲۵۵>"  ("rum 0 0" = قطع)
+    // این هندلرها روی ترد خود ViGEm صدا زده میشن؛ عمداً _lock رو نمیگیرن تا با Dispose گیر نکنن.
     private readonly object _rumLock = new();
-    private int _rumSent;
+    private int _rumSent;   // آخرین مقدار فرستاده‌شده (بزرگ<<8 | کوچک)؛ ۰ = خاموش
 
     private void OnXboxFeedback(object sender, Xbox360FeedbackReceivedEventArgs e)
     {
@@ -201,10 +206,14 @@ public sealed class Slot : IDisposable
 
     private void OnDs4Feedback(object sender, DualShock4FeedbackReceivedEventArgs e)
     {
-        if (_rawActive) return;
+        if (_rawActive) return;     // مسیر خام فعاله؛ رویداد قدیمی (deprecated) رو نادیده بگیر
         PushRumble(e.LargeMotor, e.SmallMotor);
     }
 
+    // ---- DS4: خوندن گزارش خروجی خام (AwaitRawOutputReport) ----
+    // رویداد FeedbackReceived برای DS4 قدیمی شده و ممکنه لرزش بازی رو نرسونه.
+    // گزارش HID خروجی (report 0x05):  [0]=0x05  [1]=flags(bit0=لرزش)  [4]=موتور سبک  [5]=موتور سنگین  [6..8]=RGB
+    // نیاز به ViGEmBus >= 1.19 داره؛ اگه نبود، خودکار به رویداد قدیمی برمیگرده.
     private sealed class Ds4Pump { public volatile bool Stop; }
     private Ds4Pump? _pump;
     private volatile bool _rawActive;
@@ -236,10 +245,10 @@ public sealed class Slot : IDisposable
                 byte small, large;
                 if (b[0] == 0x05)
                 {
-                    if ((b[1] & 0x01) == 0) continue;
+                    if ((b[1] & 0x01) == 0) continue;   // این گزارش لرزش نداره (مثلاً فقط رنگ لایت‌بار)
                     small = b[4]; large = b[5];
                 }
-                else { small = b[3]; large = b[4]; }
+                else { small = b[3]; large = b[4]; }    // اگه report ID حذف شده باشه
 
                 _rawActive = true;
                 PushRumble(large, small);
@@ -257,8 +266,9 @@ public sealed class Slot : IDisposable
         }
     }
 
-    private bool _rumLogOn;
+    private bool _rumLogOn;   // برای لاگ کنسول: فقط وقتی لرزش شروع/تموم میشه چاپ کن
 
+    /// <summary>تست دستی (از دکمه‌ی تستر): مثل بازی به گوشیِ این پلیر دستور لرزش میفرسته</summary>
     public void TestRumble(byte large, byte small) => PushRumble(large, small, true);
 
     private void PushRumble(byte large, byte small, bool test = false)
@@ -277,7 +287,7 @@ public sealed class Slot : IDisposable
         lock (_rumLock)
         {
             int v = (large << 8) | small;
-            if (v == _rumSent) return;
+            if (v == _rumSent) return;      // تکراری؛ نفرست
             _rumSent = v;
         }
         _ = owner.SendAsync("rum " + large + " " + small);
@@ -418,6 +428,7 @@ public sealed class Slot : IDisposable
         }
     }
 
+    /// <summary>پدال آنالوگ (حالت فرمون): "tr l|r مقدار" — مقدار ۰ تا ۱؛ l = ترمز (ماشه‌ی چپ)، r = گاز (ماشه‌ی راست)</summary>
     public void Trigger(char ch, float v)
     {
         if (!Ok(v)) return;
@@ -425,7 +436,7 @@ public sealed class Slot : IDisposable
         {
             bool left = ch == 'l';
             byte b = (byte)Math.Round((v < 0f ? 0f : (v > 1f ? 1f : v)) * 255f);
-            bool on = b > 12;
+            bool on = b > 12;                       // برای نمایش تو تستر و دکمه‌ی دیجیتال ماشه‌ی PS4
             if (left) { _lt8 = b; _bLT = on; } else { _rt8 = b; _bRT = on; }
 
             if (_x != null)
@@ -463,16 +474,23 @@ public sealed class Slot : IDisposable
         }
     }
 
+    // ---------- ژیروسکوپ / شتاب‌سنج (فقط دسته‌ی PS4) ----------
+    // پروتکل (از گوشی):  "gyr 1|0"  و  "gy gx gy gz ax ay az"
+    //   gx,gy,gz = سرعت چرخش (درجه بر ثانیه) دور محورهای صفحه‌ی گوشی: x = راستِ صفحه، y = بالای صفحه، z = عمود بر صفحه (سمت کاربر)
+    //   ax,ay,az = شتاب با گرانش (m/s²) روی همون محورها
+    // گوشی وقتی مثل دسته (افقی، صفحه رو به کاربر) گرفته میشه با محورهای DualShock 4 اینطور جور درمیاد:
+    //   DS4.X = x   |   DS4.Y (رو به بالای دسته) = z   |   DS4.Z (رو به بازیکن) = -y
+    // اگه تو بازی یه محور برعکس بود فقط علامت‌های پایین رو عوض کن.
     private const float GyroSignX = 1f, GyroSignY = 1f, GyroSignZ = 1f;
-    private const float Ds4GyroLsbPerDps = 16f;
-    private const float Ds4AccelLsbPerG = 8192f;
+    private const float Ds4GyroLsbPerDps = 16f;       // ±2048 °/s  <->  ±32767
+    private const float Ds4AccelLsbPerG = 8192f;      // ±4 g
     private const float Gravity = 9.80665f;
-    private const int GyroStaleMs = 250;
+    private const int GyroStaleMs = 250;              // اگه این‌قدر نمونه‌ای نیومد، سرعت چرخش صفر حساب میشه (که دسته نچرخه)
 
-    private bool _gyroLive;
-    private bool _rawUnsupported;
+    private bool _gyroLive;                           // گوشی ژیروسکوپ رو روشن کرده و نمونه فرستاده
+    private bool _rawUnsupported;                     // ViGEmBus ریپورت خام DS4 رو قبول نکرد (درایور قدیمی)
     private int _rawFails;
-    private float _gx, _gy, _gz, _ax, _ay, _az;
+    private float _gx, _gy, _gz, _ax, _ay, _az;       // آخرین نمونه (محورهای گوشی)
     private long _gyTs, _gyCount;
     private long _hzT0; private int _hzN; private float _hz;
     private byte _pkt;
@@ -500,11 +518,13 @@ public sealed class Slot : IDisposable
         }
     }
 
+    /// <summary>گوشی ژیروسکوپ رو خاموش کرد (یا قطع شد)</summary>
     public void StopMotion()
     {
         lock (_lock)
         {
             ResetMotion();
+            // یه ریپورت عادی بفرست تا مقدار ژیروسکوپ تو بازی صفر بشه
             try { _d?.SubmitReport(); } catch { }
         }
     }
@@ -516,6 +536,7 @@ public sealed class Slot : IDisposable
         _hz = 0f; _hzT0 = 0; _hzN = 0;
     }
 
+    /// <summary>هر ثانیه از Hub.Tick: اگه گوشی وسط چرخش ساکت شد (مثلاً صفحه بسته شد) سرعت چرخش رو صفر میکنه</summary>
     public void GyroWatchdog()
     {
         lock (_lock)
@@ -537,6 +558,7 @@ public sealed class Slot : IDisposable
 
     private static void Put16(byte[] b, int i, short v) { b[i] = (byte)(v & 0xFF); b[i + 1] = (byte)((v >> 8) & 0xFF); }
 
+    /// <summary>کل ریپورت ورودی DS4 (۶۳ بایت، فرمت ViGEm DS4_REPORT_EX) رو از وضعیت فعلی میسازه و با ژیروسکوپ میفرسته. باید زیر _lock صدا زده بشه.</summary>
     private void SubmitDs4Raw(IDualShock4Controller d)
     {
         var b = _raw;
@@ -568,22 +590,23 @@ public sealed class Slot : IDisposable
         b[7] = _lt8;
         b[8] = _rt8;
 
+        // زمان (واحد ۵.۳۳ میکروثانیه)؛ بعضی بازی‌ها/Steam برای انتگرال گرفتن از ژیروسکوپ ازش استفاده میکنن
         double us = (Stopwatch.GetTimestamp() - Clock0) * 1e6 / Stopwatch.Frequency;
         ushort ts = unchecked((ushort)(long)(us / 5.333));
         b[9] = (byte)(ts & 0xFF); b[10] = (byte)(ts >> 8);
 
         bool stale = AgeMs(_gyTs) >= GyroStaleMs;
         float gx = stale ? 0f : _gx, gy = stale ? 0f : _gy, gz = stale ? 0f : _gz;
-        Put16(b, 12, Q(GyroSignX * gx, Ds4GyroLsbPerDps));
-        Put16(b, 14, Q(GyroSignY * gz, Ds4GyroLsbPerDps));
-        Put16(b, 16, Q(GyroSignZ * -gy, Ds4GyroLsbPerDps));
+        Put16(b, 12, Q(GyroSignX * gx, Ds4GyroLsbPerDps));        // pitch  (دور X)
+        Put16(b, 14, Q(GyroSignY * gz, Ds4GyroLsbPerDps));        // yaw    (دور Y دسته = عمود بر صفحه‌ی گوشی)
+        Put16(b, 16, Q(GyroSignZ * -gy, Ds4GyroLsbPerDps));       // roll   (دور Z دسته = بالای صفحه‌ی گوشی)
         float k = Ds4AccelLsbPerG / Gravity;
         Put16(b, 18, Q(_ax, k));
         Put16(b, 20, Q(_az, k));
         Put16(b, 22, Q(-_ay, k));
 
-        b[29] = 0x1B;
-        b[32] = 1;
+        b[29] = 0x1B;                                              // کابل وصل + باتری پر
+        b[32] = 1;                                                 // یه بسته‌ی لمسی؛ هیچ انگشتی روی تاچ‌پد نیست (بیت ۷ = بالا)
         b[33] = _pkt;
         b[34] = 0x80; b[38] = 0x80; b[43] = 0x80; b[47] = 0x80; b[52] = 0x80; b[56] = 0x80;
 
@@ -594,6 +617,7 @@ public sealed class Slot : IDisposable
         }
         catch (Exception ex)
         {
+            // ViGEmBus قدیمی (مثلاً 1.16 تو ویندوز 7) ریپورت خام رو قبول نمیکنه؛ بعد از چند بار شکست ژیروسکوپ رو کنار میذاریم
             if (++_rawFails >= 3)
             {
                 _rawUnsupported = true;
@@ -605,7 +629,7 @@ public sealed class Slot : IDisposable
 
     public void Release()
     {
-        if (InputInjector.IsInputMode(Mode)) { InputInjector.ReleaseAll(); lock (_lock) Mode = null; }
+        if (InputInjector.IsInputMode(Mode)) { InputInjector.ReleaseAll(); lock (_lock) Mode = null; }      // گوشی ماوس/کیبورد رفت
         StopRumble();
         lock (_lock)
         {
@@ -641,13 +665,14 @@ public sealed class Slot : IDisposable
 }
 
 
+/// <summary>لاگ لرزش: چون برنامه WinExe هست و کنسول نداره، تو فایل data\\rumble.log (کنار برنامه) هم نوشته میشه (حداکثر ۴۰۰ خط تو هر اجرا)</summary>
 internal static class RumbleLog
 {
     private static int _n;
     private static readonly object _l = new();
 
     public static string FilePath =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GamepadServer", "rumble.log");
+        Path.Combine(AppPaths.DataDir, "rumble.log");
 
     public static void Write(string line)
     {

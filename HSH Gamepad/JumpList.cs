@@ -1,3 +1,8 @@
+// HSH Gamepad | Telegram: @HSHGamepad
+// منوی راست‌کلیک روی آیکون برنامه تو taskbar (Jump List) مثل تلگرام: «خروج از برنامه»
+// کنار «Close window» که خودش ویندوز میذاره (اون فقط پنجره رو میبره تو tray).
+// «خروج از برنامه» یه بار خود exe رو با --exit اجرا میکنه؛ اون نسخه به نسخه‌ی در حال اجرا خبر میده که خارج بشه (Program.cs).
+// همه‌چیز تو try/catch ـه: اگه ویندوز (مثلاً ویندوز 7 بدون این قابلیت) نپذیرفت، برنامه عادی کار میکنه.
 #nullable disable
 using System;
 using System.Diagnostics;
@@ -30,13 +35,14 @@ namespace GamepadServer
                 var link = (IShellLinkW)new CShellLink();
                 link.SetPath(exe);
                 link.SetArguments(ExitArg);
-                string icon = ExitIconFile();
+                string icon = ExitIconFile();      // آیکون خروج؛ اگه ساخته نشد آیکون خود برنامه
                 link.SetIconLocation(icon ?? exe, 0);
                 link.SetDescription(L.T("tray.FullyExitHSHGamepad"));
 
+                // عنوان آیتم (بدون این، آیتم تو منو دیده نمیشه)
                 var store = (IPropertyStore)link;
-                var key = new PropertyKey { fmtid = new Guid("F29F85E0-4FF9-1068-AB91-08002B27B3D9"), pid = 2 };
-                var pv = new PropVariant { vt = 31, ptr = Marshal.StringToCoTaskMemUni(L.T("tray.ExitTheApp")) };
+                var key = new PropertyKey { fmtid = new Guid("F29F85E0-4FF9-1068-AB91-08002B27B3D9"), pid = 2 };    // PKEY_Title
+                var pv = new PropVariant { vt = 31, ptr = Marshal.StringToCoTaskMemUni(L.T("tray.ExitTheApp")) };       // VT_LPWSTR
                 try
                 {
                     store.SetValue(ref key, ref pv);
@@ -54,6 +60,7 @@ namespace GamepadServer
             catch { }
         }
 
+        /// <summary>تم ویندوز (taskbar / منوها) روشنه؟ (ویندوز 7 و 8 همیشه روشن حساب میشن)</summary>
         private static bool SystemIsLight()
         {
             try
@@ -68,12 +75,16 @@ namespace GamepadServer
             return true;
         }
 
+        /// <summary>
+        /// منوی Jump List آیکون رو فقط از روی فایل میخونه، پس آیکون جاسازی‌شده تو exe رو
+        /// یه بار تو پوشه‌ی data کنار برنامه مینویسیم. تم تیره => آیکون سفید، تم روشن => آیکون تیره.
+        /// </summary>
         private static string ExitIconFile()
         {
             try
             {
                 string res = SystemIsLight() ? "exit-dark.ico" : "exit-light.ico";
-                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GamepadServer");
+                string dir = AppPaths.DataDir;
                 Directory.CreateDirectory(dir);
                 string file = Path.Combine(dir, res);
 
@@ -96,6 +107,7 @@ namespace GamepadServer
             return null;
         }
 
+        // ---------- COM ----------
         [ComImport, Guid("77F10CF0-3DB5-4966-B520-B7C54FD35ED6"), ClassInterface(ClassInterfaceType.None)]
         private class CDestinationList { }
 
@@ -132,8 +144,10 @@ namespace GamepadServer
         [ComImport, Guid("5632B1A4-E38A-400A-928A-D4CD63230295"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         private interface IObjectCollection
         {
+            // IObjectArray
             void GetCount(out uint pcObjects);
             void GetAt(uint uiIndex, ref Guid riid, [MarshalAs(UnmanagedType.Interface)] out object ppv);
+            // IObjectCollection
             void AddObject([MarshalAs(UnmanagedType.Interface)] object pvObject);
             void AddFromArray(IObjectArray poaSource);
             void RemoveObjectAt(uint uiIndex);
@@ -185,7 +199,7 @@ namespace GamepadServer
         {
             [FieldOffset(0)] public ushort vt;
             [FieldOffset(8)] public IntPtr ptr;
-            [FieldOffset(16)] private long pad;
+            [FieldOffset(16)] private long pad;      // PROPVARIANT تو x64 ۲۴ بایته
         }
     }
 }

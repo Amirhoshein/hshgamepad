@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -7,11 +8,14 @@ namespace GamepadServer;
 
 internal static class NetInfo
 {
+    /// <summary>IP این کامپیوتر تو شبکه‌ی محلی؛ اگه به هیچ شبکه‌ای وصل نباشه null (نه 127.0.0.1)</summary>
     public static string? LanIp()
     {
         IPAddress? routed = RoutedIp();
         try
         {
+            // اگه مسیر پیش‌فرض ویندوز از یه آداپتور مجازی (VPN، VMware، Hyper-V، WSL، ...) رد شده، گوشی هیچ‌وقت اونجا نیست؛
+            // تو این حالت IP کارت شبکه‌ی واقعی (Wi-Fi / Ethernet) نشون داده میشه
             if (routed != null && !IsVirtualIp(routed)) return routed.ToString();
             IPAddress? real = BestRealIp();
             if (real != null) return real.ToString();
@@ -26,7 +30,7 @@ internal static class NetInfo
         if (IPAddress.IsLoopback(ip)) return false;
         var b = ip.GetAddressBytes();
         if (b[0] == 0) return false;
-        if (b[0] == 169 && b[1] == 254) return false;
+        if (b[0] == 169 && b[1] == 254) return false;   // APIPA: کارت شبکه وصله ولی DHCP جواب نداده
         return true;
     }
 
@@ -36,7 +40,7 @@ internal static class NetInfo
         {
             using (var s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
             {
-                s.Connect("10.255.255.255", 1);
+                s.Connect("10.255.255.255", 1);       // UDP: بسته‌ای فرستاده نمیشه، فقط ویندوز آداپتور مسیر رو انتخاب میکنه
                 var ip = ((IPEndPoint)s.LocalEndPoint!).Address;
                 return Usable(ip) ? ip : null;
             }
@@ -71,6 +75,7 @@ internal static class NetInfo
         return false;
     }
 
+    /// <summary>IP یه کارت شبکه‌ی واقعیِ وصل (ترجیحاً اونی که gateway داره)</summary>
     private static IPAddress? BestRealIp()
     {
         IPAddress? any = null;

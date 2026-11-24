@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,8 +11,10 @@ using System.Windows.Forms;
 
 namespace GamepadServer;
 
+/// <summary>پنجره‌ی وضعیت (تم تیره مثل صفحه‌ی گوشی): پلیرها، اسم گوشی‌ها، دکمه‌ی حذف دسته‌ی آزاد و تنظیمات</summary>
 public sealed class MainForm : Form
 {
+    // رنگ‌ها (هماهنگ با صفحه‌ی گوشی)
     private static readonly Color cBg = Color.FromArgb(18, 21, 29);
     private static readonly Color cPanel = Color.FromArgb(27, 32, 48);
     private static readonly Color cCell = Color.FromArgb(24, 28, 41);
@@ -23,16 +26,25 @@ public sealed class MainForm : Form
     private static readonly Color cDanger = Color.FromArgb(96, 44, 54);
     private static readonly Color cDangerBorder = Color.FromArgb(150, 70, 80);
     private static readonly Color cDangerFg = Color.FromArgb(255, 200, 200);
+    private static readonly Color cTestBg = Color.FromArgb(36, 62, 108);
+    private static readonly Color cTestBorder = Color.FromArgb(91, 146, 255);
+    private static readonly Color cTestFg = Color.FromArgb(205, 224, 255);
 
+    // ترتیب ستون‌ها از چپ به راست
     private const int ColPlayer = 0, ColStatus = 1, ColName = 2, ColType = 3, ColDevice = 4, ColIp = 5;
 
-    private readonly float _k;
+    private readonly float _k;      // ضریب DPI (۱.۰ = ۹۶ دی‌پی‌آی)
     private readonly Hub _hub;
     private readonly AppSettings _settings;
     private readonly DataGridView _grid;
     private readonly Label _summary;
     private readonly CheckBox _autoChk;
     private readonly CheckBox _inputChk;
+    private readonly CheckBox _micChk;
+    private readonly Label _audLbl;
+    private readonly ComboBox _audCombo;
+    private bool _audBusy;
+    private string _audKey = "";
     private readonly NumericUpDown _autoNum;
     private readonly CheckBox _keyChk;
     private readonly KeyBox _keyBox;
@@ -50,9 +62,10 @@ public sealed class MainForm : Form
     private readonly Button _qrBtn;
     private QrForm? _qrForm;
     private readonly Button _settingsBtn;
+    private readonly Button _presetsBtn;
     private readonly SettingsForm _settingsForm;
     private Label _lblAddr = null!;
-    private Font? _topBtnFont;
+    private Font? _topBtnFont;        // فونت دکمه‌های QR/Copy = همون فونت (فونت و سایز) متن توضیح بالا
     private Label _secLbl = null!;
     private ToolStripMenuItem _openItem = null!;
     private ToolStripMenuItem _exitItem = null!;
@@ -65,7 +78,8 @@ public sealed class MainForm : Form
     private bool _addrInit;
     private int _ipTick;
 
-    private bool _fwPending = true;
+    // عوض شدن شبکه: بعد از چند ثانیه (تا DHCP تموم بشه) آدرس دوباره چک میشه و فایروال بررسی میشه
+    private bool _fwPending = true;         // موقع شروع هم یه بار چک میشه
     private int _fwDelay = 6;
     private int _fwBusy;
     private volatile string? _fwAsked;
@@ -76,13 +90,14 @@ public sealed class MainForm : Form
     private const string ChannelUrl = "https://t.me/HSHGamepad";
     private const string GithubUrl = "https://github.com/Amirhoshein/hshgamepad";
     private readonly ToolTip _tip = new();
-    private const int IpRefreshSeconds = 3;
+    private const int IpRefreshSeconds = 3;     // هر چند ثانیه IP دوباره چک بشه (فقط وقتی پنجره پیداست)
     private readonly Font _btnFont = new("Segoe UI Semibold", 9f);
     private readonly bool[] _removable = new bool[9];
     private readonly bool[] _owned = new bool[9];
     private readonly Dictionary<int, GamepadTesterForm> _testers = new Dictionary<int, GamepadTesterForm>();
     private readonly string?[] _btnText = new string?[9];
 
+    /// <summary>چک‌باکس بزرگ با تم تیره (چک‌باکس معمولی ویندوز اندازه‌اش رو نمیشه عوض کرد)</summary>
     private sealed class BigCheck : CheckBox
     {
         private readonly int _box, _gap;
@@ -158,6 +173,8 @@ public sealed class MainForm : Form
         _port = port;
         _hub = hub;
         _settings = settings;
+        AudioCast.SetDevice(settings.AudioDevice);      // خروجی صدای انتخاب‌شده برای گوشی
+        MicBridge.Configure(settings);                  // میکروفون مجازی: «همیشه وصل» یا فقط وقتی گوشی روشنش میکنه
 
         Text = "HSH Gamepad";
         try
@@ -177,10 +194,12 @@ public sealed class MainForm : Form
         ForeColor = cFg;
         StartPosition = FormStartPosition.CenterScreen;
 
+        // اندازه‌ی اولیه: ۹۳۰×۵۷۰ (با توجه به DPI) تا هر ۹ پلیر و IP کامل دیده بشه و اسکرول نخواد
         var wa = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1920, 1080);
         ClientSize = new Size(Math.Min(S(930), wa.Width - 20), Math.Min(S(527), wa.Height - 60));
         MinimumSize = new Size(S(780), S(480));
 
+        // ---------- بالا: عنوان + آدرس + کپی + خلاصه ----------
         var top = new Panel { Dock = DockStyle.Top, Height = S(88), BackColor = cPanel };
         var title = new Label
         {
@@ -220,6 +239,7 @@ public sealed class MainForm : Form
             if (_url == null) return;
             try { Clipboard.SetText(_url); _copy.Text = L.T("main.Copied"); } catch { }
         };
+        // دکمه‌ی QR Code دقیقاً بالای دکمه‌ی کپی
         _qrBtn = new Button { Text = L.T("ui.qr"), Left = S(402), Top = S(18), Width = S(84), Height = S(30) };
         StyleButton(_qrBtn, cCell, cAccent, cFg);
         _qrBtn.Click += (_, _) => ShowQr();
@@ -246,6 +266,7 @@ public sealed class MainForm : Form
         top.Controls.AddRange(new Control[] { title, lbl, _box, _qrBtn, _copy, _summary, credit });
         _lblAddr = lbl;
 
+        // ---------- پایین: تنظیمات ----------
         var bottomBar = new Panel { Dock = DockStyle.Bottom, Height = S(60), BackColor = cPanel };
         _autoChk = new BigCheck(S(22), S(8), cCell, cMuted, cAccent, cBg)
         {
@@ -278,12 +299,24 @@ public sealed class MainForm : Form
             Margin = new Padding(S(16), S(2), S(6), 0),
         };
         _tip.SetToolTip(_inputChk, L.T("main.OnlyWorksWhilePlayer1s"));
+        // این گزینه‌ها دیگه تو نوار پایین نیستن؛ داخل پنجره‌ی Settings (زیر دکمه‌ی Language) قرار میگیرن
         _secLbl = sec;
         var rowAuto = SettingsRow(S(40));
         rowAuto.Controls.AddRange(new Control[] { _autoChk, _autoNum, sec });
         var rowInput = SettingsRow(S(40));
         _inputChk.Margin = new Padding(S(6), S(2), S(6), 0);
         rowInput.Controls.Add(_inputChk);
+        _micChk = new BigCheck(S(22), S(8), cCell, cMuted, cAccent, cBg)
+        {
+            Text = L.T("main.MicAlways"),
+            AutoSize = true,
+            ForeColor = cFg,
+            Checked = settings.MicAlways,
+            Margin = new Padding(S(6), S(2), S(6), 0),
+        };
+        _tip.SetToolTip(_micChk, L.T("main.MicAlwaysTip"));
+        var rowMic = SettingsRow(S(40));
+        rowMic.Controls.Add(_micChk);
 
         _keyChk = new BigCheck(S(22), S(8), cCell, cMuted, cAccent, cBg)
         {
@@ -323,21 +356,61 @@ public sealed class MainForm : Form
         var rowMinutes = SettingsRow(S(36));
         rowMinutes.Controls.AddRange(new Control[] { _minutesLbl, _minutesNum });
 
+        // خروجی صدایی که برای گوشی (نمایشگر لمسی) فرستاده میشه
+        _audLbl = SettingsLabel(L.T("main.AudioOutput"), S(6));
+        var rowAudLbl = SettingsRow(S(34));
+        rowAudLbl.Controls.Add(_audLbl);
+        _audCombo = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            FlatStyle = FlatStyle.Flat,
+            BackColor = cCell,
+            ForeColor = cFg,
+            Width = S(430),
+            RightToLeft = RightToLeft.No,
+            Margin = new Padding(S(6), S(2), S(6), 0),
+        };
+        var rowAud = SettingsRow(S(36));
+        rowAud.Controls.Add(_audCombo);
+        RefreshAudioList(true);
+        _audCombo.DropDown += (_, _) => RefreshAudioList(false);
+        _audCombo.SelectedIndexChanged += (_, _) =>
+        {
+            if (_audBusy) return;
+            if (_audCombo.SelectedItem is AudioItem a)
+            {
+                _settings.AudioDevice = a.Id;
+                AudioCast.SetDevice(a.Id);
+                _settings.Save();
+            }
+        };
+        _tip.SetToolTip(_audCombo, L.T("main.AudioOutputTip"));
+        _tip.SetToolTip(_audLbl, L.T("main.AudioOutputTip"));
+
         var separator = new Panel { Height = Math.Max(1, S(1)), BackColor = cGrid, Margin = new Padding(0, S(8), 0, S(4)) };
 
         _settingsForm = new SettingsForm(_k, Icon,
-            new Control[] { rowAuto, rowInput, separator, rowKey, rowBan, rowTries, rowMinutes }, ShowLanguage);
+            new Control[] { rowAuto, rowInput, rowMic, rowAudLbl, rowAud, separator, rowKey, rowBan, rowTries, rowMinutes }, ShowLanguage);
 
-        int ib = S(32), ig = S(6), ic = S(28);
+        // دو دکمه‌ی آیکونی پایین سمت چپ: تلگرام (چپ) و گیت‌هاب (سمت راستش)
+        int ib = S(32), ig = S(6), ic = S(28);      // دکمه ۳۲، آیکون ۲۸ پیکسل؛ وسط‌چینِ عمودی با ردیف چک‌باکس
         int itop = S(30) - ib / 2;
         var tgHost = new Panel { Dock = DockStyle.Left, Width = S(10) + ib + ig + ib + S(8), BackColor = cPanel };
         var tg = MakeIconButton("telegram.png", ic, ib, S(10), itop, ChannelUrl, Color.FromArgb(42, 171, 238));
         var gh = MakeIconButton("github.png", ic, ib, S(10) + ib + ig, itop, GithubUrl, cFg);
         tgHost.Controls.Add(tg);
         tgHost.Controls.Add(gh);
+        // دکمه‌ی Settings پایین سمت راست
         int sbH = S(34);
-        var setHost = new Panel { Dock = DockStyle.Right, Width = S(12) + S(120) + S(14), BackColor = cPanel };
-        _settingsBtn = new Button { Text = "Settings", Left = S(12), Top = S(30) - sbH / 2, Width = S(120), Height = sbH, Font = _btnFont, TabStop = false };
+        var setHost = new Panel { Dock = DockStyle.Right, Width = S(12) + S(120) + S(8) + S(120) + S(14), BackColor = cPanel };
+        // دکمه‌ی Presets (سمت چپِ Settings): پوشه‌ی چیدمان‌ها و تم‌هایی که از گوشی رو کامپیوتر ذخیره شدن
+        _presetsBtn = new Button { Text = "Presets", Left = S(12), Top = S(30) - sbH / 2, Width = S(120), Height = sbH, Font = _btnFont, TabStop = false };
+        StyleButton(_presetsBtn, cCell, cAccent, cFg);
+        Fit.Auto(_presetsBtn);
+        _presetsBtn.Click += (_, _) => Presets.OpenFolder();
+        _tip.SetToolTip(_presetsBtn, L.T("main.PresetsTip"));
+        setHost.Controls.Add(_presetsBtn);
+        _settingsBtn = new Button { Text = "Settings", Left = S(12) + S(120) + S(8), Top = S(30) - sbH / 2, Width = S(120), Height = sbH, Font = _btnFont, TabStop = false };
         StyleButton(_settingsBtn, cCell, cAccent, cFg);
         Fit.Auto(_settingsBtn);
         _settingsBtn.Click += (_, _) => ShowSettings();
@@ -348,6 +421,7 @@ public sealed class MainForm : Form
         _autoChk.CheckedChanged += (_, _) => ApplySettings();
         _autoNum.ValueChanged += (_, _) => ApplySettings();
         _inputChk.CheckedChanged += (_, _) => ApplySettings();
+        _micChk.CheckedChanged += (_, _) => ApplySettings();
         _keyChk.CheckedChanged += (_, _) =>
         {
             if (_keyChk.Checked) _banChk.Checked = true;
@@ -359,6 +433,7 @@ public sealed class MainForm : Form
         _minutesNum.ValueChanged += (_, _) => ApplySettings();
         UpdateSettingsState();
 
+        // ---------- وسط: جدول ۹ پلیر ----------
         _grid = new DataGridView
         {
             Dock = DockStyle.Fill,
@@ -402,6 +477,7 @@ public sealed class MainForm : Form
             WrapMode = DataGridViewTriState.False,
         };
 
+        // پلیر ، وضعیت ، اسم ، نوع دسته ، دستگاه ، IP
         AddText(L.T("main.Player"), 70);
         AddText(L.T("main.Status"), 235);
         AddText(L.T("main.Name"), 130);
@@ -415,21 +491,24 @@ public sealed class MainForm : Form
             _grid.Rows[idx].Cells[ColPlayer].Value = L.F("main.Player2", (i + 1));
         }
 
+        // دکمه‌ی «حذف» داخل خود ستون وضعیت کشیده میشه (فقط وقتی دسته‌ی آزاد هنوز مجازی هست)
         _grid.CellPainting += (_, e) =>
         {
-            if (e.RowIndex < 0 || e.RowIndex >= 9 || e.ColumnIndex != ColStatus || !_removable[e.RowIndex]) return;
+            if (e.RowIndex < 0 || e.RowIndex >= 9 || e.ColumnIndex != ColStatus || !(_removable[e.RowIndex] || _owned[e.RowIndex])) return;
 
             e.Paint(e.CellBounds, e.PaintParts);
             var r = ButtonRect(e.CellBounds);
-            using (var fill = new SolidBrush(cDanger)) e.Graphics!.FillRectangle(fill, r);
-            using (var pen = new Pen(cDangerBorder)) e.Graphics!.DrawRectangle(pen, r.X, r.Y, r.Width - 1, r.Height - 1);
-            TextRenderer.DrawText(e.Graphics, _btnText[e.RowIndex] ?? L.T("main.Remove"), _btnFont, r, cDangerFg,
+            bool test = _owned[e.RowIndex];      // وصل = دکمه‌ی «تست دسته»؛ رها‌شده = دکمه‌ی «حذف»
+            using (var fill = new SolidBrush(test ? cTestBg : cDanger)) e.Graphics!.FillRectangle(fill, r);
+            using (var pen = new Pen(test ? cTestBorder : cDangerBorder)) e.Graphics!.DrawRectangle(pen, r.X, r.Y, r.Width - 1, r.Height - 1);
+            TextRenderer.DrawText(e.Graphics, test ? L.T("main.TestPad") : (_btnText[e.RowIndex] ?? L.T("main.Remove")), _btnFont, r, test ? cTestFg : cDangerFg,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis);
             e.Handled = true;
         };
         _grid.CellMouseClick += (_, e) =>
         {
-            if (HitButton(e.RowIndex, e.ColumnIndex, e.Location)) _hub.RemovePad(e.RowIndex + 1);
+            if (!HitButton(e.RowIndex, e.ColumnIndex, e.Location)) return;
+            if (_owned[e.RowIndex]) OpenTester(e.RowIndex + 1); else _hub.RemovePad(e.RowIndex + 1);
         };
         _grid.CellMouseMove += (_, e) =>
         {
@@ -444,16 +523,17 @@ public sealed class MainForm : Form
             OpenTester(e.RowIndex + 1);
         };
 
-        Controls.Add(_grid);
+        Controls.Add(_grid);     // اول Fill بعد لبه‌ها
         Controls.Add(bottomBar);
         Controls.Add(top);
 
+        // ---------- آیکون کنار ساعت (tray): با بستن پنجره برنامه همین‌جا میمونه ----------
         var menu = new ContextMenuStrip { RightToLeft = RightToLeft.Yes };
         var openItem = new ToolStripMenuItem(L.T("main.Open")) { Font = new Font(Font, FontStyle.Bold) };
         var exitItem = new ToolStripMenuItem(L.T("main.Exit"));
         _openItem = openItem; _exitItem = exitItem;
         menu.ImageScalingSize = new Size(S(16), S(16));
-        var exitImg = LoadResourceIcon("exit-dark.ico", new Size(S(16), S(16)));
+        var exitImg = LoadResourceIcon("exit-dark.ico", new Size(S(16), S(16)));     // منوی tray روشنه => آیکون تیره
         if (exitImg != null) exitItem.Image = exitImg.ToBitmap();
         openItem.Click += (_, _) => ShowFromTray();
         exitItem.Click += (_, _) => ExitApp();
@@ -472,6 +552,7 @@ public sealed class MainForm : Form
             if (e.Button == MouseButtons.Left) ShowFromTray();
         };
 
+        // ---------- به‌روزرسانی ----------
         _onChanged = () =>
         {
             try
@@ -485,9 +566,10 @@ public sealed class MainForm : Form
         _timer = new System.Windows.Forms.Timer { Interval = 1000 };
         _timer.Tick += (_, _) =>
         {
-            _hub.Tick();
-            RefreshList();
+            _hub.Tick();        // حذف خودکار دسته‌های آزاد (حتی وقتی پنجره تو tray پنهانه)
+            RefreshList();      // شمارش معکوس
 
+            // بعد از عوض شدن شبکه: آدرس رو دوباره چک کن و (فقط وقتی پنجره پیداست) فایروال رو بررسی کن
             if (_fwPending && Visible && WindowState != FormWindowState.Minimized && --_fwDelay <= 0)
             {
                 _fwPending = false;
@@ -496,6 +578,7 @@ public sealed class MainForm : Form
                 CheckFirewall();
             }
 
+            // IP فقط وقتی پنجره پیداست هر چند ثانیه یه بار بروز میشه
             if (Visible && WindowState != FormWindowState.Minimized && ++_ipTick >= IpRefreshSeconds)
             {
                 _ipTick = 0;
@@ -504,6 +587,7 @@ public sealed class MainForm : Form
         };
         _timer.Start();
 
+        // عوض شدن شبکه (وای‌فای دیگه، کابل، هات‌اسپات، VPN): فوراً آدرس بروز بشه، نه بعد از چند ثانیه
         _onAddrChanged = (_, _) => NetworkChangedSoon();
         _onAvailChanged = (_, _) => NetworkChangedSoon();
         NetworkChange.NetworkAddressChanged += _onAddrChanged;
@@ -517,7 +601,7 @@ public sealed class MainForm : Form
             _timer.Dispose();
             _hub.Changed -= _onChanged;
             L.Changed -= _onLangChanged;
-            _tray.Visible = false;
+            _tray.Visible = false;      // وگرنه آیکون تا وقتی ماوس روش نره تو tray میمونه
             _tray.Dispose();
         };
 
@@ -534,6 +618,7 @@ public sealed class MainForm : Form
         _grid.ClearSelection();
     }
 
+    /// <summary>دکمه‌ی فقط-آیکون (بدون کادر): معمولاً هم‌رنگ متن‌های کم‌رنگ پنجره‌ست و با رفتن ماوس روش، رنگ خودش (hover) رو میگیره</summary>
     private Button MakeIconButton(string resource, int iconSize, int size, int left, int top, string url, Color hover)
     {
         var b = new Button { Left = left, Top = top, Width = size, Height = size, Text = "", TabStop = false };
@@ -559,10 +644,12 @@ public sealed class MainForm : Form
         try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
         catch
         {
+            // مرورگر پیش‌فرض نبود: لینک رو کپی کن
             try { Clipboard.SetText(url); _tip.Show(L.T("main.LinkCopied"), c, 0, -c.Height, 1500); } catch { }
         }
     }
 
+    /// <summary>PNG جاسازی‌شده رو با کیفیت بالا به اندازه‌ی دلخواه (پیکسل) برمیگردونه</summary>
     private static Bitmap? LoadResourceImage(string name, int size, Color tint)
     {
         try
@@ -579,6 +666,7 @@ public sealed class MainForm : Form
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                 using var attr = new System.Drawing.Imaging.ImageAttributes();
+                // PNG سفیدِ تک‌رنگه؛ فقط شکلش (آلفا) مهمه و رنگش با tint عوض میشه
                 var cm = new System.Drawing.Imaging.ColorMatrix(new float[][]
                 {
                     new float[] { 0, 0, 0, 0, 0 },
@@ -596,12 +684,13 @@ public sealed class MainForm : Form
         return null;
     }
 
+    /// <summary>پنجره رو از tray برمیگردونه (کلیک روی آیکون، منوی «باز کردن»، یا اجرای دوباره‌ی برنامه)</summary>
     public void ShowFromTray()
     {
         if (!_allowShow)
         {
             _allowShow = true;
-            if (!Visible) CenterToScreen();
+            if (!Visible) CenterToScreen();     // اولین نمایش بعد از شروع مخفی: وسط صفحه بیاد
         }
         if (!Visible) Show();
         if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
@@ -610,25 +699,28 @@ public sealed class MainForm : Form
 
     private bool _allowShow = true;
 
+    /// <summary>برنامه بدون نمایش پنجره بالا بیاد (فقط آیکون tray)؛ تا ShowFromTray صدا زده نشه پنجره پیدا نمیشه</summary>
     public void StartHidden() { _allowShow = false; }
 
     protected override void SetVisibleCore(bool value)
     {
         if (!_allowShow)
         {
-            if (!IsHandleCreated) CreateHandle();
+            if (!IsHandleCreated) CreateHandle();     // وگرنه BeginInvoke و بقیه‌ی کارها قبل از اولین نمایش کار نمیکنن
             value = false;
         }
         base.SetVisibleCore(value);
     }
 
+    /// <summary>پورت سرور عوض شد (مثلاً از 1111 رفت رو 80): آدرس بالای پنجره فوراً آپدیت میشه</summary>
     public void SetPort(int port)
     {
         _port = port;
-        _addrInit = false;
+        _addrInit = false;      // وگرنه UpdateAddress چون IP عوض نشده چیزی رو بروز نمیکنه
         UpdateAddress();
     }
 
+    /// <summary>خروج واقعی از برنامه (بستن پنجره فقط پنهانش میکنه)</summary>
     public void ExitApp()
     {
         _exiting = true;
@@ -638,7 +730,8 @@ public sealed class MainForm : Form
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
         base.OnFormClosing(e);
-        if (e.Cancel || _exiting || e.CloseReason != CloseReason.UserClosing) return;
+        if (!e.Cancel && (_exiting || e.CloseReason != CloseReason.UserClosing)) MicBridge.Shutdown();      // خروج واقعی: اگه «همیشه وصل» خاموشه میکروفون مجازی در میاد
+        if (e.Cancel || _exiting || e.CloseReason != CloseReason.UserClosing) return;   // خاموش شدن ویندوز و ... عادی بسته میشه
 
         e.Cancel = true;
         Hide();
@@ -659,7 +752,7 @@ public sealed class MainForm : Form
         if (Visible)
         {
             _ipTick = 0;
-            UpdateAddress();
+            UpdateAddress();    // موقع برگشتن از tray فوراً IP رو چک کن
         }
     }
 
@@ -672,13 +765,14 @@ public sealed class MainForm : Form
             {
                 _ipTick = 0;
                 UpdateAddress();
-                _fwPending = true;
+                _fwPending = true;      // چند ثانیه صبر میکنیم تا شبکه کامل وصل بشه
                 _fwDelay = 4;
             }));
         }
         catch { }
     }
 
+    /// <summary>برای شبکه‌ی فعلی قانون «اجازه‌ی ورودی» فایروال هست؟ اگه نه، با اجازه‌ی کاربر اضافه میشه</summary>
     private void CheckFirewall()
     {
         if (Interlocked.CompareExchange(ref _fwBusy, 1, 0) != 0) return;
@@ -699,7 +793,7 @@ public sealed class MainForm : Form
 
     private void AskFirewall(string key)
     {
-        _fwAsked = key;
+        _fwAsked = key;     // برای این نوع شبکه فقط یه بار تو هر بار اجرا میپرسیم
         MessageBoxOptions opt = L.Rtl ? (MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign) : default(MessageBoxOptions);
         bool yes = false;
         try
@@ -727,6 +821,7 @@ public sealed class MainForm : Form
         });
     }
 
+    /// <summary>آدرس بالای پنجره: IP شبکه یا «منتظر اتصال به شبکه» اگه شبکه‌ای نیست</summary>
     private void UpdateAddress()
     {
         string? ip = NetInfo.LanIp();
@@ -750,8 +845,8 @@ public sealed class MainForm : Form
             _qrBtn.Enabled = true;
         }
         _copy.Text = L.T("main.Copy");
-        if (_qrForm != null && !_qrForm.IsDisposed) _qrForm.SetUrl(_url);
-        LayoutTop();
+        if (_qrForm != null && !_qrForm.IsDisposed) _qrForm.SetUrl(_url);      // IP عوض شد: QR باز هم بروز بشه
+        LayoutTop();        // عرض کادر آدرس و جای دکمه‌ها با متن جدید
     }
 
     private void OpenTester(int playerN)
@@ -811,7 +906,7 @@ public sealed class MainForm : Form
 
     private bool HitButton(int row, int col, Point p)
     {
-        if (row < 0 || row >= 9 || col != ColStatus || !_removable[row]) return false;
+        if (row < 0 || row >= 9 || col != ColStatus || !(_removable[row] || _owned[row])) return false;
         var cell = new Rectangle(0, 0, _grid.Columns[ColStatus].Width, _grid.Rows[row].Height);
         return ButtonRect(cell).Contains(p);
     }
@@ -835,6 +930,38 @@ public sealed class MainForm : Form
         b.BackColor = back;
         b.ForeColor = fore;
         b.Cursor = Cursors.Hand;
+    }
+
+    private sealed class AudioItem
+    {
+        public string Id = "";
+        public string Name = "";
+        public override string ToString() => Name;
+    }
+
+    /// <summary>لیست خروجی‌های صدا (اولیش «پیش‌فرض ویندوز» که خودش دنبال عوض شدن خروجی میره). اگه خروجی ذخیره‌شده الان وصل نیست، تا برگرده پیش‌فرض ضبط میشه و انتخابش نگه داشته میشه</summary>
+    private void RefreshAudioList(bool force)
+    {
+        var devs = AudioCast.ListDevices();
+        string sig = string.Join("|", devs.ConvertAll(d => d.Id)) + "#" + L.Code;
+        if (!force && sig == _audKey) return;
+        _audKey = sig;
+        _audBusy = true;
+        try
+        {
+            _audCombo.BeginUpdate();
+            _audCombo.Items.Clear();
+            _audCombo.Items.Add(new AudioItem { Id = "", Name = L.T("main.AudioDefault") });
+            int sel = 0;
+            foreach (var d in devs)
+            {
+                int i = _audCombo.Items.Add(new AudioItem { Id = d.Id, Name = d.Name });
+                if (d.Id == _settings.AudioDevice) sel = i;
+            }
+            _audCombo.SelectedIndex = sel;
+            _audCombo.EndUpdate();
+        }
+        finally { _audBusy = false; }
     }
 
     private FlowLayoutPanel SettingsRow(int height)
@@ -882,25 +1009,27 @@ public sealed class MainForm : Form
 
     private void LayoutTop()
     {
-        if (_lblAddr == null || _summary == null || _summary.Parent == null || _grid == null) return;
+        if (_lblAddr == null || _summary == null || _summary.Parent == null || _grid == null) return;   // هنوز ساخته نشدن
         int need = Math.Max(Fit.TextWidth(_qrBtn.Text, Font),
                    Math.Max(Fit.TextWidth(L.T("main.Copy"), Font), Fit.TextWidth(L.T("main.Copied"), Font))) + S(22);
         int bw = Math.Min(S(140), Math.Max(S(84), need));
         _qrBtn.Width = bw;
         _copy.Width = bw;
 
+        // حداقل عرض کادر آدرس = عرض خود متن (+ فاصله‌ی داخلی)؛ بعدش تا دکمه‌ها کش میاد
         int boxW = Fit.TextWidth(_box.Text, _box.Font) + S(14);
         _box.Width = boxW;
 
+        // دکمه‌ها بعد از پهن‌ترین چیز سمت چپ میان: کادر آدرس یا متن توضیح (متن توضیح اگه بلند باشه کش میاد تا ... نخوره)
         int gap = S(12);
-        int summaryW = Fit.TextWidth(L.F("main.ConnectedOf9", 9), _summary.Font);
+        int summaryW = Fit.TextWidth(L.F("main.ConnectedOf9", 9), _summary.Font);   // بدترین حالت، تا با عوض شدن عدد جابجا نشه
         int maxRight = Math.Max(S(402) + bw, ((Control)_summary.Parent!).ClientSize.Width - S(14) - summaryW - S(16));
         int labelW = Fit.TextWidth(_lblAddr.Text, Font) + S(6);
         int leftW = Math.Max(boxW, Math.Min(labelW, maxRight - bw - gap - _lblAddr.Left));
         int btnLeft = _lblAddr.Left + leftW + gap;
         _qrBtn.Left = btnLeft;
         _copy.Left = btnLeft;
-        _box.Width = Math.Max(boxW, btnLeft - gap - _box.Left);
+        _box.Width = Math.Max(boxW, btnLeft - gap - _box.Left);     // کادر آدرس تا جای دکمه‌ها کشیده میشه
         _summary.Left = _copy.Right + S(16);
         _lblAddr.Width = Math.Max(S(100), _qrBtn.Left - S(10) - _lblAddr.Left);
         var oldFont = _lblAddr.Font;
@@ -908,16 +1037,21 @@ public sealed class MainForm : Form
         _lblAddr.Font = fitted;
         if (!ReferenceEquals(oldFont, Font) && !ReferenceEquals(oldFont, fitted)) oldFont.Dispose();
 
+        // دکمه‌ها دقیقاً همون فونت و سایز متن «برای اتصال ...» رو بگیرن
         var oldBtnFont = _topBtnFont;
         _topBtnFont = new Font(fitted.FontFamily, fitted.Size, FontStyle.Regular, fitted.Unit);
         _qrBtn.Font = _topBtnFont;
         _copy.Font = _topBtnFont;
         oldBtnFont?.Dispose();
         _tip.SetToolTip(_lblAddr, _lblAddr.Text);
-        _removeW = Math.Max(Fit.TextWidth(L.T("main.Remove"), _btnFont), Fit.TextWidth(L.F("main.Remove2", 3600), _btnFont)) + S(14);
+        _removeW = Math.Max(Math.Max(Fit.TextWidth(L.T("main.Remove"), _btnFont), Fit.TextWidth(L.F("main.Remove2", 3600), _btnFont)), Fit.TextWidth(L.T("main.TestPad"), _btnFont)) + S(14);
         FitColumns();
     }
 
+    /// <summary>
+    /// هر ستون حداقل به اندازه‌ی بلندترین متنش (هدر + خونه‌ها) عرض میگیره تا «...» نخوره؛
+    /// بقیه‌ی فضا مثل قبل بین ستون‌ها تقسیم میشه، پس اندازه‌ی پنجره عوض نمیشه و فقط ستون‌هایی که جا اضافه دارن کوچیک‌تر میشن.
+    /// </summary>
     private void FitColumns()
     {
         if (_grid == null || _grid.Columns.Count == 0) return;
@@ -932,7 +1066,7 @@ public sealed class MainForm : Form
                 string? t = r.Cells[c].Value as string;
                 if (string.IsNullOrEmpty(t)) continue;
                 int w = Fit.TextWidth(t, cellFont);
-                if (c == ColStatus && _removable[r.Index]) w += _removeW + S(16);
+                if (c == ColStatus && (_removable[r.Index] || _owned[r.Index])) w += _removeW + S(16);   // جای دکمه‌ی «حذف»
                 if (w > need) need = w;
             }
             int min = need + pad;
@@ -959,9 +1093,11 @@ public sealed class MainForm : Form
         _settings.AllowInput = _inputChk.Checked;
         _hub.AllowInput = _settings.AllowInput;
         if (!_settings.AllowInput) InputInjector.ReleaseAll();
+        if (_settings.MicAlways != _micChk.Checked) { _settings.MicAlways = _micChk.Checked; MicBridge.SetAlways(_settings.MicAlways); }
         _settings.Save();
     }
 
+    // نوار عنوان تیره (ویندوز ۱۰ به بالا)
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
@@ -969,7 +1105,7 @@ public sealed class MainForm : Form
         {
             int on = 1;
             if (DwmSetWindowAttribute(Handle, 20, ref on, 4) != 0) DwmSetWindowAttribute(Handle, 19, ref on, 4);
-            int cap = cBg.R | (cBg.G << 8) | (cBg.B << 16);
+            int cap = cBg.R | (cBg.G << 8) | (cBg.B << 16);          // رنگ نوار عنوان (ویندوز ۱۱)
             DwmSetWindowAttribute(Handle, 35, ref cap, 4);
         }
         catch { }
@@ -984,6 +1120,7 @@ public sealed class MainForm : Form
         f.Show(_settingsForm);
     }
 
+    /// <summary>متن همه‌ی کنترل‌های ثابت رو از زبان فعلی دوباره میذاره (متن‌های متغیر مثل وضعیت هر ثانیه خودشون بروز میشن)</summary>
     private void ApplyLanguage()
     {
         var dir = L.Rtl ? RightToLeft.Yes : RightToLeft.No;
@@ -993,10 +1130,17 @@ public sealed class MainForm : Form
         _secLbl.Text = L.T("main.Seconds");
         _inputChk.Text = L.T("main.MouseAndKeyboardAccessFrom");
         _tip.SetToolTip(_inputChk, L.T("main.OnlyWorksWhilePlayer1s"));
+        _micChk.Text = L.T("main.MicAlways");
+        _tip.SetToolTip(_micChk, L.T("main.MicAlwaysTip"));
         _keyChk.Text = L.T("main.AccessKey");
         _tip.SetToolTip(_keyChk, L.T("main.AccessKeyTip"));
         _tip.SetToolTip(_keyBox.Input, L.T("main.AccessKeyTip"));
         _tip.SetToolTip(_keyBox.Dice, L.T("main.RandomKey"));
+        _tip.SetToolTip(_presetsBtn, L.T("main.PresetsTip"));
+        _audLbl.Text = L.T("main.AudioOutput");
+        _tip.SetToolTip(_audLbl, L.T("main.AudioOutputTip"));
+        _tip.SetToolTip(_audCombo, L.T("main.AudioOutputTip"));
+        RefreshAudioList(true);
         _banChk.Text = L.T("main.BlockWrongTries");
         _tip.SetToolTip(_banChk, L.T("main.BlockWrongTriesTip"));
         _triesLbl.Text = L.T("main.MaxTries");
@@ -1020,9 +1164,11 @@ public sealed class MainForm : Form
     private void ShowSettings()
     {
         if (_settingsForm.Visible) { _settingsForm.Activate(); return; }
+        RefreshAudioList(false);
         _settingsForm.Show(this);
     }
 
+    /// <summary>پنجره‌ی QR Code: خود QR (۳۲۰×۳۲۰)، زیرش همون آدرس + دکمه‌ی کپی و یه توضیح کوتاه</summary>
     private void ShowQr()
     {
         if (_url == null) return;
@@ -1033,6 +1179,7 @@ public sealed class MainForm : Form
         f.Show(this);
     }
 
+    /// <summary>پنجره‌ی Settings: دکمه‌ی Language بالا و بقیه‌ی گزینه‌ها زیرش. با بستن فقط پنهان میشه (کنترل‌ها همچنان به تنظیمات وصلن)</summary>
     private sealed class SettingsForm : Form
     {
         private readonly float _k;
@@ -1110,7 +1257,7 @@ public sealed class MainForm : Form
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
-            if (e.CloseReason == CloseReason.UserClosing) { e.Cancel = true; Hide(); }
+            if (e.CloseReason == CloseReason.UserClosing) { e.Cancel = true; Hide(); }   // کنترل‌ها نباید dispose بشن
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -1264,6 +1411,7 @@ public sealed class MainForm : Form
                 status = L.T("main.Abandoned");
                 back = cCell;
                 fore = cMuted;
+                // اگه حذف خودکار روشنه، شمارش معکوس روی خود دکمه نشون داده میشه
                 _btnText[i] = (auto > 0 && s.IdleSeconds is double idle)
                     ? L.F("main.Remove2", Math.Max(0, auto - (int)idle))
                     : L.T("main.Remove");
@@ -1295,14 +1443,18 @@ public sealed class MainForm : Form
 }
 
 
+/// <summary>
+/// QR Code (حالت بایت، سطح تصحیح خطا M، نسخه‌ی ۱ تا ۱۰) بدون هیچ کتابخونه‌ی بیرونی.
+/// الگوریتم بر اساس پیاده‌سازی دامنه‌ی عمومی Nayuki (Project Nayuki QR Code generator).
+/// </summary>
 internal sealed class QrCode
 {
     private static readonly int[] EccPerBlock = { -1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26 };
     private static readonly int[] NumBlocks = { -1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5 };
 
     public int Size { get; }
-    private readonly bool[,] _mod;
-    private readonly bool[,] _fn;
+    private readonly bool[,] _mod;      // [y, x]
+    private readonly bool[,] _fn;       // جزو الگوهای ثابت (قابل ماسک شدن نیست)
 
     public bool Get(int x, int y) => x >= 0 && x < Size && y >= 0 && y < Size && _mod[y, x];
 
@@ -1320,6 +1472,7 @@ internal sealed class QrCode
 
     private static int DataCodewords(int ver) => RawModules(ver) / 8 - EccPerBlock[ver] * NumBlocks[ver];
 
+    /// <summary>null = متن برای QR خیلی بلنده</summary>
     public static QrCode? Encode(string text)
     {
         byte[] data = System.Text.Encoding.UTF8.GetBytes(text);
@@ -1363,7 +1516,7 @@ internal sealed class QrCode
             DrawFormatBits(m);
             int p = Penalty();
             if (p < minPenalty) { best = m; minPenalty = p; }
-            ApplyMask(m);
+            ApplyMask(m);       // برگردوندن ماسک
         }
         ApplyMask(best);
         DrawFormatBits(best);
@@ -1420,7 +1573,7 @@ internal sealed class QrCode
 
     private void DrawFormatBits(int mask)
     {
-        int data = mask;
+        int data = mask;                    // سطح M = بیت‌های 00
         int rem = data;
         for (int i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >> 9) * 0x537);
         int bits = ((data << 10) | rem) ^ 0x5412;
@@ -1624,6 +1777,7 @@ internal sealed class QrCode
     }
 }
 
+/// <summary>کنترل سفید با QR مشکی؛ حاشیه‌ی سفید ۲ ماژول و ماژول‌ها کل کنترل رو پر میکنن (مرز ماژول‌ها به پیکسل گرد میشه)</summary>
 internal sealed class QrBox : Control
 {
     private QrCode? _qr;
@@ -1645,7 +1799,7 @@ internal sealed class QrBox : Control
         var g = e.Graphics;
         g.Clear(Color.White);
         if (_qr == null) return;
-        int n = _qr.Size, q = 2, total = n + 2 * q;
+        int n = _qr.Size, q = 2, total = n + 2 * q;      // حاشیه‌ی سفید ۲ ماژول؛ QR کل کنترل رو پر میکنه
         int w = Width, h = Height;
         g.SmoothingMode = SmoothingMode.None;
         using (var br = new SolidBrush(Color.Black))

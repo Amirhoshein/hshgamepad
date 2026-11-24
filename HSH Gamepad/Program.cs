@@ -1,4 +1,17 @@
+/*
+ By HSH Gamepad (Telegram: @HSHGamepad)
 
+ Phone -> Virtual Xbox 360 / DualShock 4 controller (تا ۹ پلیر)
+
+ اجرا:   dotnet run -c Release
+ یه پنجره باز میشه که آدرس و وضعیت پلیرها رو نشون میده؛ آدرس رو تو مرورگر گوشی باز کن.
+
+ پیش‌نیاز: درایور ViGEmBus  ->  https://github.com/nefarius/ViGEmBus/releases
+
+ هر شماره‌ی پلیر فقط یه گوشی میتونه داشته باشه.
+ محدودیت ویندوز: XInput (Xbox 360) فقط ۴ اسلات داره => پلیر ۵ تا ۹ باید PS4 باشن.
+ اگه Xbox ساخته نشه سرور خودش PS4 میسازه.
+*/
 using System;
 using System.IO;
 using System.Linq;
@@ -21,37 +34,40 @@ using Nefarius.ViGEm.Client;
 
 internal static class Program
 {
-    private const int PreferredPort = 80;
-    private static int Port = PreferredPort;
+    private const int PreferredPort = 80;    // پورت ۸۰ => تو مرورگر گوشی لازم نیست پورت نوشته بشه
+    private static int Port = PreferredPort;   // پورت واقعی؛ اگه ۸۰ پر بود PortGuard یکی دیگه (1111, 2222, ...) انتخاب میکنه
 
+    // برای عوض کردن پورت سرور وسط کار (وقتی کاربر پورت ۸۰ رو آزاد کرد)
     private static WebApplication? _app;
     private static Hub? _hub;
     private static string _html = "";
     private static string[] _args = Array.Empty<string>();
 
     private const string ShowEventName = @"Local\GamepadServer.Show";
-    private const string ExitEventName = @"Local\GamepadServer.Exit";
+    private const string ExitEventName = @"Local\GamepadServer.Exit";    // «خروج از برنامه» تو منوی راست‌کلیک taskbar
 
     [STAThread]
     private static int Main(string[] args)
     {
-        try { Console.OutputEncoding = Encoding.UTF8; } catch { }
-        try { System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.High; } catch { }
+        try { Console.OutputEncoding = Encoding.UTF8; } catch { }   // WinExe: کنسول نداریم
+        try { System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.High; } catch { }   // وقتی بازی CPU رو میگیره، سرور عقب نمونه
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
+        // فقط یک نسخه: چون بستن پنجره برنامه رو میبره تو tray، اجرای دوباره باید همون پنجره رو نشون بده
         using var single = new Mutex(true, @"Local\GamepadServer.Single", out bool firstInstance);
-        bool exitRequest = args.Contains(JumpListHelper.ExitArg);
+        bool exitRequest = args.Contains(JumpListHelper.ExitArg);     // از منوی راست‌کلیک taskbar: «خروج از برنامه»
         if (!firstInstance)
         {
             try { EventWaitHandle.OpenExisting(exitRequest ? ExitEventName : ShowEventName).Set(); } catch { }
             return 0;
         }
-        if (exitRequest) return 0;
+        if (exitRequest) return 0;      // برنامه‌ای در حال اجرا نیست که ببندیمش
         var showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
         var exitEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ExitEventName);
 
+        // ---------- ViGEm ----------
         ViGEmClient client;
         try
         {
@@ -75,6 +91,9 @@ internal static class Program
         _hub = hub;
         _html = html;
 
+        // ---------- وب‌سرور (پشت صحنه) ----------
+        // اگه پورت ۸۰ پر باشه از کاربر اجازه‌ی بستن برنامه‌ی پورت‌گیر رو میپرسه؛ اگه نشد با 1111 (یا بعدی‌ها) ادامه میدیم
+        // و busy اطلاعات برنامه‌ی پورت‌گیر رو برای پنجره‌ی راهنما نگه میداره
         PortBusy? busy;
         Port = PortGuard.Choose(PreferredPort, out busy);
         WebApplication app;
@@ -89,9 +108,9 @@ internal static class Program
             catch (Exception ex)
             {
                 try { app.DisposeAsync().AsTask().GetAwaiter().GetResult(); } catch { }
-                int next = PortGuard.NextPort(Port);
+                int next = PortGuard.NextPort(Port);     // همون لحظه یکی پورت رو گرفته؛ پورت بعدی (1111, 2222, ...)
                 if (next != 0) { Port = next; continue; }
-                string owner = PortGuard.OwnerText(Port);
+                string owner = PortGuard.OwnerText(Port);      // اسم و آدرس برنامه‌ی پورت‌گیر (اگه پیدا شد)
                 var msg = L.F("app.listenFail", Port, ex.Message)
                           + (owner.Length > 0 ? "\n\n" + owner : "");
                 Console.WriteLine(msg);
@@ -114,10 +133,12 @@ internal static class Program
 
         var form = new MainForm(hub, Port, settings);
 
+        // پورت ۸۰ آزاد نشد: برنامه‌ی اصلی با 1111 باز میشه و کنارش پنجره‌ی راهنما (برنامه‌ی پورت‌گیر + آموزش + «بررسی دوباره»)
         if (busy != null && !busy.Declined && Port != PreferredPort)
         {
             int usedPort = Port;
             var b = busy;
+            // برنامه‌ی اصلی پشت صحنه باز نمیشه؛ فقط تو دو حالت پیدا میشه: دکمه‌ی «باز کردن برنامه» یا آزاد شدن پورت ۸۰
             form.StartHidden();
             bool helpShown = false;
             form.HandleCreated += (_, _) =>
@@ -127,10 +148,10 @@ internal static class Program
                 form.BeginInvoke(new Action(() => PortGuard.ShowBusyHelp(null, b, usedPort, SwitchPort,
                     newPort =>
                     {
-                        form.SetPort(newPort);
-                        form.ShowFromTray();
+                        form.SetPort(newPort);      // آدرس بالای پنجره‌ی اصلی بدون پورت میشه
+                        form.ShowFromTray();        // پورت ۸۰ آزاد شد => برنامه خودکار باز میشه
                     },
-                    () => form.ShowFromTray())));
+                    () => form.ShowFromTray())));   // دکمه‌ی «باز کردن برنامه» (یا بستن پنجره‌ی راهنما)
             };
         }
         var showThread = new Thread(() =>
@@ -143,7 +164,7 @@ internal static class Program
             }
         }) { IsBackground = true };
         showThread.Start();
-        JumpListHelper.Register();
+        JumpListHelper.Register();      // راست‌کلیک روی آیکون برنامه تو taskbar: «خروج از برنامه»
         Console.CancelKeyPress += (_, e) =>
         {
             e.Cancel = true;
@@ -152,13 +173,18 @@ internal static class Program
 
         Application.Run(form);
 
+        // ---------- خاموش کردن ----------
         try { _app!.StopAsync(TimeSpan.FromSeconds(3)).GetAwaiter().GetResult(); } catch { }
         AccessGuard.Shutdown();
-        hub.Dispose();
+        hub.Dispose();      // همه‌ی دسته‌های مجازی از ویندوز برداشته میشن
         client.Dispose();
         return 0;
     }
 
+    /// <summary>
+    /// سرور رو (بدون بستن برنامه) روی پورت دیگه‌ای میاره: اول سرور جدید بالا میاد، بعد قدیمی بسته میشه.
+    /// از thread دیگه صدا زده میشه (دکمه‌ی «بررسی دوباره» تو PortGuard)؛ گوشی‌هایی که با پورت قبلی وصل بودن قطع میشن.
+    /// </summary>
     private static bool SwitchPort(int newPort)
     {
         var old = _app;
@@ -166,7 +192,7 @@ internal static class Program
         int oldPort = Port;
         if (newPort == oldPort) return true;
 
-        Port = newPort;
+        Port = newPort;                      // BuildApp از همین مقدار استفاده میکنه
         var next = BuildApp(_args, _hub, _html);
         try
         {
@@ -198,7 +224,7 @@ internal static class Program
     private static WebApplication BuildApp(string[] args, Hub hub, string html)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.WebHost.ConfigureKestrel(o => o.ListenAnyIP(Port));
+        builder.WebHost.ConfigureKestrel(o => o.ListenAnyIP(Port));   // NoDelay به‌صورت پیش‌فرض روشنه
         builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
         var app = builder.Build();
@@ -234,7 +260,7 @@ internal static class Program
             c.Response.Headers.CacheControl = "no-store";
             if (IsHost(c))
             {
-                c.Response.StatusCode = 403;
+                c.Response.StatusCode = 403;     // .NET 6: Results.Content آرگومان status نداره
                 return Results.Content(HostBlockedPage, "text/html; charset=utf-8", Encoding.UTF8);
             }
             return Results.Content(L.RenderIndex(html), "text/html; charset=utf-8");
@@ -249,6 +275,7 @@ internal static class Program
                 return;
             }
 
+            // خود کامپیوتر سرور (هاست) اجازه‌ی وصل شدن به دسته رو نداره
             if (IsHost(ctx))
             {
                 ctx.Response.StatusCode = 403;
@@ -286,7 +313,7 @@ internal static class Program
                     if (r.MessageType != WebSocketMessageType.Text) continue;
 
                     string text = Encoding.UTF8.GetString(ms.GetBuffer(), 0, (int)ms.Length);
-                    foreach (var line in text.Split('\n'))
+                    foreach (var line in text.Split('\n'))          // چند دستور میتونه تو یک پیام بیاد
                         Protocol.Handle(conn, hub, line);
 
                     conn.Slot?.Submit();
@@ -296,7 +323,7 @@ internal static class Program
             catch (WebSocketException) { }
             finally
             {
-                hub.Remove(conn);
+                hub.Remove(conn);   // قطع شدن اتصال => همه‌ی دکمه‌های اون پلیر ول میشه و پلیر آزاد میشه
                 try
                 {
                     if (ws.State == WebSocketState.CloseReceived || ws.State == WebSocketState.Open)
@@ -317,6 +344,7 @@ internal static class Program
         "p{color:#8d97b3;margin:8px 0 0}</style></head><body><div><h2>" + L.T("app.hostBlockedTitle") + "</h2>" +
         "<p>" + L.T("app.hostBlockedBody") + "</p></div></body></html>";
 
+    /// <summary>درخواست از خود همین کامپیوتره؟ (localhost یا یکی از IPهای خود سیستم)</summary>
     private static bool IsHost(HttpContext c)
     {
         try
@@ -330,7 +358,7 @@ internal static class Program
             if (local != null)
             {
                 if (local.IsIPv4MappedToIPv6) local = local.MapToIPv4();
-                if (ip.Equals(local)) return true;
+                if (ip.Equals(local)) return true;      // مثلاً خود سیستم با IP شبکه‌اش (192.168.x.x) باز کرده
             }
 
             foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())

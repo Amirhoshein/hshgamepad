@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,20 +11,27 @@ using System.Windows.Forms;
 
 namespace GamepadServer;
 
+/// <summary>اطلاعات یک فایل زبان (بخش meta داخل json)</summary>
 public sealed class LangInfo
 {
-    public string Code = "";
-    public string Name = "";
-    public string English = "";
-    public bool Rtl;
-    public string Path = "";
-    public int Count;
+    public string Code = "";        // مثلاً fa
+    public string Name = "";        // اسم زبان به خود همون زبان، مثلاً «فارسی»
+    public string English = "";     // اسم انگلیسی، مثلاً Persian
+    public bool Rtl;                // راست‌به‌چپ؟
+    public string Path = "";        // آدرس فایل (برای زبان داخل exe خالیه)
+    public int Count;               // تعداد متن‌های فایل
     public int Missing;
     public bool Complete => Missing == 0;
 }
 
 public enum ImportResult { Ok, Invalid, Exists, Failed }
 
+/// <summary>
+/// سیستم زبان: همه‌ی متن‌های برنامه و صفحه‌ی گوشی از فایل‌های json داخل پوشه‌ی «lang» کنار exe خونده میشن.
+/// اگه پوشه نبود یا هیچ زبانی توش نبود، فایل‌های پیش‌فرض (داخل خود exe) دوباره تو پوشه نوشته میشن.
+/// اگه کلیدی تو یه زبان نبود، اول از انگلیسیِ داخل exe و بعد از فارسیِ داخل exe استفاده میشه (برنامه هیچ‌وقت متن خالی نشون نمیده).
+/// همه‌ی زبان‌های داخل exe (فارسی، انگلیسی، آلمانی، ...) همیشه تو لیست هستن، حتی اگه فایلشون از پوشه‌ی lang پاک شده باشه.
+/// </summary>
 public static class L
 {
     public const string DefaultCode = "fa";
@@ -44,8 +52,10 @@ public static class L
     private static int _htmlVer = -1;
     private static string? _htmlSrc;
 
+    /// <summary>وقتی زبان عوض شد (ممکنه روی هر threadی صدا زده بشه)</summary>
     public static event Action? Changed;
 
+    // ---------------------------------------------------------------- مسیرها
     private static string AppDir()
     {
         try
@@ -61,15 +71,19 @@ public static class L
         return AppDomain.CurrentDomain.BaseDirectory;
     }
 
+    /// <summary>پوشه‌ی زبان‌ها: کنار exe</summary>
     public static string Dir
     {
         get { return System.IO.Path.Combine(AppDir(), "lang"); }
     }
 
+    // ---------------------------------------------------------------- وضعیت فعلی
     public static string Code { get { EnsureLoaded(); return _curInfo.Code; } }
     public static string Name { get { EnsureLoaded(); return _curInfo.Name; } }
     public static bool Rtl { get { EnsureLoaded(); return _curInfo.Rtl; } }
 
+    // ---------------------------------------------------------------- ترجمه
+    /// <summary>متن یک کلید رو برمیگردونه (اگه تو زبان فعلی نبود از فارسی داخل exe، اگه اونم نبود خود کلید)</summary>
     public static string T(string key)
     {
         EnsureLoaded();
@@ -85,6 +99,7 @@ public static class L
         return key;
     }
 
+    /// <summary>مثل string.Format ولی با متن زبان فعلی؛ جای {0} و {1} و ...</summary>
     public static string F(string key, params object[] args)
     {
         string f = T(key);
@@ -92,6 +107,7 @@ public static class L
         catch (FormatException) { return f; }
     }
 
+    // ---------------------------------------------------------------- بارگذاری
     private static void EnsureLoaded()
     {
         if (_loaded) return;
@@ -191,6 +207,7 @@ public static class L
         }
     }
 
+    /// <summary>متن json یه زبانِ داخل exe (یا null)</summary>
     private static string? EmbeddedText(string code)
     {
         foreach (var kv in EmbeddedDefaults())
@@ -201,6 +218,7 @@ public static class L
         return null;
     }
 
+    /// <summary>اگه پوشه‌ی lang نبود یا هیچ زبان سالمی توش نبود، فایل‌های پیش‌فرض رو دوباره مینویسه</summary>
     private static void EnsureDefaultFiles()
     {
         try
@@ -209,7 +227,7 @@ public static class L
             foreach (var f in Directory.GetFiles(Dir, "*.json"))
             {
                 LangInfo i; Dictionary<string, string> s;
-                if (TryParseFile(f, out i, out s)) return;
+                if (TryParseFile(f, out i, out s)) return;      // حداقل یه زبان سالم هست
             }
             foreach (var kv in EmbeddedDefaults())
                 File.WriteAllText(System.IO.Path.Combine(Dir, kv.Key), kv.Value, new UTF8Encoding(false));
@@ -229,7 +247,7 @@ public static class L
             }
             else
             {
-                string? txt = EmbeddedText(info.Code);
+                string? txt = EmbeddedText(info.Code);      // زبان داخل exe که فایلش تو پوشه نیست
                 if (txt == null || !TryParse(txt, out i, out s)) continue;
             }
             _cur = s; _curInfo = i;
@@ -237,11 +255,13 @@ public static class L
             _version++;
             return;
         }
+        // زبان خواسته‌شده پیدا نشد: فارسی داخل exe
         _cur = _fallback; _curInfo = _fallbackInfo;
         _curEmb = new Dictionary<string, string>();
         _version++;
     }
 
+    /// <summary>زبان فعلی رو عوض میکنه (ذخیره‌کردنش تو تنظیمات کار صدا زننده‌ست)</summary>
     public static void Select(string code)
     {
         EnsureLoaded();
@@ -250,6 +270,10 @@ public static class L
         if (h != null) h();
     }
 
+    /// <summary>
+    /// همه‌ی زبان‌های سالم: هر فایل json با هر اسمی داخل پوشه‌ی lang + زبان‌های داخل exe که فایلشون تو پوشه نیست.
+    /// ترتیب: فارسی، انگلیسی، بعد بقیه به ترتیب اسم انگلیسی.
+    /// </summary>
     public static List<LangInfo> Languages()
     {
         var list = new List<LangInfo>();
@@ -307,6 +331,7 @@ public static class L
         return string.Compare(a.Code, b.Code, StringComparison.OrdinalIgnoreCase);
     }
 
+    // ---------------------------------------------------------------- ایمپورت / اکسپورت
     private static readonly Regex CodeRx = new Regex("^[A-Za-z]{2,3}([_-][A-Za-z0-9]{2,8})?$");
 
     public static ImportResult Import(string srcPath, bool overwrite, out LangInfo info)
@@ -319,6 +344,7 @@ public static class L
             if (!TryParse(text, out info, out strings)) return ImportResult.Invalid;
             Directory.CreateDirectory(Dir);
             string dest = System.IO.Path.Combine(Dir, info.Code + ".json");
+            // اگه همین زبان قبلاً (با هر اسم فایلی) تو پوشه یا داخل exe هست، همونو جایگزین کن
             bool existing = false;
             foreach (var old in Languages())
             {
@@ -330,7 +356,7 @@ public static class L
             if ((existing || File.Exists(dest)) && !overwrite) return ImportResult.Exists;
             File.WriteAllText(dest, text, new UTF8Encoding(false));
             info.Path = dest; info.Count = strings.Count;
-            if (info.Code.Equals(Code, StringComparison.OrdinalIgnoreCase)) Select(info.Code);
+            if (info.Code.Equals(Code, StringComparison.OrdinalIgnoreCase)) Select(info.Code);   // زبان فعلی عوض شد: دوباره بخون
             return ImportResult.Ok;
         }
         catch { return ImportResult.Failed; }
@@ -366,6 +392,11 @@ public static class L
         catch { }
     }
 
+    // ---------------------------------------------------------------- صفحه‌ی گوشی
+    /// <summary>
+    /// index.html رو با زبان فعلی آماده میکنه: توکن‌های {{t:key}} (متن)، {{a:key}} (مقدار attribute)، {{c:key}} (رشته‌ی CSS)،
+    /// {{meta:code}} و دیکشنری متن‌های جاوااسکریپت (جای /*__LANG__*/{}) جایگزین میشن.
+    /// </summary>
     public static string RenderIndex(string raw)
     {
         EnsureLoaded();
@@ -410,6 +441,7 @@ public static class L
         return sb.ToString();
     }
 
+    // ---------------------------------------------------------------- خوندن فایل
     private static bool TryParseFile(string path, out LangInfo info, out Dictionary<string, string> strings)
     {
         info = new LangInfo(); strings = new Dictionary<string, string>();
@@ -448,6 +480,7 @@ public static class L
         catch { return false; }
     }
 
+    /// <summary>بخش‌های تو در تو ("html": { "Save": "..." }) رو به کلید تخت "html.Save" تبدیل میکنه</summary>
     private static void Flatten(Dictionary<string, object?> node, string prefix, Dictionary<string, string> d)
     {
         foreach (var kv in node)
@@ -468,6 +501,7 @@ public static class L
     }
 }
 
+/// <summary>خوندن/نوشتن json خیلی ساده (بدون وابستگی؛ تو .NET Framework هم کار میکنه)</summary>
 internal static class JsonLite
 {
     public static object? Parse(string s)
@@ -569,6 +603,7 @@ internal static class JsonLite
         return sb.ToString();
     }
 
+    /// <summary>رشته‌ی json (برای گذاشتن داخل &lt;script&gt; هم امنه)</summary>
     public static void WriteString(StringBuilder sb, string v)
     {
         sb.Append('"');
@@ -594,6 +629,11 @@ internal static class JsonLite
     }
 }
 
+/// <summary>
+/// زبانی که کاربر موقع نصب انتخاب کرده. نصب‌کننده فایل setup-language.txt رو کنار exe میذاره
+/// (خط اول: کد زبان، خط دوم: یه مهر یکتا برای هر نصب). برنامه اولین باری که این مهر رو میبینه زبان رو اعمال میکنه
+/// و مهر رو تو تنظیمات یادداشت میکنه؛ پس بعداً تغییر زبان از داخل برنامه دوباره بازنویسی نمیشه، ولی نصب مجدد با انتخاب جدید اعمال میشه.
+/// </summary>
 internal static class SetupChoice
 {
     public static bool Read(out string code, out string stamp)

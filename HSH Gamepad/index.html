@@ -19,12 +19,18 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sk-pag
 #stage { position: fixed; inset: 0; }
 .c { position: absolute; transform: translate(-50%, -50%); width: calc(var(--s) * var(--ar) * var(--z, 1) * 1vmin); height: calc(var(--s) * var(--z, 1) * 1vmin); touch-action: none; opacity: calc(var(--op) * var(--co, 1)); }
 .c * { pointer-events: none; }
+/* ناحیه‌ی لمس = همون شکلی که دیده میشه (گوشه‌های خالی مربع دیگه لمس رو نمی‌گیرن) */
+.c.stick, .c.face { border-radius: 50%; }
+/* فرمون: ناحیه‌ی لمس فقط تا لبه‌ی بیرونی حلقه‌ی دیده‌شده (نه کل دایره‌ی جعبه) */
+.c.whl { pointer-events: none; }
+.c.whl::before { content: ''; position: absolute; left: 50%; top: 50%; width: 92%; height: 92%; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: auto; }
+.c.dpad { border-radius: 50%; }   /* دی‌پد: ناحیه‌ی لمس = دایره‌ی نقطه‌چین (گوشه‌های داخلیِ بین بازوها هم فعاله، گوشه‌های بیرونیِ مربع نه) */
 .c { will-change: transform; -webkit-user-drag: none; }
 .ring, .knob { will-change: transform; }
 body.lite, body.lite * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; -webkit-filter: none !important; filter: none !important; text-shadow: none !important; transition: none !important; }
 body.lite .c, body.lite .c *, body.lite #gear { box-shadow: none !important; }
 .btn { display: flex; align-items: center; justify-content: center; font-weight: 700; white-space: nowrap;
-font-size: min(calc(var(--s) * .4vmin * var(--ts, 1)), calc(var(--s) * .8vmin), calc(var(--s) * var(--ar, 1) * 1.3vmin / var(--tl, 1))); border-radius: calc(var(--s) * .5vmin);
+font-size: min(calc(var(--s) * .37vmin * var(--ts, 1)), calc(var(--s) * .8vmin), calc(var(--s) * var(--ar, 1) * 1.1vmin / var(--tl, 1))); border-radius: calc(var(--s) * var(--rd, .5) * 1vmin);
 background: var(--sk-bg, #202535); border: var(--bw, 2px) solid var(--col, var(--sk-bd, var(--bd))); color: var(--col, var(--sk-tx, var(--tx))); letter-spacing: .02em;
 box-shadow: 0 4px 10px var(--sk-bsh, #00000000), var(--nsh); text-shadow: var(--ntx); }
 .btn svg { width: min(calc(58% * var(--ts, 1)), 92%); height: min(calc(58% * var(--ts, 1)), 92%); display: block; -webkit-filter: drop-shadow(var(--ntx)); filter: drop-shadow(var(--ntx)); }
@@ -77,10 +83,53 @@ color: var(--col, var(--tx)); font-weight: 700; font-style: normal; font-size: c
 body.edit .c { cursor: move; }
 .g { display: none; position: absolute; z-index: 1; transform: translate(-50%, -50%); width: calc(var(--s) * var(--ar) * var(--z, 1) * 1vmin); height: calc(var(--s) * var(--z, 1) * 1vmin);
 outline: 2px dashed #5fb4ff; outline-offset: 3px; pointer-events: none; }
-.g.gb { border-radius: calc(var(--s) * .5vmin); }
+.g.gb { border-radius: calc(var(--s) * var(--rd, .5) * 1vmin); }
 .g.gf { border-radius: 50%; }
-.g.sel { outline: 2px solid #ffc83d; }
+body.edit .g.sel { outline: 2px solid #ffc83d; }
 body.edit .g { display: block; }
+/* نقطه‌چین آبی دور دکمه‌ها: SVG با اندازه و فاصله‌ی ثابت (به پیکسل)، خیلی آروم حرکت می‌کنه */
+body.edit .g { outline: none; }
+.gd { display: none; position: absolute; overflow: visible; pointer-events: none; }
+body.edit .gd { display: block; }
+.gd rect { fill: none; stroke: #5fb4ff; stroke-width: 2; }
+@keyframes gdash { to { stroke-dashoffset: calc(-1 * var(--dp)); } }
+body.edit .gd rect { animation: gdash 3s linear infinite; }
+/* دکمه‌ی انتخاب‌شده: بدون نقطه‌چین و یک‌دست با بقیه */
+/* دکمه‌ی انتخاب‌شده: حاشیه‌ی زرد ثابت، بدون نقطه‌چین */
+body.edit .g.sel .gd { display: none; }
+/* در حالت جابه‌جایی: نقطه‌چین دور همه‌ی دکمه‌ها (مبدأ و دکمه‌های غیرقابل جابه‌جایی) برداشته می‌شه */
+body.swp .gd { display: none; }
+/* دکمه‌هایی که نمی‌شن جابه‌جاشون کرد: کم‌رنگ (opacity .3) و نقطه‌چین سفید کم‌رنگ (#fff3) */
+body.swp .g.nosw, body.swp .c.nosw { opacity: .3; }
+/* دکمه‌های غیرقابل جابه‌جایی: z-index -1 و بدون تپ، تا برای انتقال نادیده گرفته بشن */
+body.swp .g.nosw, body.swp .c.nosw { z-index: -1; pointer-events: none; }
+/* دکمه‌ی مبدأ جابه‌جایی: حاشیه‌ی صورتی/بنفش */
+body.swp .g.sel { outline-color: #d65bff; box-shadow: 0 0 12px 2px rgba(214,91,255,.55); }
+body.swp .g.nosw .gd { display: block; }
+body.swp .g.nosw .gd rect { stroke: #fff3; }
+@media (prefers-reduced-motion: reduce) { body.edit .gd rect { animation: none; } }
+/* ---- حالت جابه‌جایی: حلقه‌ی چرخان سبز/زرد دور دکمه‌های قابل‌جابه‌جایی (به‌جز مبدأ) + درخشش ---- */
+@property --swa { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes swspin { to { --swa: 360deg; } }
+@keyframes swglow { from { box-shadow: 0 0 4px 0 rgba(57,255,136,.25); } to { box-shadow: 0 0 14px 2px rgba(57,255,136,.65); } }
+@keyframes swpop { 0%, 100% { scale: 1; } 45% { scale: 1.16; } }
+body.swp .g.swt { outline: none; animation: swglow .9s ease-in-out infinite alternate; }
+body.swp .g.swt::before { content: ''; position: absolute; inset: -6px; border-radius: inherit; padding: 3px; pointer-events: none;
+background: conic-gradient(from var(--swa), rgba(57,255,136,0) 0%, #39ff88 30%, #ffe14d 52%, rgba(255,225,77,0) 72%);
+-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+-webkit-mask-composite: xor; mask-composite: exclude; animation: swspin 1.8s linear infinite; }
+/* گوشه‌ها: شعاع حلقه باید بیشتر از دکمه ۶px باشه (هم‌مرکز)، وگرنه روی دکمه‌ی گرد/کپسولی مربع‌وار میشه */
+body.swp .g.swt::before { border-radius: calc(var(--s) * var(--rd, .5) * 1vmin + 6px); }
+body.swp .g.gf.swt::before { border-radius: 50%; }
+/* انیمیشن جابه‌جایی: دکمه‌ها روی مسیر منحنی به جای هم میرن */
+.c.swmv, .g.swmv { transition: left .6s cubic-bezier(.45, 0, .2, 1), top .6s cubic-bezier(.3, -.4, .3, 1.4), width .6s ease, height .6s ease; }
+.c.swmv { z-index: 6; animation: swpop .6s ease; }
+/* دکمه‌ای که میخواد جابه‌جا شه: چشمک میزنه (۱.۵ ثانیه، کم‌کم کوچیک‌تر و کم‌رنگ‌تر میشه) */
+/* transform کامل (با translate وسط‌چین) تا کوچیک‌شدن از مرکز باشه، نه از گوشه */
+@keyframes swblink { 0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 50% { opacity: .5; transform: translate(-50%, -50%) scale(.96); } }
+body.swp .c.swsrc, body.swp .g.sel { animation: swblink 1.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { body.swp .c.swsrc, body.swp .g.sel { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { body.swp .g.swt, body.swp .g.swt::before { animation: none !important; } .c.swmv { animation: none; } }
 .c.del, .g.del { display: none !important; }
 #gear { position: fixed; top: max(6px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 20; height: 30px; padding: 0 14px; border-radius: 15px;
 background: var(--sk-bg, #202535); border: var(--bw, 2px) solid var(--sk-bd, var(--bd)); color: var(--sk-tx, var(--tx)); box-shadow: 0 4px 10px var(--sk-bsh, #00000000), var(--nsh); text-shadow: var(--ntx); font-size: 16px; font-weight: 700; letter-spacing: .02em; display: flex; align-items: center; gap: 8px; touch-action: manipulation; }
@@ -89,6 +138,7 @@ background: var(--sk-bg, #202535); border: var(--bw, 2px) solid var(--sk-bd, var
 .ping { display: flex; align-items: center; justify-content: center; gap: .25em; white-space: nowrap; font-size: calc(var(--s) * .55vmin * var(--ts, 1)); line-height: 1; font-weight: 700; color: #8d97b3;
 direction: ltr; font-variant-numeric: tabular-nums; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
 .ping svg { width: 1.1em; height: 1.1em; display: block; flex: none; }
+/* انیمیشن ریز فشردن دکمه‌ها (از تنظیمات ظاهر قابل خاموش شدنه) */
 .btn { transition: transform .16s cubic-bezier(.2,.8,.3,1), background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
 .btn.on { transition-duration: .06s, .06s, .06s, .06s, .06s; }
 .dpad i { transition: background-color .18s ease, color .18s ease; }
@@ -128,8 +178,15 @@ body.edit #scrim { display: none !important; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 8px 0; border-bottom: 1px solid #262c3f; }
 .row > span { flex: none; color: #cfd6ea; }
 .row select, .row input[type=text] { flex: 1; min-width: 0; max-width: 100%; }
-.row input[type=range] { flex: 1; min-width: 0; max-width: 100%; touch-action: none; accent-color: #5fb4ff; }
+.row input[type=range] { flex: 1; min-width: 0; max-width: 100%; touch-action: none; accent-color: #5fb4ff;
+-webkit-appearance: none; appearance: none; height: 30px; margin: 0; padding: 0; background: transparent; outline: none; --p: 50%; --fc: #5fb4ff; --tc: #343b52; --pd: to right; }
+.row input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: linear-gradient(var(--pd), var(--fc) var(--p), var(--tc) var(--p)); }
+.row input[type=range]::-moz-range-track { height: 8px; border-radius: 4px; background: linear-gradient(var(--pd), var(--fc) var(--p), var(--tc) var(--p)); }
+.row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; margin-top: -7px; border-radius: 50%; background: #8fcbff; border: 2px solid #1b2030; box-shadow: 0 1px 4px rgba(0,0,0,.55); }
+.row input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #8fcbff; border: 2px solid #1b2030; box-shadow: 0 1px 4px rgba(0,0,0,.55); }
+.row input[type=range]:disabled { opacity: .4; }
 .row input[type=checkbox] { width: 22px; height: 22px; accent-color: #5fb4ff; }
+#rowMic.off { opacity: .4; }      /* میکروفون فقط برای پلیر ۱ ؛ بقیه خاکستری میبینن */
 .row b { color: #ffc83d; }
 .row:has(+ .sub) { border-bottom: 0; min-height: 40px; padding-bottom: 2px; }
 .sub { margin: 0; padding: 0 0 10px; font-size: 12px; line-height: 1.8; color: #8d97b3; border-bottom: 1px solid #262c3f; }
@@ -176,6 +233,40 @@ background: rgba(18, 21, 29, .95); color: #cfd6ea; text-align: center; touch-act
 #rot small { font-size: 13px; color: #8d97b3; line-height: 1.7; }
 @media (orientation: portrait) { #rot { display: flex; } }
 #plist button:disabled { opacity: .35; filter: grayscale(1); }
+.edit-only-b { display: none; }
+body.edit .edit-only-b { display: inline-flex; }
+#phr { display: flex; align-items: center; gap: 8px; }
+#pSave { font: inherit; font-weight: 700; height: 34px; padding: 0 14px; align-items: center; border-radius: 10px; color: #8cf59c; background: #1d3a26; border: 1px solid #2fdc4c; touch-action: manipulation; }
+#preBox { position: fixed; inset: 0; z-index: 55; display: none; align-items: center; justify-content: center; background: rgba(8, 10, 16, .6); touch-action: manipulation; }
+#preBox.open { display: flex; }
+#preBox .card { width: min(94vw, 460px); max-height: 92vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px; border-radius: 16px; background: #1b2030; border: 1px solid var(--bd); text-align: center; }
+#preBox h2 { margin: 0 0 10px; font-size: 18px; color: var(--tx); }
+.preTop { display: flex; gap: 8px; }
+#preBox input[type=text] { flex: 1 1 auto; min-width: 0; box-sizing: border-box; font: inherit; padding: 10px; border-radius: 10px; color: #e6e9f2; background: #252b3d; border: 1px solid #424b63; outline: none; }
+#preBox input[type=text]:focus { border-color: var(--acc); }
+#preDo { flex: none; font: inherit; font-weight: 700; padding: 10px 12px; border-radius: 10px; color: #8cf59c; background: #252b3d; border: 1px solid #2fdc4c; touch-action: manipulation; }
+.preAll { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; color: #c3cadb; text-align: start; }
+.preAll[hidden] { display: none; }
+#preList { display: grid; gap: 8px; margin-top: 14px; }
+#preList.t3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#preList.l2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#preList .preEmpty { grid-column: 1 / -1; font-size: 12px; color: #8d97b3; line-height: 1.8; }
+.preCard { position: relative; min-width: 0; }
+.preCard .pc { display: flex; flex-direction: column; align-items: stretch; gap: 5px; width: 100%; padding: 5px; border-radius: 10px; font: inherit; font-size: 11px; font-weight: 700; line-height: 1.4; color: #e6e9f2; background: #252b3d; border: 1px solid #424b63; text-align: center; touch-action: manipulation; }
+.preCard .pnm { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+.preCard .tp { height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; border: 1.5px solid; box-sizing: border-box; }
+.preCard .tp i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+.preCard .pvl { position: relative; display: block; width: 100%; height: 0; padding-top: 56.25%; border-radius: 6px; overflow: hidden; background: #0d1018; border: 1px solid #343b52; box-sizing: content-box; }
+.preCard .pvl > i { font-style: normal; position: absolute; display: flex; align-items: center; justify-content: center; line-height: 0; transform: translate(-50%, -50%); box-sizing: border-box; border: 1px solid; border-radius: 3px; }
+.preCard .pvl > i svg { display: block; width: 72%; height: 72%; stroke-width: 2.6; }
+.preCard .pvl > i.ao svg { width: 100%; height: 100%; }
+.preCard .pvl > i.c { border-radius: 999px; }      /* دایره یا قرص (کاملاً گوشه‌گرد) */
+.preCard .pvl > i.dp { border-radius: 1px; }
+.preCard .ph { background: #20263a !important; border-color: #343b52 !important; }
+.preCard .pd { position: absolute; top: -5px; right: -5px; inset-inline-end: -5px; width: 26px; height: 26px; padding: 0; border-radius: 50%; color: #f08a90; background: #2a1f26; border: 1px solid #8a4046; touch-action: manipulation; z-index: 1; }
+.preCard .pd.sure { color: #fff; background: #8a2d36; }
+.preCard .pd svg { width: 14px; height: 14px; display: block; margin: auto; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#preClose { display: block; width: 100%; margin-top: 14px; padding: 11px 10px; border-radius: 10px; font: inherit; font-weight: 700; color: #f0b6ba; background: #252b3d; border: 1px solid #8a4046; touch-action: manipulation; }
 #copyBox { position: fixed; inset: 0; z-index: 55; display: none; align-items: center; justify-content: center; background: rgba(8, 10, 16, .6); touch-action: manipulation; }
 #copyBox.open { display: flex; }
 #copyBox .card { width: min(88vw, 380px); max-height: 86vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; border-radius: 16px; background: #1b2030; border: 1px solid var(--bd); text-align: center; }
@@ -226,20 +317,27 @@ background: var(--sk-pbg, rgba(24, 28, 41, .55)); -webkit-backdrop-filter: blur(
 padding-left: env(safe-area-inset-left); }
 #skinBox.right { left: auto; right: 0; border-right: 0; border-left: 1px solid var(--bd); box-shadow: -6px 0 24px rgba(0,0,0,.45); padding-left: 0; padding-right: env(safe-area-inset-right); }
 #skinBox.open { display: flex; }
+#whBm, #gyM { display: flex; gap: 6px; padding: 8px 0; }
+#whBm button, #gyM button { flex: 1; min-width: 0; padding: 8px 4px; font: inherit; font-size: 13px; line-height: 1.35; color: #cfd6ea; background: #252b3d; border: 1px solid #424b63; border-radius: 10px; touch-action: manipulation; overflow-wrap: anywhere; }
+#gyM button:disabled { opacity: .4; }
+#whBm button.on, #gyM button.on { background: var(--acc); border-color: var(--acc); color: #11141c; font-weight: 700; }
 #shead { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #2c3347; }
-#shead b { font-size: 16px; color: var(--tx); }
-#shead div { display: flex; gap: 6px; }
+#shead { gap: 8px; }
+#shead b { font-size: 16px; color: var(--tx); flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; line-height: 1.4; }
+#shead div { display: flex; gap: 6px; flex: none; }
 #skinBox button { font: inherit; color: #e6e9f2; background: #252b3d; border: 1px solid #424b63; border-radius: 10px; touch-action: manipulation; }
 #shead button { width: 34px; height: 34px; padding: 0; }
 #shead #sswap { display: flex; align-items: center; justify-content: center; }
 #shead #sswap svg { width: 20px; height: 20px; display: block; transition: transform .2s ease; }
 #skinBox.right #sswap svg { transform: rotate(180deg); }
-#shead #sclose { width: auto; height: 32px; padding: 0 12px; border-radius: 8px; background: #252b3d; border-color: #2fdc4c; color: #8cf59c; font-weight: 700; font-size: 14px; white-space: nowrap; }
+#shead #sclose { width: auto; height: 32px; padding: 0 12px; border-radius: 8px; background: #252b3d; border-color: #2fdc4c; color: #8cf59c; font-weight: 700; font-size: 14px; white-space: nowrap; flex: none; }
 #slist { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 4px 14px 16px; }
+#slist .row > span { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+#slist .row input[type=checkbox] { flex: none; }
 #slist h3 { margin: 14px 0 0; font-size: 12px; font-weight: 700; color: #8d97b3; }
 #slist .rr { flex: none; display: flex; align-items: center; gap: 8px; }
 #skinBox { --chk: conic-gradient(#5a6074 25%, #343a4c 0 50%, #5a6074 0 75%, #343a4c 0) 0 0 / 10px 10px; }
-#slist .sw { flex: none; position: relative; overflow: hidden; width: 44px; height: 32px; padding: 0; border-radius: 8px; background: var(--chk); }
+#slist .sw { flex: none; position: relative; overflow: hidden; width: 40px; height: 32px; padding: 0; border-radius: 8px; background: var(--chk); }
 #slist .sw i { position: absolute; inset: 0; background: var(--c, #000); }
 #cpv { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 8px 14px 14px; --h: 0; --cc: #000; }
 #cphead { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -261,9 +359,16 @@ background: linear-gradient(to top, #000, rgba(0,0,0,0)), linear-gradient(to rig
 .cptx button { flex: none; padding: 6px 12px; }
 #cpv small { margin: 0; color: #8d97b3; line-height: 1.8; font-size: 12px; }
 #slist .skr { flex: none; width: 32px; height: 32px; padding: 0; }
+/* ردیف‌های پنل ظاهری: دکمه‌ی بازنشانی همیشه ته ردیف، و نوار/مربع رنگ همه هم‌عرض و زیر هم */
+#slist .row > span:first-child { flex: 1 1 0; min-width: 0; }
+#slist .row > span.rr { flex: none; width: auto; gap: 8px; justify-content: flex-end; }
+#slist .row > span.rr .sw { flex: none; width: 40px; height: 32px; min-width: 0; border-radius: 8px; }
+#slist .row > input[type=range] { flex: 0 0 34%; width: 34%; }
 #slist button.wide { display: block; width: 100%; margin-top: 14px; padding: 12px 10px; font-weight: 700; }
 #slist button.danger { color: #ff6b73; background: #1a1d28; border-color: #3a2326; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 #slist button.danger svg { width: 17px; height: 17px; flex: none; }
+#slist button.ico { display: flex; align-items: center; justify-content: center; gap: 8px; }
+#slist button.ico svg { width: 20px; height: 20px; flex: none; display: block; }
 #themes, #themes2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
 #themes2 { margin-top: 6px; }
 #slist .th { display: flex; flex-direction: column; align-items: stretch; gap: 5px; padding: 5px; border-radius: 10px; font-size: 11px; font-weight: 700; line-height: 1.4; min-width: 0; }
@@ -340,19 +445,20 @@ body.wheel .ow { display: block; }
 .whc { fill: var(--sk-bg, #202535); stroke: url(#whg); stroke-width: 6; }
 .wmk { stroke: var(--sk-wpt, var(--sk-pb, var(--acc))); stroke-width: 20; stroke-linecap: round; }
 .whl.horn .whc { fill: var(--sk-pb, var(--acc)); }
-.g.gp { border-radius: 12px; }
-.pedal { overflow: hidden; border-radius: calc(var(--s) * .12vmin); background: var(--sk-bg, #202535); border: var(--bw, 2px) solid var(--col, var(--sk-bd, var(--bd)));
+.g.gp { border-radius: calc(var(--s) * var(--rd, .12) * 1vmin); }
+.pedal { overflow: hidden; border-radius: calc(var(--s) * var(--rd, .12) * 1vmin); background: var(--sk-bg, #202535); border: var(--bw, 2px) solid var(--col, var(--sk-bd, var(--bd)));
 box-shadow: 0 4px 10px var(--sk-bsh, #00000000), var(--nsh); }
 .pedal .pf { position: absolute; inset: 0; background: var(--col, var(--acc)); opacity: .85; transform: scaleY(var(--lv, 0)); transform-origin: 50% 100%; will-change: transform; }
 .pedal .pr { position: absolute; inset: 0; background: repeating-linear-gradient(180deg, rgba(0,0,0,.28) 0 2px, transparent 2px 14px); }
 .pedal .pl { position: absolute; left: 0; right: 0; top: 7%; text-align: center; font-weight: 700; letter-spacing: .04em; font-size: calc(var(--s) * .1vmin * var(--ts, 1)); color: var(--col, var(--tx)); text-shadow: var(--ntx); direction: ltr; }
 .btn.rc svg { width: min(calc(62% * var(--ts, 1)), 92%); height: min(calc(62% * var(--ts, 1)), 92%); display: block; }
 .gsep { margin: 18px 0 2px; border-top: 1px dashed #3a4258; }
-.row input.gsl { accent-color: #9aa3b8; }
+.row input.gsl { accent-color: #9aa3b8; --fc: #9aa3b8; }
 .row input.gsl:disabled { opacity: .4; }
 .row b.gv { color: #b9c0d0; }
 .row:has(#gyro:disabled) { opacity: .4; filter: grayscale(1); }
 .row:has(#gyro:disabled) input { pointer-events: none; }
+/* ===== حالت ماوس / کیبورد (فقط پلیر 1) ===== */
 body.mk #stage > .c:not(.ping), body.mk #stage > .g { display: none !important; }
 body.mk .row:has(#gyro), body.mk .row:has(#vib), body.mk #editBtn { display: none !important; }
 .mo, .ko { display: none !important; }
@@ -387,6 +493,7 @@ body.mouse #mkSw .sm, body.kbd #mkSw .sk { background: var(--sk-pb, var(--acc));
 .mhint { display: none; }
 body.hasmouse .mhint { display: inline; }
 body.hasmouse #mpad .mhint { display: block; opacity: .85; margin-top: 6px; }
+/* ===== حالت نمایشگر لمسی (فقط پلیر 1): تصویر کامپیوتر + لمس = ماوس ===== */
 .so { display: none !important; }
 body.screen .so { display: flex !important; } body.screen p.so { display: block !important; } body.screen .so.off { display: none !important; }
 body.screen #mkSw { display: none !important; }
@@ -403,7 +510,8 @@ body.screen #scv { display: block; }
 #scc { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
 #scvid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: none; background: #000; pointer-events: none; }
 #scvid::-webkit-media-controls { display: none !important; }
-#scv.vid #scvid { display: block; }
+#scv.vid #scvid { display: block; visibility: hidden; }
+#scv.vid.vid-on #scvid { visibility: visible; }      /* تا وقتی ویدیو واقعاً پخش نشده مخفیه (دکمه‌ی پلی بزرگ WebView دیده نشه) */
 #scv.vid #scc { display: none; }
 #scw { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; color: #8d97b3; font-size: 14px; line-height: 1.9; pointer-events: none; direction: rtl; }
 #scw.hide { display: none; }
@@ -418,11 +526,34 @@ background: var(--sk-bg, #202535); border: var(--bw, 2px) solid var(--sk-bd, var
 #scring.go { animation: scring .45s ease-out; }
 @keyframes scring { from { opacity: .9; transform: scale(.4); } to { opacity: 0; transform: scale(1.3); } }
 #scIn { position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; pointer-events: none; font-size: 16px; }
-body.screen #gear { top: auto; left: auto; transform: none; right: max(10px, env(safe-area-inset-right)); bottom: calc(max(10px, env(safe-area-inset-bottom)) + 2 * 44px + 2 * 8px + 8px); z-index: 8; }
-body.screen.kbo #scs { right: calc(max(10px, env(safe-area-inset-right)) + 96px); }
+body.screen #gear { top: max(10px, env(safe-area-inset-top)); left: auto; bottom: auto; transform: none; right: max(10px, env(safe-area-inset-right)); z-index: 8; width: 44px; height: 44px; padding: 0; border-radius: 14px; justify-content: center; gap: 0; }
+body.screen #gear #gi { display: none; }
+body.screen #gear #pn { font-size: 15px; }
+body.screen #gear #dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; }
+body.screen.hid-gear #gear { display: none; }
+#scb button[hidden] { display: none; }
+#scMon { position: relative; }
+#scMonN { fill: currentColor; stroke: none; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 13px; font-weight: 700; }
+#scSnd .wv { display: none; }
+#scSnd.on .wv { display: block; }
+#scSnd.on .xx { display: none; }
+#scEye .pl { display: none; }
+#scEye.on .pl { display: block; }
+#scEye.on .pz { display: none; }
+/* دکمه‌ی پنهان‌کردن: بقیه‌ی دکمه‌ها حذف میشن و خودش تقریباً شفاف میشه */
+#scb.hid button:not(#scHide) { display: none; }
+#scb.hid #scHide { opacity: .2; }
+#scKbX { position: absolute; top: max(10px, env(safe-area-inset-top)); right: calc(max(10px, env(safe-area-inset-right)) + 52px); width: 44px; height: 44px; padding: 0; border-radius: 14px; display: none; align-items: center; justify-content: center; touch-action: manipulation; z-index: 2;
+background: var(--sk-pb, var(--acc)); border: var(--bw, 2px) solid var(--sk-bd, var(--bd)); color: var(--sk-ptb, #11141c); box-shadow: 0 4px 10px var(--sk-bsh, #00000000), var(--nsh); }
+#scKbX svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; display: block; }
+body.screen.kbo #scKbX { display: flex; }
+#scfz { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; padding: 12px 70px; color: #fff; font-size: 15px; line-height: 1.8; direction: rtl; pointer-events: none; display: none; background: rgba(0, 0, 0, .35); text-shadow: 0 1px 6px #000; }
+#scv.frz #scfz { display: block; }
+#scv.frz #scvid, #scv.frz #scc { opacity: .6; }
+body.screen #scs { right: calc(max(10px, env(safe-area-inset-right)) + 52px); }
+body.screen.kbo #scs { right: calc(max(10px, env(safe-area-inset-right)) + 104px); }
 body.screen #scrim.open { animation: none; background: transparent; }
-body.screen.kbo #gear { bottom: auto; top: max(6px, env(safe-area-inset-top)); }
-body.screen.kbo #scb { flex-direction: row; bottom: auto; top: calc(max(6px, env(safe-area-inset-top)) + 40px); z-index: 7; }
+body.screen.kbo #scb { display: none; }
 body.screen.kbo #mkK { display: flex; flex-direction: column; top: 46%; z-index: 6; background: rgba(12, 14, 20, .72); }
 #plist select { -webkit-appearance: none; appearance: none; cursor: pointer; text-align: start; padding: 8px 10px 8px 30px;
 background-color: var(--sk-bg, #202535); color: var(--sk-tx, var(--tx)); border: var(--bw, 2px) solid var(--sk-bd, var(--bd)); border-radius: 10px;
@@ -450,6 +581,7 @@ body.fx3d #pickList button { background-image: linear-gradient(180deg, rgba(255,
 box-shadow: inset 0 1.5px 1px rgba(255,255,255,.34), inset 0 -3px 5px rgba(0,0,0,.40), 0 4px 10px var(--sk-bsh, #00000000), var(--nsh); }
 body.fx3d #pickList button.cur { background-image: linear-gradient(180deg, rgba(0,0,0,.24), rgba(255,255,255,.12)); }
 
+/* ===== language support ===== */
 #plist .btnrow button, #macBox .btns button { white-space: normal; overflow-wrap: anywhere; line-height: 1.25; }
 #plist .btnrow button.danger { white-space: normal; }
 html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox, #macBox, #rot, #toast) :is(label, span, p, h2, h3, small, button, .hint) { unicode-bidi: plaintext; }
@@ -490,6 +622,15 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
     <button id="layCancel" type="button" class="cancel">{{t:html.Cancel}}</button>
   </div>
 </div>
+<div id="preBox">
+  <div class="card">
+    <h2 id="preT"></h2>
+    <div class="preTop"><input id="preName" type="text" dir="auto" maxlength="48" autocomplete="off" spellcheck="false" placeholder="{{a:html.PresetNameHint}}"><button id="preDo" type="button">{{t:html.PresetSaveCurrent}}</button></div>
+    <label class="preAll" id="preAllRow" hidden><input type="checkbox" id="preAll"><span>{{t:html.PresetAllControllers}}</span></label>
+    <div id="preList"></div>
+    <button id="preClose" type="button">{{t:html.Close}}</button>
+  </div>
+</div>
 <div id="codeBox" dir="rtl">
   <div class="card">
     <h2>{{t:html.EditJson}}</h2>
@@ -513,9 +654,15 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
   <div id="scw"><span id="scwt">{{t:html.WaitingForTheComputersImage}}</span></div>
   <div id="scring"></div>
   <div id="scs"></div>
+  <div id="scfz">{{t:html.ImagePausedPressTheEyeAgain}}</div>
+  <button type="button" id="scKbX" aria-label="{{a:html.CloseKeyboard}}"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="5" width="28" height="15" rx="3"/><path d="M7 10h1.5M11.5 10h1.5M16 10h1.5M20.5 10h1.5M25 10h.5M10 15h12M11 25l5 4 5-4"/></svg></button>
   <div id="scb">
+    <button type="button" id="scMon" aria-label="{{a:html.SwitchDisplay}}" hidden><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2.5" y="4" width="27" height="19" rx="3"/><path d="M11 28h10M16 23v5"/><text id="scMonN" x="16" y="18.2" text-anchor="middle">1</text></svg></button>
+    <button type="button" id="scSnd" aria-label="{{a:html.SoundFromTheComputer}}"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h5l7-6v20l-7-6H5z"/><path class="wv" d="M21.5 11.5a6.5 6.5 0 0 1 0 9M25 8a11 11 0 0 1 0 16"/><path class="xx" d="M22 12l7 8M29 12l-7 8"/></svg></button>
+    <button type="button" id="scEye" aria-label="{{a:html.PauseImage}}"><svg viewBox="0 0 32 32" aria-hidden="true"><path class="pz" d="M11 7v18M21 7v18"/><path class="pl" d="M10 6l15 10-15 10z"/></svg></button>
     <button type="button" id="scKb" aria-label="{{a:html.FullKeyboard}}"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="8" width="28" height="16" rx="3"/><path d="M7 13h1.5M11.5 13h1.5M16 13h1.5M20.5 13h1.5M25 13h.5M7 17h1.5M11.5 17h1.5M16 17h1.5M20.5 17h4M10 20.6h12"/></svg></button>
     <button type="button" id="scTx" aria-label="{{a:html.TypeWithThePhoneKeyboard}}"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11 5h10M16 5v22M11 27h10"/></svg></button>
+    <button type="button" id="scHide" aria-pressed="false" aria-label="{{a:html.HideButtons}}"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 16s5-9 13-9 13 9 13 9-5 9-13 9S3 16 3 16z"/><circle cx="16" cy="16" r="3.5"/></svg></button>
   </div>
 </div>
 <input id="scIn" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="-1">
@@ -545,7 +692,7 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
 <button id="gear" aria-label="{{a:html.Settings}}"><span id="gi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg></span><b id="pn">P1</b><i id="dot"></i></button>
 <div id="scrim"></div>
 <aside id="panel" dir="rtl" aria-hidden="true">
-  <div id="phead"><b id="ptitle">{{t:html.Settings}}</b><button id="pclose" aria-label="{{a:html.Close}}"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div id="phead"><b id="ptitle">{{t:html.Settings}}</b><span id="phr"><button id="pSave" class="edit-only-b" type="button">{{t:html.Save}}</button><button id="pclose" aria-label="{{a:html.Close}}"><svg class="ic"><use href="#i-x"/></svg></button></span></div>
   <div id="plist">
 
     <div class="not-edit">
@@ -574,8 +721,11 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
         </select>
       </label>
       <p class="sub">{{t:html.YouCanConnectDifferentModes}}</span></p>
+      <label class="row" id="rowMic"><span>{{t:html.PhoneMicrophone}}</span><input type="checkbox" id="mic"></label>
+      <p class="sub" id="micHint"><span class="mh1">{{t:html.MicHint}}</span><span class="mh2" hidden>{{t:html.MicOnlyPlayer1}}</span></p>
       <label class="row"><span>{{t:html.ControllerRumbleFromTheGame}}</span><input type="checkbox" id="vib"></label>
       <label class="row"><span>{{t:html.Gyroscope}}</span><input type="checkbox" id="gyro"></label>
+      <div id="gyM" class="nw" role="group"><button type="button" data-m="pad">{{t:html.GyroModePad}}</button><button type="button" data-m="steer">{{t:html.GyroModeSteer}}</button></div>
       <p class="sub nw" id="gyHint"></p>
       <p class="sub ow" id="whHint"></p>
       <label class="row mo"><span>{{t:html.MouseSensitivity}}</span><input type="range" id="ms-sens" min="0.5" max="5" step="0.1"><b id="ms-sensv" dir="ltr"></b></label>
@@ -587,6 +737,7 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
       <label class="row mo"><span>{{t:html.TapClick}}</span><input type="checkbox" id="ms-tap"></label>
       <label class="row mo so"><span>{{t:html.ScrollDirection}}</span><input type="checkbox" id="ms-nat"></label>
       <p class="sub mo so">{{t:html.ReversesTheScrollDirectionWhen}}</p>
+      <!-- <p class="sub mo">{{t:html.OneFingerOnTheTouchpad}}</p> -->
       <p class="sub ko">{{t:html.MainKeysLikeAltAre}}</p>
       <label class="row so" id="sc-monrow"><span>{{t:html.Display}}</span><select id="sc-mon"></select></label>
       <div class="row so sg"><span>{{t:html.ImageQuality}}</span><div class="seg" id="sc-h"></div></div>
@@ -649,9 +800,17 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
         <p class="sub">{{t:html.TheFullRotationAngleOf}}</p>
         <label class="row"><span>{{t:html.RotationSensitivity}}</span><input type="range" id="wh-sens" min="0.5" max="8" step="0.1"><b id="wh-sensv" dir="ltr"></b></label>
         <p class="sub">{{t:html.HowMuchTheWheelTurns}}</p>
+        <div id="whBm" role="group"><button type="button" data-m="mul">{{t:html.WheelBoostMultiply}}</button><button type="button" data-m="both">{{t:html.WheelBoostBoth}}</button><button type="button" data-m="add">{{t:html.WheelBoostAdd}}</button></div>
+        <div id="whMul">
         <label class="row" style="border-bottom:0"><span>{{t:html.NDegreeMultiplier}}</span><input type="range" id="wh-bAt" min="0" max="90" step="1"><b id="wh-bAtv" dir="ltr"></b></label>
         <label class="row"><span>{{t:html.MultiplierValue}}</span><input type="range" id="wh-bX" min="1" max="4" step="0.1"><b id="wh-bXv" dir="ltr"></b></label>
         <p class="sub">{{t:html.AfterTheWheelHasTurned}}<br>{{t:html.ForExampleYouRotatedThe}}<br>{{t:html.AMultiplierLowerThanThe}}</p>
+        </div>
+        <div id="whAdd">
+        <label class="row" style="border-bottom:0"><span>{{t:html.WheelAddAfter}}</span><input type="range" id="wh-bAd" min="0" max="90" step="1"><b id="wh-bAdv" dir="ltr"></b></label>
+        <label class="row"><span>{{t:html.WheelAddValue}}</span><input type="range" id="wh-bA" min="0.02" max="0.99" step="0.01"><b id="wh-bAv" dir="ltr"></b></label>
+        <p class="sub">{{t:html.WheelAddHint}}</p>
+        </div>
         <label class="row"><span>{{t:html.DeadZone}}</span><input type="range" id="wh-dz" min="0" max="15" step="0.5"><b id="wh-dzv" dir="ltr"></b></label>
         <p class="sub">{{t:html.IfYouCantHoldThe}}</p>
         <label class="row"><span>{{t:html.MotionSmoothing}}</span><input type="range" id="wh-sm" min="0" max="90" step="1"><b id="wh-smv" dir="ltr"></b></label>
@@ -671,11 +830,13 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
       <button id="addMac" class="wide ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>{{t:html.AddMacro}}</span></button>
       <div class="btnrow"><button id="saveL" class="main">{{t:html.Save}}</button><button id="cancelL" class="cancel">{{t:html.Cancel}}</button></div>
       <div class="btnrow"><button id="copyBtn" disabled>{{t:html.CopyFromOthers}}</button><button id="reset" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L2.8 19.5h18.4Z"/><path d="M12 10v4.5"/><path d="M12 17.2v.1"/></svg><span>{{t:html.RestoreLayout}}</span></button></div>
+      <button id="preLayBtn" class="wide ico" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>{{t:html.PresetsOnComputer}}</span></button>
       <div class="gsep"></div>
       <small>{{t:html.ExactButtonSizeOnlyActive}}</small>
       <label class="row"><span>{{t:html.Width}}</span><input type="range" class="gsl" id="wd" min="0" max="1000" step="1" disabled><b class="gv" id="wdv" dir="ltr"></b></label>
       <label class="row"><span>{{t:html.Height}}</span><input type="range" class="gsl" id="ht" min="0" max="1000" step="1" disabled><b class="gv" id="htv" dir="ltr"></b></label>
       <label class="row"><span>{{t:html.TextSize}}</span><input type="range" class="gsl" id="tsz" min="0" max="1000" step="1" disabled><b class="gv" id="tszv" dir="ltr"></b></label>
+      <label class="row"><span>{{t:html.CornerRadius}}</span><input type="range" class="gsl" id="rdsl" min="0" max="1000" step="1" disabled><b class="gv" id="rdslv" dir="ltr"></b></label>
       <button id="layJson" class="wide" type="button">{{t:html.EditJson2}}</button>
     </div>
 
@@ -701,10 +862,13 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
     <div id="themes"></div>
     <button id="themesMore" class="more" aria-expanded="false"><span>{{t:html.ShowMoreReadyMadeThemes}}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
     <div id="themes2" hidden></div>
+    <!-- <small>{{t:html.TappingAThemeChangesAll}}</small> -->
     <h3>{{t:html.Page}}</h3>
     <label class="row"><span>{{t:html.CheckeredBackground}}</span><input type="checkbox" id="sk-grid"></label>
     <label class="row"><span>{{t:html.3DEffectLighting}}</span><input type="checkbox" id="sk-3d"></label>
     <label class="row"><span>{{t:html.SmoothButtonPressAnimation}}</span><input type="checkbox" id="sk-tr"></label>
+    <label class="row"><span>{{t:html.VibrateOnButtonPress}}</span><input type="checkbox" id="hap"></label>
+    <label class="row" id="rowHapMs" hidden><span>{{t:html.VibrationStrength}}</span><input type="range" id="hapMs" min="5" max="100" step="5"><b id="hapMsv" dir="ltr"></b></label>
     <div class="row"><span>{{t:html.BackgroundColor}}</span><span class="rr"><button class="sw" id="sk-page" data-k="page"><i></i></button><button class="skr" data-k="page" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
     <h3>{{t:html.SettingsPanel}}</h3>
     <div class="row"><span>{{t:html.PanelBackgroundColor}}</span><span class="rr"><button class="sw" id="sk-pbg" data-k="pbg"><i></i></button><button class="skr" data-k="pbg" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
@@ -731,6 +895,7 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
     <div class="row" data-v="macro"><span>{{t:html.MacroTextColor}}</span><span class="rr"><button class="sw" id="sk-mtx" data-k="mtx"><i></i></button><button class="skr" data-k="mtx" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
     <div class="row" data-v="macro"><span>{{t:html.MacroTextColorAfterPress}}</span><span class="rr"><button class="sw" id="sk-mptx" data-k="mptx"><i></i></button><button class="skr" data-k="mptx" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
     <div class="row" data-v="macro"><span>{{t:html.MacroCooldown}}</span><span class="rr"><button class="sw" id="sk-mpb" data-k="mpb"><i></i></button><button class="skr" data-k="mpb" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
+    <!-- <small data-v="macro">{{t:html.TheBackgroundAfterPressIs}}</small> -->
     <h3 data-v="pad4">{{t:html.DirectionButtonsSeparateButtonsMode}}</h3>
     <div class="row" data-v="pad4"><span>{{t:html.DirectionsArrowColor}}</span><span class="rr"><button class="sw" id="sk-dtx" data-k="dtx"><i></i></button><button class="skr" data-k="dtx" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
     <div class="row" data-v="pad4"><span>{{t:html.DirectionsBackground}}</span><span class="rr"><button class="sw" id="sk-dbg" data-k="dbg"><i></i></button><button class="skr" data-k="dbg" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
@@ -764,9 +929,12 @@ html[data-dir="ltr"] :is(#panel, #skinBox, #layBox, #codeBox, #copyBox, #nameBox
     <div class="row"><span class="lab" data-g="pt" data-k="X"></span><span class="rr"><button class="sw" id="sk-pt.X" data-k="pt.X"><i></i></button><button class="skr" data-k="pt.X" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
     <div class="row"><span class="lab" data-g="pt" data-k="Y"></span><span class="rr"><button class="sw" id="sk-pt.Y" data-k="pt.Y"><i></i></button><button class="skr" data-k="pt.Y" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
     <div class="row"><span class="lab" data-g="pt" data-k="GUIDE"></span><span class="rr"><button class="sw" id="sk-pt.GUIDE" data-k="pt.GUIDE"><i></i></button><button class="skr" data-k="pt.GUIDE" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
+    <!-- <small>{{t:html.ThePressedColorOfEach}}</small> -->
     <div class="row" data-v="cross"><span>{{t:html.CrossColorOfBothSides}}</span><span class="rr"><button class="sw" id="sk-xe" data-k="xe"><i></i></button><button class="skr" data-k="xe" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
     <div class="row" data-v="cross"><span>{{t:html.CrossCenterColor}}</span><span class="rr"><button class="sw" id="sk-xm" data-k="xm"><i></i></button><button class="skr" data-k="xm" title="{{a:html.Default}}"><svg class="ic"><use href="#i-reset"/></svg></button></span></div>
+    <button id="preThemeBtn" class="wide ico" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span>{{t:html.PresetsOnComputer}}</span></button>
     <button id="skReset" class="wide danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L2.8 19.5h18.4Z"/><path d="M12 10v4.5"/><path d="M12 17.2v.1"/></svg><span>{{t:html.RestoreColorsToDefault}}</span></button>
+    <!-- <small>{{t:html.ChangesAreVisibleOnThe}}</small> -->
     <button id="themeJson" class="wide">{{t:html.EditJson}}</button>
   </div>
   <div id="cpv" hidden>
@@ -806,21 +974,21 @@ rb:    { t: 'btn', l: 'RB', k: 'RB', x: 88, y: 9,  s: 12, ar: 2.2 },
 back:  { t: 'btn', l: 'BACK',  k: 'BACK',  x: 40, y: 36, s: 9, ar: 2, },
 start: { t: 'btn', l: 'START', k: 'START', x: 60, y: 36, s: 9, ar: 2, },
 guide: { t: 'btn', l: 'X', k: 'GUIDE', x: 50, y: 29, s: 10, ar: 1, col: '#e6e9f2' },
-y:     { t: 'btn', l: 'Y', k: 'Y', x: 86, y: 43, s: 17, ar: 1, col: '#f2c441' },
-x:     { t: 'btn', l: 'X', k: 'X', x: 77, y: 60, s: 17, ar: 1, col: '#4f9bff' },
-b:     { t: 'btn', l: 'B', k: 'B', x: 95, y: 60, s: 17, ar: 1, col: '#ef5a5a' },
-a:     { t: 'btn', l: 'A', k: 'A', x: 86, y: 77, s: 17, ar: 1, col: '#4fcf6a' },
+y:     { t: 'btn', l: 'Y', k: 'Y', x: 86, get y() { return 60 - dyp(17); }, s: 17, ar: 1, col: '#f2c441' },
+x:     { t: 'btn', l: 'X', k: 'X', get x() { return 86 - dxp(17); }, y: 60, s: 17, ar: 1, col: '#4f9bff' },
+b:     { t: 'btn', l: 'B', k: 'B', get x() { return 86 + dxp(17); }, y: 60, s: 17, ar: 1, col: '#ef5a5a' },
+a:     { t: 'btn', l: 'A', k: 'A', x: 86, get y() { return 60 + dyp(17); }, s: 17, ar: 1, col: '#4fcf6a' },   // چهار دکمه‌ی اکشن: فاصله‌ی افقی و عمودی از مرکز برابر (به نسبت صفحه)
 face:  { t: 'face', x: 86, y: 61, s: 40, ar: 1 },
-move:  { t: 'move',  x: 20, y: 62, s: 38, ar: 1 },
-rs:    { t: 'stick', x: 64, y: 72, s: 34, ar: 1 },
-l3:    { t: 'btn', l: 'L3', k: 'L3', get x() { return 50 - dxp(6.7); }, get y() { return 36 + dyp(8.7); }, s: 8, ar: 1 },
+move:  { t: 'move',  x: 17, y: 66, s: 38, ar: 1 },
+rs:    { t: 'stick', x: 64, y: 72, s: 30, ar: 1 },
+l3:    { t: 'btn', l: 'L3', k: 'L3', get x() { return 50 - dxp(6.7); }, get y() { return 36 + dyp(8.7); }, s: 8, ar: 1 },   // زیر SHARE/OPTIONS، دو طرف وسط (زیر PS)
 r3:    { t: 'btn', l: 'R3', k: 'R3', get x() { return 50 + dxp(6.7); }, get y() { return 36 + dyp(8.7); }, s: 8, ar: 1 },
-move2: { t: 'move2', get x() { return 20 + dxp(20); }, get y() { return 62 + dyp(18); }, s: 22, ar: 1 },
-du:    { t: 'dir', k: 'DU', a: 'U', get x() { return 20; },          get y() { return 62 - dyp(14); }, s: 13, ar: 1 },
-dd:    { t: 'dir', k: 'DD', a: 'D', get x() { return 20; },          get y() { return 62 + dyp(14); }, s: 13, ar: 1 },
-dl:    { t: 'dir', k: 'DL', a: 'L', get x() { return 20 - dxp(14); }, get y() { return 62; },          s: 13, ar: 1 },
-dr:    { t: 'dir', k: 'DR', a: 'R', get x() { return 20 + dxp(14); }, get y() { return 62; },          s: 13, ar: 1 },
-ping:  { t: 'ping', get x() { return 50 + 77 / Math.max(innerWidth, 1) * 100; }, get y() { return 21 / Math.max(innerHeight, 1) * 100; }, get s() { return 13 / (.0055 * Math.max(Math.min(innerWidth, innerHeight), 1)); }, ar: 6 },
+move2: { t: 'move2', x: 39, y: 72, s: 30, ar: 1 },   // مستقل از دی‌پد (مثل استیک راست و دکمه‌های اکشن: جای ثابت به درصد صفحه)
+du:    { t: 'dir', k: 'DU', a: 'U', get x() { return 17; },          get y() { return 66 - dyp(14); }, s: 13, ar: 1 },
+dd:    { t: 'dir', k: 'DD', a: 'D', get x() { return 17; },          get y() { return 66 + dyp(14); }, s: 13, ar: 1 },
+dl:    { t: 'dir', k: 'DL', a: 'L', get x() { return 17 - dxp(14); }, get y() { return 66; },          s: 13, ar: 1 },
+dr:    { t: 'dir', k: 'DR', a: 'R', get x() { return 17 + dxp(14); }, get y() { return 66; },          s: 13, ar: 1 },
+ping:  { t: 'ping', get x() { return 50 + 77 / Math.max(innerWidth, 1) * 100; }, get y() { return 21 / Math.max(innerHeight, 1) * 100; }, get s() { return 13 / (.0055 * Math.max(Math.min(innerWidth, innerHeight), 1)); }, ar: 6 },   // کنار دکمه‌ی منو، هم‌تراز با اون   // y: همون جای قبلی، زیر دکمه‌ی منو
 };
 Object.assign(DEFS, {
 wheel: { t: 'wheel', x: 50, y: 56, s: 72, ar: 1 },
@@ -878,7 +1046,7 @@ if (z) return cl(z, 1, ZONE_MAX);
 const px = lay(id).s * Math.min(innerWidth, innerHeight) / 100;
 return cl(1 + 2 * ZONE_PAD / Math.max(px, 1), 1, ZONE_MAX);
 }
-function posToSize(p) {
+function posToSize(p) {                       // موقعیت نوار (0 تا 1) -> اندازه
 let acc = 0, start = 0;
 for (const [w, m] of SZ_SEG) {
 if (p <= start + w + 1e-9) { acc += (p - start) * m; break; }
@@ -886,7 +1054,7 @@ acc += w * m; start += w;
 }
 return SZ_MIN + (SZ_MAX - SZ_MIN) * acc / SZ_TOT;
 }
-function sizeToPos(s) {
+function sizeToPos(s) {                       // اندازه -> موقعیت نوار (0 تا 1)
 let acc = (cl(s, SZ_MIN, SZ_MAX) - SZ_MIN) / (SZ_MAX - SZ_MIN) * SZ_TOT, start = 0;
 for (const [w, m] of SZ_SEG) {
 if (acc <= w * m + 1e-12) return start + acc / m;
@@ -896,17 +1064,17 @@ return 1;
 }
 const SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
 const SHAPES = {
-A: SVG_OPEN + '<path d="M5.5 5.5L18.5 18.5M18.5 5.5L5.5 18.5"/></svg>',
-B: SVG_OPEN + '<circle cx="12" cy="12" r="7.6"/></svg>',
-X: SVG_OPEN + '<rect x="5" y="5" width="14" height="14" rx="1.2"/></svg>',
-Y: SVG_OPEN + '<path d="M12 4.6L20 18.8H4Z"/></svg>',
+A: SVG_OPEN + '<path d="M5.5 5.5L18.5 18.5M18.5 5.5L5.5 18.5"/></svg>',                 // ✕
+B: SVG_OPEN + '<circle cx="12" cy="12" r="7.6"/></svg>',                                   // ○
+X: SVG_OPEN + '<rect x="5" y="5" width="14" height="14" rx="1.2"/></svg>',                 // □
+Y: SVG_OPEN + '<path d="M12 4.6L20 18.8H4Z"/></svg>',                                      // △
 };
 const PS = {
 A: ['✕', '#6ea8ff'], B: ['○', '#ef5a5a'], X: ['□', '#e58bd0'], Y: ['△', '#4fcf9a'],
 LB: ['L1'], RB: ['R1'], LT: ['L2'], RT: ['R2'],
 BACK: ['SHARE'], START: ['OPTIONS'], GUIDE: ['PS'],
 };
-let S = Object.assign({ name: '', player: 1, pad: 'ps4', dpad: 'buttons', face: 'buttons', rs: 'stick', m2: 'stick', dual: false, op: 90, vib: true, gyro: false }, store.get('gp.s', {}));
+let S = Object.assign({ name: '', player: 1, pad: 'ps4', dpad: 'buttons', face: 'buttons', rs: 'stick', m2: 'stick', dual: true, op: 90, vib: true, hap: false, hapMs: 25, gyro: false, gyM: 'pad' }, store.get('gp.s', {}));
 let L = store.get('gp.l', {});
 const MAC_MAX = 30, MAC_STEPS = 100, MAC_TAP = 60, MAC_GAP = 20, MAC_MAX_MS = 300000;
 const MAC_KEYS = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'BACK', 'START', 'GUIDE', 'L3', 'R3', 'DU', 'DD', 'DL', 'DR'];
@@ -920,7 +1088,7 @@ const cloneOk = o => o && typeof o.cl === 'string' && DEFS[o.cl] && !isCloneId(o
 function cloneDef(id) { return Object.assign({}, DEFS[L[id].cl], { cl: L[id].cl }); }
 for (const k of Object.keys(L)) { if (!isCloneId(k)) continue; if (cloneOk(L[k])) DEFS[k] = cloneDef(k); else delete L[k]; }
 function macKey(w) { const u = String(w || '').toUpperCase(); return MAC_KEYS.includes(u) ? u : (MAC_ALIAS[String(w || '').toLowerCase()] || null); }
-function macKeys(w) {
+function macKeys(w) {   // 'y,x,a' → ['Y','X','A'] (بدون تکرار)؛ نامعتبر = null
 const parts = String(w || '').split(','), out = [];
 if (parts.length > MAC_KEYS.length) return null;
 for (const p of parts) { const k = macKey(p); if (!k) return null; if (!out.includes(k)) out.push(k); }
@@ -930,7 +1098,7 @@ function macParse(line) {
 const t = String(line).trim().toLowerCase().replace(/\s*,\s*/g, ',').split(/\s+/), c = t[0];
 const ms = w => { const m = /^(\d+(?:\.\d+)?)(ms|s)?$/.exec(w || ''); return m ? Math.min(MAC_MAX_MS, Math.round(+m[1] * (m[2] === 's' ? 1000 : 1))) : null; };
 if (c === 'press' || c === 'tap') { const ks = macKeys(t[1]); if (!ks || t.length > 3) return null; const d = t.length > 2 ? ms(t[2]) : MAC_TAP; return d == null ? null : { ks, d }; }
-if (c === 'hold') {
+if (c === 'hold') {   // hold A,B = نگه دار تا release (یا آخر ماکرو)؛ hold A 500ms (قدیمی) = فقط اون مدت
 const ks = macKeys(t[1]); if (!ks) return null;
 if (t.length === 2) return { ks, h: 1 };
 const d = ms(t[2]); return d != null && t.length === 3 ? { ks, d } : null;
@@ -986,10 +1154,10 @@ set('--lk-a', SK.lk && mixHex(SK.lk, [255, 255, 255], .3)); set('--lk-b', SK.lk)
 set('--rk-a', SK.rk && mixHex(SK.rk, [255, 255, 255], .3)); set('--rk-b', SK.rk);
 }
 applySkinVars();
-let edit = false, sel = null, drag = null, snap = null;
+let edit = false, sel = null, drag = null, snap = null, swapSrc = null;
 const MV = ['move', 'move2', 'du', 'dd', 'dl', 'dr'];
 const lk = id => isW() && WD[id] ? id + '@w' : S.dual && MV.includes(id) ? id + '@d' : id;
-const dc = () => S.dpad === 'pad4' ? { x: 20, y: 62, k: 14, s: 13 } : { x: 20 + dxp(20), y: 62 + dyp(18), k: 9, s: 9 };
+const dc = () => S.dpad === 'pad4' ? { x: 17, y: 66, k: 14, s: 13 } : { x: 39, y: 72, k: 9, s: 9 };
 const DD = {
 du: () => { const c = dc(); return { x: c.x, y: c.y - dyp(c.k), s: c.s }; },
 dd: () => { const c = dc(); return { x: c.x, y: c.y + dyp(c.k), s: c.s }; },
@@ -1006,36 +1174,38 @@ if (o.dual) { const want = isBtn(o.dpad) ? ['stick', 'follow'] : ['buttons', 'pa
 }
 normDual(S);
 const isW = () => S.pad === 'wheel', isMK = () => S.pad === 'mouse' || S.pad === 'keyboard' || S.pad === 'screen';
-const WH_DEF = { gy: true, lock: 270, sens: 3, dz: 0, dzv: 2, bAt: 0, bX: 1.5, sm: 20, inv: false, pedal: 'analog', pInv: false };
-const WH_RNG = { lock: [90, 900], sens: [.5, 8], dz: [0, 15], bAt: [0, 90], bX: [1, 4], sm: [0, 90] };
+const WH_DEF = { gy: true, lock: 270, sens: 3, dz: 0, dzv: 2, bAt: 0, bX: 1.5, bm: 'mul', bA: 0.1, bAd: 0, sm: 20, inv: false, pedal: 'analog', pInv: false };
+const WH_RNG = { lock: [90, 900], sens: [.5, 8], dz: [0, 15], bAt: [0, 90], bX: [1, 4], bA: [.02, .99], bAd: [0, 90], sm: [0, 90] };
 function cleanWh(o) {
 const r = Object.assign({}, WH_DEF); o = o && typeof o === 'object' ? o : {};
 for (const k in WH_RNG) if (typeof o[k] === 'number' && isFinite(o[k])) r[k] = cl(o[k], WH_RNG[k][0], WH_RNG[k][1]);
-if (o.dzv !== 2) r.dz = 0;
+if (o.dzv !== 2) r.dz = 0;   // پیش‌فرض تازه‌ی ناحیه‌ی مرده (خاموش) روی مقدار قدیمی ذخیره‌شده هم اعمال بشه
+if (o.bm === 'add' || o.bm === 'both') r.bm = o.bm;
 if (o.inv === true) r.inv = true;
 if (o.gy === false) r.gy = false;
 if (o.pedal === 'digital') r.pedal = 'digital';
 if (o.pInv === true) r.pInv = true;
 return r;
 }
+if (S.gyM !== 'steer') S.gyM = 'pad';   // ژیروسکوپ: pad = ژیروسکوپ دسته، steer = چپ و راست (استیک چپ)
 S.wh = cleanWh(S.wh);
 S.ms = Object.assign({ sens: 1.6, scr: 1, tap: true, nat: true, win: 100, flip: false, rtop: true }, S.ms && typeof S.ms === 'object' ? S.ms : {});
-if (S.ms.wv !== 2) { S.ms.win = 100; S.ms.wv = 2; }
-S.ms.sens = cl(+S.ms.sens || 1.6, .5, 5); S.ms.scr = cl(+S.ms.scr || 1, .3, 3); S.ms.tap = S.ms.tap !== false; S.ms.nat = S.ms.nat !== false; S.ms.win = Number.isFinite(+S.ms.win) ? cl(Math.round(+S.ms.win / 25) * 25, 0, 300) : 100;
+if (S.ms.wv !== 2) { S.ms.win = 100; S.ms.wv = 2; }   // پیش‌فرض تازه‌ی تاخیر تپ‌ودرگ (100ms) روی مقدار قدیمی ذخیره‌شده هم اعمال بشه
+S.ms.sens = cl(+S.ms.sens || 1.6, .5, 5); S.ms.scr = cl(+S.ms.scr || 1, .3, 3); S.ms.tap = S.ms.tap !== false; S.ms.nat = S.ms.nat !== false; S.ms.win = Number.isFinite(+S.ms.win) ? cl(Math.round(+S.ms.win / 25) * 25, 0, 300) : 100;   // 0 = تپ‌ودرگ خاموش، گام 25ms
 S.ms.flip = S.ms.flip === true; S.ms.rtop = S.ms.rtop !== false;
-S.sc = Object.assign({ mon: 0, h: 720, fps: 60, buf: 4, codec: 'h264', cur: true, stats: false }, S.sc && typeof S.sc === 'object' ? S.sc : {});
+S.sc = Object.assign({ mon: 0, h: 720, fps: 60, buf: 4, codec: 'h264', cur: true, stats: false }, S.sc && typeof S.sc === 'object' ? S.sc : {});   // نمایشگر لمسی: نمایشگر / کیفیت (ارتفاع) / فریم / نشانگر / آمار
 S.sc.mon = Math.max(0, Math.round(+S.sc.mon) || 0); S.sc.h = cl(Math.round(+S.sc.h) || 720, 120, 4320); S.sc.fps = cl(Math.round(+S.sc.fps) || 60, 5, 240); S.sc.buf = [2, 4, 8].includes(+S.sc.buf) ? +S.sc.buf : 4; S.sc.codec = S.sc.codec === 'jpeg' ? 'jpeg' : 'h264'; S.sc.cur = S.sc.cur !== false; S.sc.stats = S.sc.stats === true;
-if (isMK() && S.player !== 1) S.pad = 'ps4';
+if (isMK() && S.player !== 1) S.pad = 'ps4';   // ماوس و کیبورد فقط برای پلیر 1
 const PLAYERS = [
-{ acc: '#5b92ff', bd: '#3b5a99', tx: '#b4c8f2' },
-{ acc: '#f0675c', bd: '#9a4640', tx: '#f0c0bb' },
-{ acc: '#55c878', bd: '#3b8050', tx: '#b7e6c4' },
-{ acc: '#e87bc4', bd: '#96507f', tx: '#f0bde0' },
-{ acc: '#f0a24f', bd: '#9a6a35', tx: '#f0d5b8' },
-{ acc: '#a07bf0', bd: '#5f4a96', tx: '#d0c0f0' },
-{ acc: '#4fd0e0', bd: '#357f8a', tx: '#b8e8ef' },
-{ acc: '#e8d44f', bd: '#94862f', tx: '#f0ebb8' },
-{ acc: '#c8ccd8', bd: '#6a7080', tx: '#e2e6f0' },
+{ acc: '#5b92ff', bd: '#3b5a99', tx: '#b4c8f2' },   // P1 blue
+{ acc: '#f0675c', bd: '#9a4640', tx: '#f0c0bb' },   // P2 red
+{ acc: '#55c878', bd: '#3b8050', tx: '#b7e6c4' },   // P3 green
+{ acc: '#e87bc4', bd: '#96507f', tx: '#f0bde0' },   // P4 pink
+{ acc: '#f0a24f', bd: '#9a6a35', tx: '#f0d5b8' },   // P5 orange
+{ acc: '#a07bf0', bd: '#5f4a96', tx: '#d0c0f0' },   // P6 purple
+{ acc: '#4fd0e0', bd: '#357f8a', tx: '#b8e8ef' },   // P7 cyan
+{ acc: '#e8d44f', bd: '#94862f', tx: '#f0ebb8' },   // P8 yellow
+{ acc: '#c8ccd8', bd: '#6a7080', tx: '#e2e6f0' },   // P9 silver
 ];
 function applyTheme() {
 const p = PLAYERS[(S.player - 1) % PLAYERS.length], r = document.documentElement.style;
@@ -1051,13 +1221,13 @@ function conn() {
 ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + location.pathname.replace(/\/+$/, '') + '/ws?id=' + encodeURIComponent(cid) + '&name=' + encodeURIComponent(S.name || ''));
 ws.binaryType = 'arraybuffer';
 ws.onmessage = ev => {
-if (typeof ev.data !== 'string') { if (window.scReady) scOnFrame(ev.data); return; }
+if (typeof ev.data !== 'string') { if (window.scReady) { if (ev.data.byteLength > 14 && new Uint8Array(ev.data, 0, 1)[0] === 3) auPlay(ev.data); else scOnFrame(ev.data); } return; }   // فریم تصویر (نمایشگر لمسی)
 if (typeof ev.data === 'string' && ev.data.startsWith('pong ')) { onPong(ev.data); return; }
 if (onRumble(ev.data)) return;
-try { const m = JSON.parse(ev.data); if (m && m.t === 'rum') { rumble(m.l, m.s); return; } if (m && m.t === 'lay') { onLay(m); return; } if (m && (m.t === 'scr' || m.t === 'scs')) { if (window.scReady) { if (m.t === 'scr') onScr(m); else onScs(m); } return; } } catch {}
+try { const m = JSON.parse(ev.data); if (m && m.t === 'rum') { rumble(m.l, m.s); return; } if (m && m.t === 'lay') { onLay(m); return; } if (m && m.t === 'pre') { onPre(m); return; } if (m && m.t === 'mic') { onMic(m); return; } if (m && (m.t === 'scr' || m.t === 'scs' || m.t === 'aus')) { if (window.scReady) { if (m.t === 'scr') onScr(m); else if (m.t === 'aus') onAus(m); else onScs(m); } return; } } catch {}
 onState(ev.data);
 };
-ws.onopen = () => { $('#dot').classList.add('ok'); for (const k in lastS) delete lastS[k]; sendCfg(); pingNow(); keepAwake(); if (gyOn) send('gyr 1'); if (window.scReady) scOpen(); };
+ws.onopen = () => { $('#dot').classList.add('ok'); for (const k in lastS) delete lastS[k]; sendCfg(); pingNow(); keepAwake(); if (gyOn) send('gyr 1'); if (mic.on) send('mic 1'); if (window.scReady) scOpen(); };
 ws.onclose = () => { if (window.scReady) scClosed(); for (const k in lossy) delete lossy[k]; rumbleStop(); $('#dot').classList.remove('ok'); showPing(null); srvLay = false; lastTaken = {}; updateCopyBtn(); setTimeout(conn, 300); };
 ws.onerror = () => ws.close();
 }
@@ -1079,17 +1249,17 @@ o.textContent = o.dataset.base + (mine ? __tr('js.You') : who ? ' — ' + who : 
 { const pb = document.getElementById('pickBox'); if (pb && pb.classList.contains('open') && pickCur && pickCur.id === 'player') openPick(pickCur, true); }
 if (!m.ack) return;
 if (m.you) {
-if (m.you !== S.player) {
+if (m.you !== S.player) {                       // پلیر خواسته‌شده پر بود
 const who = taken[S.player];
 toast(__tr('js.TookPlayerYouStayedIn', S.player, who || __tr('js.SomeoneElse'), m.you));
 S.player = m.you; saveS(); applyTheme(); $('#player').value = S.player; mkEnforce();
 }
-if (m.mode && m.mode !== S.pad) {
+if (m.mode && m.mode !== S.pad) {                 // مثلاً پلیر 5+ نمیتونه Xbox باشه
 toast(isMK() ? __tr('js.MouseKeyboardAndTouchScreen') : __tr('js.MoreThan4XboxControllers'));
 if (S.pad === 'wheel' && m.mode === 'ps4') toast(__tr('js.MoreThan4XboxWheel'));
 else { S.pad = m.mode; saveS(); $('#padType').value = S.pad; applyPad(); }
 }
-} else {
+} else {                                           // هیچ پلیری نگرفتم (پلیر دلخواهم پر بود)
 let free = 0;
 for (let n = 1; n <= 9; n++) if (!taken[n]) { free = n; break; }
 if (free) {
@@ -1125,7 +1295,13 @@ function flushLossy() { lossyT = 0; for (const k in lossy) sendLossy(k, lossy[k]
 const sendCfg = () => send(`cfg ${S.player} ${S.pad}`);
 if (S.name) conn();
 const lastS = {};
-function sendStick(ch, dx, dy) {
+const steer = { gx: 0, sx: 0, sy: 0 };
+const steerOn = () => !isW() && !isMK() && !!S.gyro && S.gyM === 'steer';
+function sendStick(ch, dx, dy, g) {
+if (ch === 'l') {   // حالت «چپ و راست»: X از ژیروسکوپ، Y (و اگه لمس شد X) از استیک روی صفحه
+if (g === 'g') { steer.gx = dx; if (steerOn()) { if (steer.sx) dx = steer.sx; dy = steer.sy; } }
+else { steer.sx = dx; steer.sy = dy; if (steerOn() && !dx) dx = steer.gx; }
+}
 const m = `${ch} ${dx.toFixed(3)} ${(-dy).toFixed(3)}`.replace(' -0.000', ' 0.000');
 if (lastS[ch] === m) return;
 lastS[ch] = m; sendLossy('s' + ch, m);
@@ -1137,6 +1313,10 @@ if (level >= .97) return [1000];
 const on = Math.max(8, Math.round(RUM_PERIOD * Math.sqrt(level))), p = [];
 for (let i = 0; i < 30; i++) p.push(on, RUM_PERIOD - on);
 return p;
+}
+function hapTick() {   // لرزش کوتاه موقع فشردن دکمه‌ها (شدت = مدت لرزش به میلی‌ثانیه)
+if (!S.hap || !navigator.vibrate || rumLevel) return;
+try { navigator.vibrate(cl(+S.hapMs || 25, 5, 100)); } catch {}
 }
 function rumbleStop() {
 rumLevel = 0; clearInterval(rumT); clearTimeout(rumStop); rumT = rumStop = 0;
@@ -1169,6 +1349,7 @@ up(ev) { if (ev && ev.pointerId !== pid) return; pid = null; set(false); },
 reset() { pid = null; set(false); }
 };
 }
+// L2/R2 (PS4/Xbox) با «کشش دستی» مثل پدال فرمون آنالوگ میشن: tr l|r 0..1 (همون پیام پدال)
 function mkTrig(e, id, key) {
 const base = mkBtn(e, key), ch = key === 'LT' ? 'l' : 'r';
 let pid = null, last = -1, r = null, an = false;
@@ -1195,7 +1376,7 @@ function mkStick(e, ch, follow) {
 const ring = e.firstChild, knob = ring.firstChild;
 let pid = null, ox = 0, oy = 0;
 let cx = 0, cy = 0, rr = 0;
-let vx = 0, vy = 0, raf = 0;
+let vx = 0, vy = 0, raf = 0, gk = 0;   // gk: جای توپ از ژیروسکوپ (حالت «چپ و راست»)
 const dSt = { DU: 0, DD: 0, DL: 0, DR: 0 };
 const sendD = (dx, dy) => {
 const t = .35, w = { DU: dy < -t, DD: dy > t, DL: dx < -t, DR: dx > t };
@@ -1204,7 +1385,7 @@ for (const k in dSt) { const v = w[k] ? 1 : 0; if (dSt[k] !== v) { dSt[k] = v; s
 const paint = () => {
 raf = 0;
 ring.style.transform = `translate(${ox}px, ${oy}px)`;
-knob.style.transform = `translate(${vx * .45 * rr}px, ${vy * .45 * rr}px)`;
+knob.style.transform = `translate(${(vx || gk) * .45 * rr}px, ${vy * .45 * rr}px)`;   // لمس بر ژیروسکوپ مقدم است (همون منطق sendStick)
 };
 const set = (dx, dy, now) => {
 vx = dx; vy = dy;
@@ -1240,7 +1421,14 @@ calc(ev);
 },
 move(ev) { if (ev.pointerId === pid) calc(ev); },
 up(ev) { if (ev && ev.pointerId !== pid) return; end(); },
-reset() { end(); }
+reset() { end(); },
+gy(x) {   // ژیروسکوپ توپ وسط استیک چپ رو چپ و راست میبره
+if (ch !== 'l') return;
+x = Math.max(-1, Math.min(1, x || 0));
+if (Math.abs(x - gk) < .002 && (x !== 0 || gk === 0)) return;
+gk = x; rr = ring.offsetWidth / 2;
+if (!raf) raf = requestAnimationFrame(paint);
+}
 };
 }
 function mkDpad(e) {
@@ -1364,7 +1552,7 @@ if (sel && els[sel].style.display === 'none') select(null);
 function buildMove() {
 const e = els.move;
 if (B.move) B.move.reset();
-if (S.dpad === 'buttons' || S.dpad === 'pad4') {
+if (S.dpad === 'buttons' || S.dpad === 'pad4') {   // pad4: این بلوک مخفی میشه و 4 دکمه‌ی جدا (du/dd/dl/dr) نمایش داده میشن
 e.className = 'c dpad';
 e.innerHTML = '<i data-k="DU">' + ARROWS.U + '</i><i data-k="DL">' + ARROWS.L + '</i><b></b><i data-k="DR">' + ARROWS.R + '</i><i data-k="DD">' + ARROWS.D + '</i>';
 B.move = mkDpad(e);
@@ -1409,7 +1597,23 @@ const pa = SK.pa && SK.pa[d.k]; if (pa) els[id].style.setProperty('--pa', pa); e
 const pt = SK.pt && SK.pt[d.k]; if (pt) els[id].style.setProperty('--pt', pt); else els[id].style.removeProperty('--pt');
 }
 }
+// ژیروسکوپ برای هر دسته جدا: PS4 و Xbox هرکدوم روشن/خاموش و حالت (دسته | چپ و راست) خودشون رو دارن.
+// S.gyro و S.gyM همیشه مقدار دسته‌ی فعلی‌ان؛ مقدار دسته‌ی دیگه تو S.gx نگه داشته میشه. (فرمون/ماوس/کیبورد/نمایشگر ژیروسکوپ دسته رو دست نمیزنن)
+const gyKey = p => p === 'xbox' ? 'xbox' : p === 'ps4' ? 'ps4' : null;
+function gyPadSwitch() {
+const k = gyKey(S.pad), prev = S.gyK || k || 'ps4';
+if (!S.gyK) S.gyK = prev;
+if (!k || k === prev) return false;
+if (!S.gx || typeof S.gx !== 'object') S.gx = {};
+S.gx[prev] = { on: !!S.gyro, m: S.gyM === 'steer' ? 'steer' : 'pad' };
+const d = S.gx[k] || (k === 'xbox' ? { on: false, m: 'steer' } : { on: false, m: 'pad' });
+S.gyro = !!d.on; S.gyM = d.m === 'steer' ? 'steer' : 'pad'; S.gyK = k;
+if (k === 'xbox') S.gyM = 'steer';   // Xbox ژیروسکوپ دسته نداره
+saveS();
+return true;
+}
 function applyPad() {
+const gySw = gyPadSwitch();
 const fam = isW() ? 'w' : 'm';
 if (!S.alt) S.alt = { dpad: 'buttons', face: 'buttons', dual: false, m2: 'stick' };
 if (!S.fam) S.fam = fam;
@@ -1429,7 +1633,7 @@ paintBtns(); applyFacePad();
 for (const id in els) place(id);
 applyFace(); applyDirs(); applyDual(); applyWheelVis();
 $('#gyro').checked = isW() ? S.wh.gy : S.gyro;
-if (window.gyLockReady) gyLock();
+if (window.gyLockReady) { gyLock(); gyBtnUI(); wsPlace(); if (gySw) gyApply(false); }
 sendCfg();
 }
 const WL = { LB: '\u2212', RB: '+', L3: 'HORN', R3: 'CAM' };
@@ -1441,10 +1645,22 @@ const wrap180 = x => ((x + 180) % 360 + 360) % 360 - 180;
 function buildWheel(e) { e.innerHTML = WHEEL_BZ + '<div class="wrot">' + WHEEL_SVG + '</div>'; wh.rot = e.querySelector('.wrot'); wh.shown = 1e9; }
 function whMap() {
 const W = S.wh;
-let a = wrap180(wh.th - wh.off); const sg = a < 0 ? -1 : 1; a = Math.max(0, Math.abs(a) - W.dz);
+let a = wrap180(wh.th - wh.off); const sg = a < 0 ? -1 : 1; a = Math.max(0, Math.abs(a) - W.dz); wh.ra = a;
 if (W.bAt > 0 && a > W.bAt) a = W.bAt + (a - W.bAt) * W.bX;
 let w = sg * a * W.sens; if (W.inv) w = -w;
 return cl(w, -W.lock, W.lock);
+}
+function whAddOut(n) {   // «جمع»: از همون اول که فرمون از مرکز جابه‌جا شد، مقدار ثابت به خروجی اضافه میشه (بعد از ضریب)؛ سقف خروجی 1
+const W = S.wh;
+if (W.bm === 'mul' || Math.abs(n) < .001) return n;
+if (W.bAd > 0 && Math.max(wh.ra || 0, Math.abs(wh.tAng) / Math.max(W.sens, .1)) < W.bAd) return n;   // هنوز به N درجه نرسیده
+return cl(n + (n < 0 ? -W.bA : W.bA), -1, 1);
+}
+function gyKnob(x) {   // توپ استیک(های) چپ که روی صفحه‌ان با خروجی ژیروسکوپ حرکت کنن؛ بقیه (مخفی/دکمه‌ای) صفر
+for (const id of ['move', 'move2']) {
+const o = B[id]; if (!o || !o.gy) continue;
+o.gy(els[id] && els[id].style.display !== 'none' ? x : 0);
+}
 }
 function whCenter() { wh.off = wh.th; wh.cur = 0; wh.tAng = 0; toast(__tr('js.WheelCenterSet')); }
 function whEv(e) {
@@ -1481,17 +1697,18 @@ function whTick(now) {
 wh.raf = requestAnimationFrame(whTick);
 const dt = Math.min(.1, Math.max(.001, (now - (wh.lt || now)) / 1000)); wh.lt = now;
 const W = S.wh;
-const fz = edit && sel !== 'wheel';
+const fz = edit && (!isW() || sel !== 'wheel');
 const tgt = !fz && wh.has ? whMap() : 0;
 const k = W.sm <= 0 ? 1 : 1 - Math.pow(W.sm / 100, dt * 60);
 wh.cur += (tgt - wh.cur) * k;
 if (!wh.touch && wh.tAng) { wh.tAng *= Math.pow(.0008, dt); if (Math.abs(wh.tAng) < .3) wh.tAng = 0; }
 const tot = fz ? 0 : cl(wh.cur + wh.tAng, -W.lock, W.lock);
 if (wh.rot && Math.abs(tot - wh.shown) > .02) { wh.rot.style.transform = 'rotate(' + tot.toFixed(2) + 'deg)'; wh.shown = tot; }
-if (now - wh.ts >= 15) { wh.ts = now; sendStick('l', tot / W.lock, 0); }
+if (now - wh.ts >= 15) { wh.ts = now; const go = whAddOut(tot / W.lock); sendStick('l', go, 0, 'g'); gyKnob(steerOn() ? go : 0); }
 if (panelOn && now - wh.tl > 100) { wh.tl = now; const t = Math.round(tot) + '\u00b0'; if (t !== wh.txt) { wh.txt = t; $('#whLive').textContent = t; } }
 }
 function whHint() {
+if (steerOn()) { gyHint(); return; }
 const e = $('#whHint'); if (!e) return;
 let t, warn = false;
 if (!S.wh.gy) {
@@ -1523,7 +1740,7 @@ toast(window.isSecureContext ? __tr('js.NoDataWasReceivedFrom')
 }, 2000);
 whHint(); return true;
 };
-if (typeof D.requestPermission === 'function' && !wh.perm) {
+if (typeof D.requestPermission === 'function' && !wh.perm) {   // iOS: فقط با لمس کاربر اجازه میگیره
 if (!gesture) return false;
 try { Promise.resolve(D.requestPermission()).then(r => { if (r === 'granted') go(); else { wh.denied = true; toast(__tr('js.MotionSensorPermissionWasNot')); } }, () => {}); } catch {}
 return false;
@@ -1537,13 +1754,15 @@ const was = !!wh.raf;
 if (wh.raf) { cancelAnimationFrame(wh.raf); wh.raf = 0; }
 wh.lt = 0; wh.has = false; wh.cur = 0; wh.tAng = 0; wh.touch = false; wh.shown = 1e9;
 if (wh.rot) wh.rot.style.transform = '';
-if (was) sendStick('l', 0, 0);
+if (was) sendStick('l', 0, 0, 'g');
+gyKnob(0);
 }
+const whOn = () => isW() || steerOn();
 function whSync(gesture) {
-if (isW() && !document.hidden) {
+if (whOn() && !document.hidden) {
 if (gyOn) gyDetach(true);
 if (!wh.raf) { wh.lt = 0; wh.raf = requestAnimationFrame(whTick); }
-if (S.wh.gy) whStart(gesture); else whSensorOff();
+if (!isW() || S.wh.gy) whStart(gesture); else whSensorOff();
 } else whStop();
 }
 function mkWheel(e) {
@@ -1603,13 +1822,38 @@ const z = zoneOf(id);
 e.classList.toggle('nz', z <= 1.0005);
 e.style.setProperty('--s', d.s); e.style.setProperty('--ar', d.ar); e.style.setProperty('--co', d.o ?? 1); e.style.setProperty('--ts', d.ts ?? 1); e.style.setProperty('--tl', Math.max(1, String(DEFS[id].l || '').length)); e.style.setProperty('--z', z);
 e.classList.toggle('del', !!d.del); e._g.classList.toggle('del', !!d.del);
+if (typeof d.rd === 'number') { e.style.setProperty('--rd', d.rd); e._g.style.setProperty('--rd', d.rd); } else { e.style.removeProperty('--rd'); e._g.style.removeProperty('--rd'); }      // گردی گوشه (پیش‌فرض خود دکمه)
 if (id === 'lt' || id === 'rt') { const dr = !!d.dr; e.classList.toggle('dragp', dr); for (const k of ['lr', 'rl', 'td', 'bu']) e.classList.toggle('dg-' + k, dr && (d.dd || 'lr') === k); if (!dr) e.style.removeProperty('--lv'); }
-const g = e._g; g.style.left = d.x + '%'; g.style.top = d.y + '%'; g.style.setProperty('--s', d.s); g.style.setProperty('--ar', d.ar); g.style.setProperty('--z', z);
+const g = e._g; g.style.left = d.x + '%'; g.style.top = d.y + '%'; g.style.setProperty('--s', d.s); g.style.setProperty('--ar', d.ar); g.style.setProperty('--z', z); gdSize(id, d);
+}
+// اندازه‌ی نقطه‌چین: به پیکسل، با همون شعاع گوشه‌ی دکمه و فاصله‌ی ثابت (حدود ۱۲px هر خط)
+function gdSize(id, d) {
+const g = els[id] && els[id]._g, svg = g && g.querySelector('svg.gd');
+if (!svg) return;
+const m = Math.min(innerWidth, innerHeight) / 100, z = zoneOf(id);
+const W = d.s * d.ar * z * m, H = d.s * z * m;
+let R;
+if (g.classList.contains('gf')) R = Math.min(W, H) / 2;
+else if (g.classList.contains('gb')) R = d.s * (d.rd ?? .5) * m;
+else if (g.classList.contains('gp')) R = d.s * (d.rd ?? .12) * m;
+else R = d.t === 'ping' ? 0 : Math.min(W, H) / 2;
+R = Math.max(0, Math.min(R, W / 2, H / 2));
+const k = cl(Math.min(innerWidth, innerHeight) / 720, .4, 1);   // روی گوشی (صفحه‌ی کوچیک) خط‌چین ریزتر و نازک‌تر
+const sw = Math.max(1, +(2 * k).toFixed(2)), o = 3 * k, w = W + 2 * o, h = H + 2 * o, r = Math.min(R + o, w / 2, h / 2);
+const w2 = w - sw, h2 = h - sw, r2 = Math.max(0, r - sw / 2);
+const P = 2 * (w2 - 2 * r2 + h2 - 2 * r2) + 2 * Math.PI * r2;
+const n = Math.max(4, Math.round(P / (12 * k))), per = P / n, dash = per / 2;
+svg.style.left = (-o) + 'px'; svg.style.top = (-o) + 'px'; svg.style.width = w + 'px'; svg.style.height = h + 'px';
+const rc = svg.firstElementChild;
+rc.setAttribute('x', sw / 2); rc.setAttribute('y', sw / 2); rc.style.strokeWidth = sw; rc.setAttribute('width', w2); rc.setAttribute('height', h2); rc.setAttribute('rx', r2);
+rc.style.strokeDasharray = dash + ' ' + (per - dash);
+rc.style.setProperty('--dp', per + 'px');
 }
 function mkCtl(id) {
 const d = DEFS[id], e = document.createElement('div');
 e.dataset.id = id; els[id] = e;
-const g = document.createElement('div'); g.className = d.t === 'btn' || d.t === 'dir' || d.t === 'macro' || d.t === 'rc' ? 'g gb' : d.t === 'pedal' ? 'g gp' : d.t === 'face' || d.t === 'wheel' ? 'g gf' : 'g'; e._g = g; $('#stage').append(e, g);
+const g = document.createElement('div'); g.className = d.t === 'btn' || d.t === 'dir' || d.t === 'macro' || d.t === 'rc' ? 'g gb' : d.t === 'pedal' ? 'g gp' : d.t === 'face' || d.t === 'wheel' || d.t === 'stick' || d.t === 'move' || d.t === 'move2' ? 'g gf' : 'g'; g.innerHTML = '<svg class="gd" aria-hidden="true"><rect/></svg>';
+e._g = g; $('#stage').append(e, g);
 if (d.t === 'btn') {
 e.className = 'c btn'; e.textContent = d.l;
 if (ACT_KEYS.includes(d.k)) e.classList.add('act');
@@ -1641,10 +1885,10 @@ else if (d.t === 'move2') buildMove2();
 else buildMove();
 e.addEventListener('pointerdown', ev => {
 ev.preventDefault(); e.setPointerCapture(ev.pointerId);
-if (edit) editDown(id, e, ev); else B[id].down(ev);
+if (edit) editDown(id, e, ev); else { hapTick(); B[id].down(ev); }
 });
 e.addEventListener('pointermove', ev => { if (edit) editMove(ev); else B[id].move(ev); });
-['pointerup', 'pointercancel'].forEach(t => e.addEventListener(t, ev => { if (edit) editUp(); else B[id].up(ev); }));
+['pointerup', 'pointercancel'].forEach(t => e.addEventListener(t, ev => { if (edit) editUp(ev); else B[id].up(ev); }));
 place(id);
 }
 for (const id in DEFS) mkCtl(id);
@@ -1716,7 +1960,7 @@ $('#rowDual').hidden = !(sel && ['du', 'dd', 'dl', 'dr', 'move', 'move2'].includ
 const zoneOn = !!sel && ((sel === 'move' && S.dpad === 'follow') || (sel === 'move2' && S.m2 === 'follow') || (sel === 'rs' && S.rs === 'follow') || (sel === 'face' && S.face === 'cross'));
 $('#rowZone').hidden = !zoneOn;
 if (zoneOn) { const z = zoneOf(sel); $('#zn').value = Math.round(znZToPos(z) * 1000); showZn(z); }
-$('#wheelSet').hidden = !(isW() && sel === 'wheel'); $('#rowPedal').hidden = $('#rowPedalInv').hidden = !(isW() && (sel === 'pg' || sel === 'pb'));
+wsPlace(); $('#rowPedal').hidden = $('#rowPedalInv').hidden = !(isW() && (sel === 'pg' || sel === 'pb'));
 { const trig = !!sel && !isW() && (sel === 'lt' || sel === 'rt'), on = trig && !!lay(sel).dr;
 $('#rowDrag').hidden = !trig; $('#dragChk').checked = on; $('#rowDragDir').hidden = !on; if (on) $('#dragDir').value = lay(sel).dd || 'lr'; }
 if (isW()) { for (const r of ['rowRs', 'rowM2', 'rowDual']) $('#' + r).hidden = true; $('#rowMove').firstElementChild.textContent = __tr('js.DirectionsDPadButtons'); }
@@ -1732,7 +1976,7 @@ fillSel($('#m2Mode'), isBtn(S.dpad) ? ST : B4, S.m2);
 function setL(id, p) { const k = lk(id); L[k] = Object.assign({}, L[k] || {}, p); place(id); updateResetBtn(); }
 function isFactory() {
 if (macIds().length || cloneIds().length) return false;
-if (S.dpad !== 'buttons' || S.face !== 'buttons' || S.rs !== 'stick' || S.dual) return false;
+if (S.dpad !== 'buttons' || S.face !== 'buttons' || S.rs !== 'stick' || !!S.dual !== !isW()) return false;   // دیفالت: «کنترل دوم» روشن (به‌جز فرمون)
 for (const id in L) for (const k in L[id]) {
 if (id.indexOf('@') > 0) return false;
 const v = L[id][k];
@@ -1786,12 +2030,13 @@ if (num(o.s)) r.s = id === 'ping' ? cl(o.s, PING_MIN, PING_MAX) : cl(o.s, SZ_MIN
 if (num(o.o)) r.o = cl(o.o, 0, 1);
 if (num(o.ar)) r.ar = cl(o.ar, .1, 15);
 if (num(o.ts)) r.ts = cl(o.ts, 0, 3);
+if (num(o.rd)) r.rd = cl(o.rd, 0, .5);
 if (num(o.z)) r.z = cl(o.z, 1, ZONE_MAX);
 if (o.del === true) r.del = true;
 if ((id === 'lt' || id === 'rt') && o.dr === true) { r.dr = true; if (['lr', 'rl', 'td', 'bu'].includes(o.dd)) r.dd = o.dd; }
 if (Object.keys(r).length) out.L[key] = r;
 }
-for (const key of Object.keys(src)) {
+for (const key of Object.keys(src)) {   // کپی‌های دکمه‌ی اون پلیر
 if (!isCloneId(key) || Object.keys(out.L).filter(isCloneId).length >= CLONE_MAX) continue;
 const m = src[key]; if (!cloneOk(m)) continue;
 const r = { cl: m.cl }; if (m.w === true) r.w = true;
@@ -1801,9 +2046,10 @@ if (num(m.s)) r.s = cl(m.s, SZ_MIN, SZ_MAX);
 if (num(m.o)) r.o = cl(m.o, 0, 1);
 if (num(m.ar)) r.ar = cl(m.ar, .1, 15);
 if (num(m.ts)) r.ts = cl(m.ts, 0, 3);
+if (num(m.rd)) r.rd = cl(m.rd, 0, .5);
 out.L[key] = r;
 }
-for (const key of Object.keys(src)) {
+for (const key of Object.keys(src)) {   // میکروهای اون پلیر
 if (!isMacId(key) || Object.keys(out.L).filter(isMacId).length >= MAC_MAX) continue;
 const m = src[key]; if (!m || typeof m !== 'object' || !m.mac || !Array.isArray(m.mac.steps)) continue;
 const r = {};
@@ -1813,6 +2059,7 @@ if (num(m.s)) r.s = cl(m.s, SZ_MIN, SZ_MAX);
 if (num(m.o)) r.o = cl(m.o, 0, 1);
 if (num(m.ar)) r.ar = cl(m.ar, .1, 15);
 if (num(m.ts)) r.ts = cl(m.ts, 0, 3);
+if (num(m.rd)) r.rd = cl(m.rd, 0, .5);
 if (m.w === true) r.w = true;
 r.mac = { steps: m.mac.steps.filter(s => typeof s === 'string').map(s => s.slice(0, 80)).slice(0, MAC_STEPS) };
 out.L[key] = r;
@@ -1876,11 +2123,13 @@ if (!edit) return;
 pushHist(); restore(mergeCopied(d, pc.scope));
 toast(__tr('js.SLayoutWasCopiedYou', pc.name, (pc.scope === 'cur' ? __tr('js.ThisModeOnly') : __tr('js.AllModes'))));
 }
+const TAP_SLOP = 14;   // px — کمتر از این مقدار حرکت انگشت روی گوشی «تپ» حساب میشه نه درگ
 function editDown(id, e, ev) {
+if (swapSrc) { if (id === swapSrc) { if (performance.now() - swapAt > 1000) swapOff(true); } else if (swapOk(id)) doSwap(swapSrc, id); return; }      // تپ‌های اضافه‌ی روی دکمه‌ی مبدأ (تا یک ثانیه بعد از شروع) لغوش نمی‌کنن      // حالت جابه‌جایی: دکمه‌ی دوم
 select(id);
 if (!panelOn) setDrawer(true);
 const b = e.getBoundingClientRect();
-drag = { pid: ev.pointerId, id, ox: ev.clientX - (b.left + b.width / 2), oy: ev.clientY - (b.top + b.height / 2), pre: snapshot(), moved: false };
+drag = { pid: ev.pointerId, id, ox: ev.clientX - (b.left + b.width / 2), oy: ev.clientY - (b.top + b.height / 2), sx: ev.clientX, sy: ev.clientY, pre: snapshot(), moved: false };
 clearTimeout(macHold);
 if (DEFS[id].t === 'macro') macHold = setTimeout(() => { if (drag && drag.id === id && !drag.moved) { drag = null; openMacEd(id); } }, 500);
 }
@@ -1888,7 +2137,8 @@ function editMove(ev) {
 if (!drag || ev.pointerId !== drag.pid) return;
 const x = +cl((ev.clientX - drag.ox) / innerWidth * 100, 0, 100).toFixed(2);
 const y = +cl((ev.clientY - drag.oy) / innerHeight * 100, 0, 100).toFixed(2);
-if (!drag.moved) {
+if (!drag.moved && Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy) < TAP_SLOP) return;   // لرزش کوچیک انگشت = هنوز تپ حساب میشه، دکمه جابه‌جا نمیشه
+if (!drag.moved) {                       // فقط وقتی واقعاً جابه‌جا شد توی تاریخچه‌ی «برگشت» ثبت میشه (نه با یه تپ ساده)
 const c = lay(drag.id);
 if (c.x === x && c.y === y) return;
 drag.moved = true; clearTimeout(macHold); pushHist(drag.pre);
@@ -1896,7 +2146,32 @@ drag.moved = true; clearTimeout(macHold); pushHist(drag.pre);
 setL(drag.id, { x, y });
 syncSide(true);
 }
-function editUp() { clearTimeout(macHold); drag = null; syncSide(false); }
+function editUp(ev) { clearTimeout(macHold); const d = drag; drag = null; if (d && !d.moved && ev && ev.type === 'pointerup') tapped(d.id); syncSide(false); }
+
+// ---- جابه‌جایی دکمه‌ها: سه تپ پشت‌سرهم (زیر ۱ ثانیه) روی یه دکمه → حالت جابه‌جایی؛ بعد یه تپ روی دکمه‌ی دیگه → جا/اندازه/استایلِ این دو تا با هم عوض میشه
+const SW_KEYS = ['x', 'y', 's', 'ar', 'o', 'rd', 'ts', 'del'], tapLog = [];
+let swapAt = 0;      // لحظه‌ی شروع حالت جابه‌جایی (برای نادیده گرفتن تپ‌های اضافه‌ی بعد از سه‌بار)
+const swapOk = id => !!DEFS[id] && ['btn', 'dir', 'macro'].includes(DEFS[id].t);
+const swName = id => (els[id] && els[id].textContent.trim()) || NAMES[id] || id;
+function tapped(id) {
+const now = performance.now();
+tapLog.push({ id, t: now });
+while (tapLog.length && now - tapLog[0].t > 1000) tapLog.shift();      // فقط تپ‌های یک ثانیه‌ی اخیر
+if (tapLog.length >= 3 && tapLog.slice(-3).every(x => x.id === id)) { tapLog.length = 0; swapOn(id); }      // ۳ یا بیشتر تپ پشت‌سرهم در یک ثانیه
+}
+function swapOn(id) { if (!swapOk(id)) return; setDrawer(false); swapSrc = id; swapAt = performance.now(); els[id].classList.add('swsrc'); document.body.classList.add('swp'); for (const k in els) { const no = k !== id && !swapOk(k); els[k]._g.classList.toggle('swt', k !== id && swapOk(k)); els[k]._g.classList.toggle('nosw', no); els[k].classList.toggle('nosw', no); } toast(__tr('js.SwapPick', swName(id))); try { hapTick(); } catch {} }
+function swapOff(msg) { const was = swapSrc; swapSrc = null; if (was && els[was]) els[was].classList.remove('swsrc'); tapLog.length = 0; document.body.classList.remove('swp'); for (const k in els) { els[k]._g.classList.remove('swt'); els[k]._g.classList.remove('nosw'); els[k].classList.remove('nosw'); } if (msg && was) toast(__tr('js.SwapCancelled')); }
+function doSwap(a, b) {
+const la = lay(a), lb = lay(b);
+pushHist();
+const put = (id, from) => { const k = lk(id), o = Object.assign({}, L[k] || {}); for (const key of SW_KEYS) { if (from[key] === undefined) delete o[key]; else o[key] = from[key]; } L[k] = o; place(id); };
+const mv = x => { x.classList.add('swmv'); clearTimeout(x._swt); x._swt = setTimeout(() => x.classList.remove('swmv'), 750); };
+for (const id of [a, b]) { mv(els[id]); mv(els[id]._g); } void els[a].offsetWidth;      // کلاس انیمیشن قبل از عوض شدن جا اعمال بشه
+put(a, lb); put(b, la);
+try { hapTick(); } catch {}
+swapOff(false); updateResetBtn(); select(b);
+toast(__tr('js.SwapDone', swName(a), swName(b)));
+}
 const drawer = $('#panel'), scrim = $('#scrim');
 let panelOn = false, onRight = false, swapT = 0;
 function pickSide(dragging) {
@@ -1936,7 +2211,7 @@ $('#padType').value = S.pad;
 $('#padType').onchange = e => {
 Object.values(B).forEach(b => b.reset()); S.pad = e.target.value; saveS(); applyPad();
 wh.denied = false; whSync(true);
-if (!isW() && S.gyro && !gyOn) gyroStart(true);
+if (!isW() && S.gyro && !gyOn && S.gyM !== 'steer') gyroStart(true);
 };
 fillDpadOpts();
 $('#dpadMode').onchange = e => { if (edit) pushHist(); S.dpad = e.target.value; saveS(); buildMove(); place('move'); applyDirs(); if (edit) select(S.dpad === 'pad4' ? 'du' : 'move'); else updateCtx(); updateResetBtn(); };
@@ -1982,9 +2257,14 @@ sendLossy('gy', `gy ${v[0].toFixed(1)} ${v[1].toFixed(1)} ${v[2].toFixed(1)} ${v
 function gyHint() {
 const e = $('#gyHint'); if (!e) return;
 let t, warn = false;
-if (S.pad === 'xbox') {
+if (steerOn()) {
+if (!wh.got && !window.isSecureContext) { t = __tr('js.TheBrowserDoesntGiveThe', location.origin); warn = true; }
+else if (!window.DeviceMotionEvent) { t = __tr('js.ThisBrowserHasNoMotion'); warn = true; }
+else if (!wh.got && wh.fail) { t = __tr('js.NoDataCameFromThe'); warn = true; }
+else t = __tr('js.GyroSteerHint');
+} else if (S.pad === 'xbox') {
 t = __tr('js.TheGyroscopeOnlyWorksOn');
-} else if (!gyGot && !window.isSecureContext) {
+} else if (!gyGot && !window.isSecureContext) {   // کروم تو آدرس HTTP کلاً رویداد حرکت رو حذف میکنه (پس DeviceMotionEvent هم undefined میشه)
 t = __tr('js.ChromeOnlyAllowsTheGyroscope', location.origin); warn = true;
 } else if (!window.DeviceMotionEvent) {
 t = __tr('js.ThisBrowserHasNoGyroscope'); warn = true;
@@ -2015,11 +2295,12 @@ removeEventListener('devicemotion', gyEv); gyOn = false; delete lossy.gy;
 if (tell) send('gyr 0');
 }
 async function gyroStart(gesture) {
-if (gyOn) return true;
 if (isW()) return false;
+if (S.gyM === 'steer') { if (steerOn()) whSync(gesture); return true; }   // حالت چپ و راست: با موتور فرمون
+if (gyOn) return true;
 const D = window.DeviceMotionEvent;
 if (!D) { toast(window.isSecureContext ? __tr('js.ThisPhoneOrBrowserDoesnt') : __tr('js.TheBrowserDoesntGiveGyroscope2')); return false; }
-if (typeof D.requestPermission === 'function' && !gyPerm) {
+if (typeof D.requestPermission === 'function' && !gyPerm) {   // iOS: فقط با لمس کاربر اجازه میگیره
 if (!gesture) return false;
 try { if (await D.requestPermission() !== 'granted') { toast(__tr('js.SensorAccessWasNotGranted')); return false; } } catch { return false; }
 }
@@ -2029,21 +2310,24 @@ if (gesture && S.pad === 'xbox') toast(__tr('js.TheGyroscopeOnlyWorksOn2'));
 return true;
 }
 function gyroStop() { gyDetach(true); }
-document.addEventListener('visibilitychange', () => {
+document.addEventListener('visibilitychange', () => {   // صفحه که تو پس‌زمینه میره سنسور هم میخوابه؛ سرور رو خبر کن تا دسته نچرخه
 if (document.hidden) gyDetach(true);
 else if (S.gyro && !gyOn) gyroStart(false);
 });
 $('#gyro').checked = isW() ? S.wh.gy : S.gyro; gyHint();
 $('#gyro').onchange = async e => {
 if (isW()) { S.wh.gy = e.target.checked; saveS(); whSync(true); whHint(); return; }
-if (e.target.checked) { if (!(await gyroStart(true))) { e.target.checked = false; S.gyro = false; saveS(); return; } S.gyro = true; }
+if (S.pad === 'xbox' && e.target.checked) S.gyM = 'steer';
+if (S.gyM === 'steer') { S.gyro = e.target.checked; saveS(); gyApply(true); return; }
+if (e.target.checked) { if (!(await gyroStart(true))) { e.target.checked = false; S.gyro = false; saveS(); gyBtnUI(); return; } S.gyro = true; }
 else { gyroStop(); S.gyro = false; }
-saveS();
+saveS(); gyBtnUI(); wsPlace();
 };
+// ===== ماوس و کیبورد (فقط پلیر 1) — پیام‌ها: mm dx dy | mw d | mb L/R/M 0/1 | kb <KeyboardEvent.code> 0/1 =====
 const mpad = $('#mpad'), mscr = $('#mscr'), mkK = $('#mkK');
 const mk = { ax: 0, ay: 0, aw: 0, raf: 0 }, mbHeld = new Set(), kbHeld = new Set(), kbLatch = new Set(), kbLast = {}, kbEl = {};
 const mkSgn = () => S.ms.nat ? 1 : -1;
-function mkFlush() {
+function mkFlush() {   // حرکت‌ها جمع میشن (نه «آخرین مقدار») تا با شلوغ شدن وای‌فای چیزی گم نشه
 mk.raf = 0;
 if (!ws || ws.readyState !== 1) { mk.ax = mk.ay = mk.aw = 0; return; }
 if (ws.bufferedAmount > 4096) { mk.raf = requestAnimationFrame(mkFlush); return; }
@@ -2054,6 +2338,9 @@ if (w) { send(`mw ${w}`); mk.aw -= w; }
 const mkQ = () => { if (!mk.raf) mk.raf = requestAnimationFrame(mkFlush); };
 function mbSet(b, v) { if (v) { if (mbHeld.has(b)) return; mbHeld.add(b); } else if (!mbHeld.delete(b)) return; send(`mb ${b} ${v}`); }
 function mbClick(b) { mbSet(b, 1); setTimeout(() => mbSet(b, 0), 40); }
+// تپ‌ودرگ مثل تاچ‌پد لپ‌تاپ: تپ = دکمه‌ی چپ همون لحظه پایین میره و ول شدنش به‌اندازه‌ی «تاخیر تپ‌ودرگ» پنل عقب میفته.
+// اگه تو این فاصله دوباره لمس کنی و نگه داری/بکشی همون فشار ادامه پیدا میکنه (درگ، بدون دابل‌کلیک)؛ اگه فقط تپ دوم بزنی دابل‌کلیک میشه.
+// فاصله‌ی ول شدن تپ از تنظیمات میاد: S.ms.win (پیش‌فرض 200ms)
 const pts = new Map(); let mg = null, dragL = false, tapPend = null, second = null;
 function tapRelease() { if (tapPend) { clearTimeout(tapPend); tapPend = null; mbSet('L', 0); } }
 function dragStart() { if (second) clearTimeout(second.timer); second = null; dragL = true; mpad.classList.add('drag'); }
@@ -2071,8 +2358,8 @@ const now = performance.now();
 pts.set(ev.pointerId, { x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY });
 if (!mg) mg = { t0: now, n: 1, moved: false };
 mg.n = Math.max(mg.n, pts.size);
-if (pts.size === 1 && tapPend) { clearTimeout(tapPend); tapPend = null; second = { timer: setTimeout(() => { if (second) dragStart(); }, 160) }; }
-else if (pts.size > 1) { tapRelease(); if (second) { clearTimeout(second.timer); second = null; mbSet('L', 0); } }
+if (pts.size === 1 && tapPend) { clearTimeout(tapPend); tapPend = null; second = { timer: setTimeout(() => { if (second) dragStart(); }, 160) }; }   // لمس دوباره‌ی بعد از تپ: دکمه همچنان پایینه تا معلوم شه درگه یا تپ دوم
+else if (pts.size > 1) { tapRelease(); if (second) { clearTimeout(second.timer); second = null; mbSet('L', 0); } }   // دو انگشت: اون تپ تموم
 mpad.classList.add('act');
 });
 mpad.addEventListener('pointermove', ev => {
@@ -2094,7 +2381,7 @@ return;
 if (!pts.delete(ev.pointerId) || pts.size) return;
 const now = performance.now(), quick = mg && now - mg.t0 < 260 && !mg.moved;
 if (dragL) { dragL = false; mbSet('L', 0); mpad.classList.remove('drag'); }
-else if (second) {
+else if (second) {   // لمس دوم بدون حرکت و نگه داشتن = تپ دوم → دابل‌کلیک
 clearTimeout(second.timer); second = null; mbSet('L', 0);
 if (ev.type === 'pointerup') setTimeout(() => mbClick('L'), 30);
 }
@@ -2146,7 +2433,7 @@ const up = ev => {
 if (ev.pointerId !== e._pid) return; e._pid = null;
 if (e._skip) { e._skip = false; return; }
 if (!kbHeld.has(c)) return;
-if (KMOD.has(c) && ev.type === 'pointerup') {
+if (KMOD.has(c) && ev.type === 'pointerup') {   // دو تپ پشت‌سرهم روی مادیفایر = قفل
 const now = performance.now();
 if (now - (kbLast[c] || 0) < 350) { kbLast[c] = 0; kbLatch.add(c); e.classList.add('lt'); return; }
 kbLast[c] = now;
@@ -2166,6 +2453,7 @@ bindKey(e, c); row.append(e);
 mkK.append(row);
 }
 
+// ===== کیبورد فیزیکی (OTG / بلوتوث): تو حالت «کیبورد» و «ماوس» کار میکنه =====
 const kbEditable = t => !!(t && t.closest && t.closest('input[type=text], input:not([type]), textarea'));
 function kbPhys(ev, v) {
 if (!isMK() || edit || kbEditable(ev.target)) return;
@@ -2179,6 +2467,7 @@ const e = kbEl[c]; if (e) { e.classList.toggle('on', !!v); if (!v) e.classList.r
 addEventListener('keydown', ev => kbPhys(ev, 1), true);
 addEventListener('keyup', ev => kbPhys(ev, 0), true);
 
+// ===== دسته‌ی فیزیکی PS4 / Xbox (کابل OTG / بلوتوث) با Gamepad API: فقط وقتی پنل PS4 یا Xbox انتخاب شده =====
 const GP_BTN = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'BACK', 'START', 'L3', 'R3', 'DU', 'DD', 'DL', 'DR', 'GUIDE'];
 const gp = { raf: 0, held: {}, st: { l: '', r: '' } };
 const gpKind = id => { id = String(id || '').toLowerCase(); return /xbox|xinput|045e/.test(id) ? 'xbox' : /dualshock|dualsense|wireless controller|054c|sony/.test(id) ? 'ps4' : null; };
@@ -2231,8 +2520,71 @@ kbHeld.clear(); kbLatch.clear(); mk.ax = mk.ay = mk.aw = 0;
 document.querySelectorAll('#mkM .on, #mkM .act, #mkM .drag, #mkK .on, #mkK .lt').forEach(e => e.classList.remove('on', 'act', 'drag', 'lt'));
 }
 function mkSyncOpts() { $('#padType').querySelectorAll('option[value=mouse], option[value=keyboard], option[value=screen]').forEach(o => { o.disabled = S.player !== 1; }); }
+// ===== میکروفون گوشی => میکروفون مجازی کامپیوتر (فقط پلیر ۱) =====
+// صدا با ضبط مرورگر (getUserMedia) گرفته میشه، به 16kHz مونو PCM16 کم میشه و هر ۴۰ms به‌صورت متن «mic d <base64>» میره.
+// سرور (MicBridge.cs) دستگاه میکروفون مجازی رو وصل میکنه و صدا رو توش میریزه. خاموش کردن => دستگاه در میاد (مگه تنظیم «همیشه وصل» کامپیوتر روشن باشه).
+const mic = { on: false, st: null, ctx: null, src: null, node: null, q: [], sum: 0, n: 0, ph: 0 };
+const MIC_RATE = 16000, MIC_CHUNK = 160;      // ۱۰ms صدا تو هر پیام (قبلاً ۴۰ms)
+function micUI() {
+const ok = S.player === 1;
+$('#rowMic').classList.toggle('off', !ok); $('#mic').disabled = !ok;
+$('#micHint').querySelector('.mh1').hidden = !ok; $('#micHint').querySelector('.mh2').hidden = ok;
+if (!ok && (mic.on || $('#mic').checked)) { $('#mic').checked = false; micStop(true); }
+}
+function micSend(q) {
+if (!ws || ws.readyState !== 1 || ws.bufferedAmount > 200000) return;
+const u = new Int16Array(q), b = new Uint8Array(u.buffer); let s = '';
+for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+ws.send('mic d ' + btoa(s));
+}
+async function micStart() {
+if (mic.on) return true;
+if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast(__tr('js.MicNeedsSecure')); return false; }
+try { mic.st = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
+catch { toast(__tr('js.MicDenied')); return false; }
+try {
+const AC = window.AudioContext || window.webkitAudioContext;
+let ctx16 = null;
+try { ctx16 = new AC({ sampleRate: MIC_RATE, latencyHint: 'interactive' }); } catch {}
+mic.ctx = ctx16 || new AC({ latencyHint: 'interactive' });   // اگه مرورگر ۱۶kHz رو نداد، همون پیش‌فرض و میانگین‌گیری قبلی
+if (mic.ctx.state === 'suspended') mic.ctx.resume().catch(() => {});
+const ratio = mic.ctx.sampleRate / MIC_RATE; mic.q = []; mic.sum = 0; mic.n = 0; mic.ph = 0;
+mic.src = mic.ctx.createMediaStreamSource(mic.st);
+mic.node = mic.ctx.createScriptProcessor(256, 1, 1);
+mic.node.onaudioprocess = e => {
+if (!mic.on) return;
+const x = e.inputBuffer.getChannelData(0);
+for (let i = 0; i < x.length; i++) {      // کم کردن نرخ با میانگین‌گیری (ضد-ناهمنوایی ساده)
+mic.sum += x[i]; mic.n++; mic.ph += 1;
+if (mic.ph >= ratio) { mic.ph -= ratio; const v = Math.max(-1, Math.min(1, mic.sum / mic.n)); mic.q.push(Math.round(v * 32767)); mic.sum = 0; mic.n = 0; }
+}
+while (mic.q.length >= MIC_CHUNK) micSend(mic.q.splice(0, MIC_CHUNK));
+};
+mic.src.connect(mic.node); mic.node.connect(mic.ctx.destination);      // خروجی صفره (چیزی نوشته نمیشه)؛ فقط برای فعال موندن گره لازمه
+mic.on = true; return true;
+} catch { micStop(false); toast(__tr('js.MicFailed')); return false; }
+}
+function micStop(notify) {
+const was = mic.on; mic.on = false;
+try { if (mic.node) { mic.node.onaudioprocess = null; mic.node.disconnect(); } if (mic.src) mic.src.disconnect(); } catch {}
+try { if (mic.st) mic.st.getTracks().forEach(k => k.stop()); } catch {}
+try { if (mic.ctx) mic.ctx.close(); } catch {}
+mic.node = mic.src = mic.ctx = mic.st = null; mic.q = [];
+if (notify && (was || $('#mic').checked)) send('mic 0');
+}
+function onMic(m) {      // جواب سرور
+if (m.on === 1) return;
+micStop(false); $('#mic').checked = false;
+const e = m.err; if (e === 'nodriver') toast(__tr('js.MicNoDriver')); else if (e === 'busy') toast(__tr('js.MicBusy')); else if (e !== 'p1') toast(__tr('js.MicFailed'));
+}
+$('#mic').checked = false;
+$('#mic').onchange = async e => {
+if (S.player !== 1) { e.target.checked = false; return; }
+if (e.target.checked) { if (!(await micStart())) { e.target.checked = false; return; } send('mic 1'); }
+else micStop(true);
+};
 function mkEnforce() {
-mkSyncOpts();
+mkSyncOpts(); micUI();
 if (!isMK() || S.player === 1) return;
 S.pad = 'ps4'; saveS(); $('#padType').value = 'ps4'; applyPad();
 toast(__tr('js.MouseKeyboardAndTouchScreen2'));
@@ -2249,17 +2601,20 @@ $('#ms-rtop').checked = S.ms.rtop; $('#ms-rtop').onchange = e => { S.ms.rtop = e
 msApply();
 $('#ms-tap').checked = S.ms.tap; $('#ms-tap').onchange = e => { S.ms.tap = e.target.checked; saveS(); };
 $('#ms-nat').checked = S.ms.nat; $('#ms-nat').onchange = e => { S.ms.nat = e.target.checked; saveS(); };
-$('#mkSw').onclick = () => {
+$('#mkSw').onclick = () => {   // سوییچ سریع بین ماوس و کیبورد (فقط وقتی تو یکی از این دو حالتیم)
 if (!isMK()) return;
 mkReset(); S.pad = S.pad === 'mouse' ? 'keyboard' : 'mouse'; saveS(); $('#padType').value = S.pad; applyPad();
 };
 window.mkReady = true; mkSyncOpts();
+// ===== نمایشگر لمسی (فقط پلیر 1): تصویر مانیتور میاد رو گوشی و لمس = ماوس =====
+// پیام‌ها:  scinfo | sc <نمایشگر> <ارتفاع> <fps> <نشانگر 0/1> | scx | tp <x> <y> (0..1 روی تصویر) | tx <متن>  ؛  کلیک/اسکرول/کیبورد همون mb / mw / kb
 const isSC = () => S.pad === 'screen';
 const scv = $('#scv'), scc = $('#scc'), scCtx = scc.getContext('2d', { alpha: false }), scIn = $('#scIn');
 const scn = { gotInfo: false, sAck: false, t1: 0, t2: 0, on: false, mons: [], ok: true, phHz: 60, meas: false, frames: 0, bytes: 0, got: false, busy: false, next: null };
 const SC_H = [480, 720, 1080, 1440, 2160], SC_FPS = [30, 60, 90, 120, 144, 165, 240];
 const scWait = t => { scn.got = false; scn.next = null; $('#scwt').textContent = t; $('#scw').classList.remove('hide'); };
 
+// --- هرتز گوشی: از فاصله‌ی فریم‌های مرورگر اندازه میگیریم (ربع پایین فاصله‌ها تا لَگ‌های لحظه‌ای فریبش ندن) ---
 function scMeasure() {
 if (scn.meas || document.hidden) return;
 scn.meas = true;
@@ -2279,6 +2634,7 @@ if (best !== scn.phHz) { scn.phHz = best; if (scn.on) { scRender(); scStart(); }
 requestAnimationFrame(step);
 }
 
+// --- سقف کیفیت و هرتز = کمترِ «کامپیوتر» و «گوشی» (فقط تصویر ارسالی کوچیک میشه؛ رزولوشن واقعی کامپیوتر عوض نمیشه) ---
 const scMon = () => scn.mons.find(m => m.i === S.sc.mon) || scn.mons.find(m => m.p) || scn.mons[0] || null;
 function scCaps() {
 const m = scMon(), pcHz = m ? m.hz : 60, pcH = m ? m.h : 1080, pcW = m ? m.w : 1920;
@@ -2288,9 +2644,9 @@ return { hz: Math.max(30, Math.min(scn.phHz, pcHz)), h: Math.max(240, Math.min(p
 function scLists() {
 const c = scCaps();
 let hs = SC_H.filter(v => v <= c.h);
-if (!hs.length) hs = [c.h]; else if (c.h - hs[hs.length - 1] >= 120 && !hs.includes(c.h)) hs.push(c.h);
+if (!hs.length) hs = [c.h]; else if (c.h - hs[hs.length - 1] >= 120 && !hs.includes(c.h)) hs.push(c.h);   // مثلاً مانیتور 1920×1200 => 1200p
 let fs = SC_FPS.filter(v => v <= c.hz);
-if (!fs.length) fs = [c.hz]; else if (c.hz - fs[fs.length - 1] >= 10 && !fs.includes(c.hz)) fs.push(c.hz);
+if (!fs.length) fs = [c.hz]; else if (c.hz - fs[fs.length - 1] >= 10 && !fs.includes(c.hz)) fs.push(c.hz);   // مثلاً 75 یا 165 هرتز
 return { hs, fs };
 }
 const scPick = (list, v) => { let r = list[0]; for (const x of list) if (x <= v) r = x; return r; };
@@ -2310,20 +2666,26 @@ sel.textContent = '';
 for (const m of scn.mons) { const o = document.createElement('option'); o.value = m.i; o.textContent = __tr('js.Display', (m.i + 1), (m.p ? __tr('js.Main') : ''), m.w, m.h); sel.append(o); }
 if (cm) sel.value = cm.i;
 $('#sc-monrow').classList.toggle('off', scn.mons.length < 2);
+$('#scMon').hidden = scn.mons.length < 2; $('#scMonN').textContent = cm ? cm.i + 1 : 1;
 $('#sc-info').innerHTML = __tr('js.ComputerHzPhonePHz', c.pcW, c.pcH, c.pcHz, c.phH, scn.phHz);
 }
 
+// --- شروع / توقف پخش ---
 function scStart() {
+if (scn.frozen) return;
 if (!isSC() || !scn.ok || !ws || ws.readyState !== 1 || document.hidden) return;
 const E = scEff(), m = scMon();
 scn.sAck = false; clearTimeout(scn.t2);
 send(`sc ${m ? m.i : 0} ${E.h} ${E.fps} ${S.sc.cur ? 1 : 0} ${S.sc.buf} ${S.sc.codec === 'h264' && scMse() ? 'h264' : 'jpeg'}`);
-scn.t2 = setTimeout(() => {
+scn.t2 = setTimeout(() => {      // اگه تصویر نیومد، بگیم کجا گیر کرده
 if (!scn.on || scn.got) return;
 scWait(scn.sAck ? __tr('js.TheServerStartedStreamingBut') : __tr('js.TheServerRefusedTheStream'));
 }, 4000);
 }
+const scSig = ms => ms.map(x => [x.i, x.w, x.h, x.hz, x.p].join(',')).join(';');
 function onScr(m) {
+auSync();
+const poll = scn.pollOnly, before = scSig(scn.mons); scn.pollOnly = false;
 scn.gotInfo = true; clearTimeout(scn.t1);
 scn.mons = Array.isArray(m.mons) ? m.mons.filter(x => x && isFinite(x.w) && isFinite(x.h)) : [];
 scn.ok = m.ok !== 0;
@@ -2332,20 +2694,27 @@ if (!scn.ok) { scWait(__tr('js.MouseAndKeyboardControlIs')); return; }
 if (!scn.mons.length) { scWait(__tr('js.TheServerFoundNoDisplay')); return; }
 if (!scn.got) $('#scwt').textContent = __tr('js.WaitingForTheComputersImage');
 const cm = scMon(); if (cm) S.sc.mon = cm.i;
+if (poll && scSig(scn.mons) === before) return;   // رفرش دوره‌ای و چیزی عوض نشده: پخش دست نخوره
 scRender(); scStart();
 }
 function onScs(m) {
 if (m.tm) { scn.tm = m.tm; return; }
 if (m.err) { if (scn.on) { scn.got = false; $('#scwt').textContent = __tr('js.ServerError', m.err); $('#scw').classList.remove('hide'); } return; }
-if (!m.off) { scn.sAck = true; if (scn.on && !scn.got) $('#scwt').textContent = __tr('js.TheServerStartedStreamingWaiting'); return; }
+if (!m.off) { scn.sAck = true; if (scn.on && !scn.got) $('#scwt').textContent = __tr('js.TheServerStartedStreamingWaiting'); return; }                 // سرور پخش رو متوقف کرد (مثلاً تیک ماوس/کیبورد خاموش شد)
 if (isSC() && scn.on) { scWait(__tr('js.ImageStreamingWasStoppedBy')); toast(__tr('js.DisplayControlWasDisabledBy')); }
 }
 function scAsk() {
-scn.gotInfo = false; clearTimeout(scn.t1); send('scinfo');
+scn.pollOnly = false; scn.gotInfo = false; clearTimeout(scn.t1); send('scinfo');
 scn.t1 = setTimeout(() => { if (scn.on && !scn.gotInfo && !scn.got) scWait(__tr('js.TheServerDidNotRespond')); }, 2500);
 }
+// مانیتور دوم رو وقتی وسط کار وصل میشه (Win+P / کابل) هم ببینیم: هر ۲ ثانیه لیست رو دوباره میگیریم (فقط اگه چیزی عوض شد پخش دوباره شروع میشه)
+setInterval(() => {
+if (!scn.on || document.hidden || !ws || ws.readyState !== 1) return;
+scn.pollOnly = true; send('scinfo');
+}, 2000);
 function scOpen() { if (scn.on) { scWait(__tr('js.GettingDisplayInformationFromThe')); scAsk(); } }
-function scClosed() { if (scn.on) scWait(__tr('js.ConnectionLostReconnecting')); scReset(); }
+function scClosed() { if (scn.on) scWait(__tr('js.ConnectionLostReconnecting')); scReset(); au.next = 0; au.on = false; }
+// سرعت و جهت اسکرول تو حالت نمایشگر زیر «نرخ فریم» میان (تو حالت ماوس سر جای قبلی خودشون هستن)
 const scMoved = [$('#ms-scr').closest('.row'), $('#ms-nat').closest('.row'), $('#ms-nat').closest('.row').nextElementSibling].map(el => ({ el, mark: document.createComment('') }));
 for (const x of scMoved) x.el.before(x.mark);
 function scPlaceRows(on) {
@@ -2355,41 +2724,47 @@ else for (const x of scMoved) x.mark.after(x.el);
 function scApply() {
 scPlaceRows(isSC());
 if (!isSC()) {
+auSync();
+scn.frozen = false; scv.classList.remove('frz'); $('#scEye').classList.remove('on');
 if (scn.on) { scn.on = false; scReset(); scVidReset(); scv.classList.remove('vid'); send('scx'); scWait(__tr('js.WaitingForTheComputersImage')); document.body.classList.remove('kbo'); $('#scKb').classList.remove('on'); scIn.blur(); }
 return;
 }
 if (!scn.on) { scn.on = true; scWait(__tr('js.WaitingForTheComputersImage')); scMeasure(); }
 scRender();
-scAsk();
+scAsk();                  // جواب (لیست نمایشگرها) => onScr => scStart
 }
 document.addEventListener('visibilitychange', () => {
 if (!scn.on) return;
 if (document.hidden) { scReset(); scVidReset(); scv.classList.remove('vid'); send('scx'); } else { scMeasure(); scAsk(); }
+auSync();
 });
 
+// --- دریافت فریم‌ها (JPEG باینری)؛ اگه دیکد عقب بیفته فقط آخرین فریم نگه داشته میشه ---
 const scBmp = blob => window.createImageBitmap ? createImageBitmap(blob) : new Promise((res, rej) => { const u = URL.createObjectURL(blob), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); res(im); }; im.onerror = rej; im.src = u; });
 function scOnFrame(buf) {
-if (!scn.on || buf.byteLength < 2) return;
+if (!scn.on || scn.frozen || buf.byteLength < 2) return;
 const t = new Uint8Array(buf, 0, 1)[0];
 scn.bytes += buf.byteLength;
-if (t === 1) { scVidInit(buf); return; }
-if (t === 2) { send('sca'); scVidFrame(buf); return; }
-send('sca');
-if (scv.classList.contains('vid')) { scVidReset(); scv.classList.remove('vid'); }
+if (t === 1) { scVidInit(buf); return; }                      // H.264: init segment
+if (t === 2) { send('sca'); scVidFrame(buf); return; }        // H.264: یک فریم (fMP4)
+send('sca');      // «فریم رسید» => سرور میتونه فریم بعدی رو بفرسته. (باید برای هر فریمی که میرسه باشه، حتی اونی که جاش عوض میشه؛ وگرنه شمارنده‌ی سرور پر میشه و پخش میایسته)
+if (scv.classList.contains('vid')) { scVidReset(); scv.classList.remove('vid'); }      // سرور به JPEG برگشته
 if (scn.busy) { scn.next = buf; return; }
 scDraw(buf);
 }
 
+// --- H.264 زنده: سرور هر فریم رو fMP4 میفرسته و با MediaSource پخش میشه (بدون نیاز به HTTPS) ---
 const scMse = () => !!(window.MediaSource && MediaSource.isTypeSupported && MediaSource.isTypeSupported('video/mp4; codecs="avc1.42E01F"'));
 const scVid = $('#scvid');
 const scm = { ms: null, sb: null, q: [], url: null };
 function scVidReset() {
+scv.classList.remove('vid-on');
 try { scVid.pause(); } catch {}
 try { scVid.removeAttribute('src'); scVid.load(); } catch {}
 if (scm.url) { try { URL.revokeObjectURL(scm.url); } catch {} }
 scm.ms = scm.sb = scm.url = null; scm.q = [];
 }
-function scVidFail(why) {
+function scVidFail(why) {         // H.264 کار نکرد => JPEG
 console.warn('H264:', why);
 S.sc.codec = 'jpeg'; saveS(); scVidReset(); scv.classList.remove('vid');
 toast(__tr('js.H264DidNotWork'));
@@ -2400,12 +2775,13 @@ const sb = scm.sb;
 if (!sb || sb.updating || !scm.q.length) return;
 try { sb.appendBuffer(scm.q.shift()); } catch (e) { if (e && e.name === 'QuotaExceededError') scVidLive(true); else scVidFail('append ' + e); }
 }
-function scVidLive(force) {
+function scVidLive(force) {       // نزدیک لبه‌ی زنده بمون + بافر قدیمی رو پاک کن
+if (scn.frozen) return;
 const v = scVid, sb = scm.sb;
 if (!sb || !v.buffered.length) return;
 const end = v.buffered.end(v.buffered.length - 1), lag = end - v.currentTime;
 if (v.paused) v.play().catch(() => {});
-const T = S.sc.buf <= 2 ? [0.10, 0.04] : S.sc.buf >= 8 ? [0.50, 0.25] : [0.25, 0.10];
+const T = S.sc.buf <= 2 ? [0.10, 0.04] : S.sc.buf >= 8 ? [0.50, 0.25] : [0.25, 0.10];      // [پرش به لبه‌ی زنده, تند کردن پخش] بر اساس «تاخیر تصویر»
 if (lag > T[0]) v.currentTime = end - 0.02;
 else v.playbackRate = lag > T[1] ? 1.15 : 1;
 if (!sb.updating && (force || v.buffered.start(0) < v.currentTime - 4)) { try { sb.remove(0, Math.max(0, v.currentTime - 2)); } catch {} }
@@ -2417,7 +2793,7 @@ const o = 2 + n, w = (u[o] << 8) | u[o + 1], h = (u[o + 2] << 8) | u[o + 3];
 const mime = 'video/mp4; codecs="' + codec + '"';
 scVidReset();
 if (!window.MediaSource || !MediaSource.isTypeSupported(mime)) { scVidFail('codec ' + codec); return; }
-if (scc.width !== w || scc.height !== h) { scc.width = w; scc.height = h; }
+if (scc.width !== w || scc.height !== h) { scc.width = w; scc.height = h; }     // scMap (لمس) از ابعاد canvas استفاده میکنه
 const ms = new MediaSource();
 scm.ms = ms; scm.url = URL.createObjectURL(ms); scm.q = [u.subarray(o + 4)];
 ms.addEventListener('sourceopen', () => {
@@ -2435,12 +2811,13 @@ scv.classList.add('vid');
 scVid.play().catch(() => {});
 }
 function scVidFrame(buf) {
-if (!scm.ms) return;
+if (!scm.ms) return;                       // init هنوز نرسیده
 scm.q.push(new Uint8Array(buf, 2));
 scn.frames++;
 if (!scn.got) { scn.got = true; $('#scw').classList.add('hide'); }
 scVidPump();
 }
+scVid.addEventListener('playing', () => { if (scv.classList.contains('vid')) scv.classList.add('vid-on'); });
 scVid.addEventListener('error', () => { if (scv.classList.contains('vid')) scVidFail('video error ' + (scVid.error ? scVid.error.code : '')); });
 async function scDraw(buf) {
 scn.busy = true;
@@ -2459,19 +2836,20 @@ if (scn.next) { const n = scn.next; scn.next = null; scDraw(n); }
 setInterval(() => {
 if (!scn.on) return;
 const el = $('#scs');
-if (S.sc.stats) { el.textContent = scn.frames + ' fps · ' + scc.width + '×' + scc.height + ' · ' + (scn.bytes * 8 / 1e6).toFixed(1) + ' Mbps' + (scn.tm ? __tr('js.CaptureResizeEncodeMs', scn.tm[0], scn.tm[1], scn.tm[2]) : ''); el.classList.add('on'); } else el.classList.remove('on');
+if (S.sc.stats) { el.textContent = scn.frames + ' fps · ' + scc.width + '×' + scc.height + ' · ' + (scn.bytes * 8 / 1e6).toFixed(1) + ' Mbps' + (scn.tm ? ' · ' + Math.round(scn.tm[0] + scn.tm[1] + scn.tm[2]) + ' ms' : ''); el.classList.add('on'); } else el.classList.remove('on');
 scn.frames = 0; scn.bytes = 0;
 }, 1000);
 
-const scp = new Map();
-let scg = null;
+// --- لمس => ماوس (مثل مانیتور لمسی) ---
+const scp = new Map();      // انگشت‌های روی صفحه: pointerId -> { x, y, x0, y0 }
+let scg = null;             // حرکت جاری (از اولین انگشت تا آخرین انگشت)
 const SC_SLOP = 9;
-function scMap(cx, cy) {
+function scMap(cx, cy) {    // مختصات صفحه -> 0..1 روی خود تصویر (نوارهای مشکی کنار تصویر حساب نمیشن)
 const W = scv.clientWidth, H = scv.clientHeight, fw = scc.width, fh = scc.height;
 const k = Math.min(W / fw, H / fh), dw = fw * k, dh = fh * k;
 return { x: cl((cx - (W - dw) / 2) / dw, 0, 1), y: cl((cy - (H - dh) / 2) / dh, 0, 1) };
 }
-function scMove(cx, cy, hard) {
+function scMove(cx, cy, hard) {   // hard = قبل از کلیک: حتماً همون لحظه و بدون صف
 const p = scMap(cx, cy), m = `tp ${p.x.toFixed(4)} ${p.y.toFixed(4)}`;
 if (hard) { delete lossy.tp; send(m); } else sendLossy('tp', m);
 }
@@ -2487,7 +2865,7 @@ scp.clear(); scg = null; scCtrl(0);
 mbSet('L', 0); mbSet('R', 0); mbSet('M', 0);
 }
 function scRing(x, y) { const r = $('#scring'); r.style.left = x + 'px'; r.style.top = y + 'px'; r.classList.remove('go'); void r.offsetWidth; r.classList.add('go'); }
-function scLong() {
+function scLong() {         // نگه داشتن بدون حرکت = کلیک راست
 if (!scg || scp.size !== 1 || scg.moved || scg.drag) return;
 const p = [...scp.values()][0];
 scg.long = true;
@@ -2497,16 +2875,16 @@ try { if (navigator.vibrate) navigator.vibrate(15); } catch {}
 const scBtn = ev => ev.button === 2 ? 'R' : ev.button === 1 ? 'M' : 'L';
 scv.addEventListener('contextmenu', ev => ev.preventDefault());
 scv.addEventListener('pointerdown', ev => {
-if (!isSC() || ev.target.closest('#scb')) return;
+if (!isSC() || scn.frozen || ev.target.closest('#scb, #scKbX')) return;
 ev.preventDefault();
 try { scv.setPointerCapture(ev.pointerId); } catch {}
 if (!scn.got) return;
-if (ev.pointerType === 'mouse') { scMove(ev.clientX, ev.clientY, true); mbSet(scBtn(ev), 1); return; }
+if (ev.pointerType === 'mouse') { scMove(ev.clientX, ev.clientY, true); mbSet(scBtn(ev), 1); return; }   // ماوس واقعی (OTG)
 scp.set(ev.pointerId, { x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY });
 if (!scg) { scg = { t0: performance.now(), n: 1, moved: false, drag: false, long: false, mode: '', pd: 0, cx: 0, cy: 0, za: 0, timer: 0 }; scg.timer = setTimeout(scLong, 450); }
 else {
 scg.n = Math.max(scg.n, scp.size);
-if (scp.size > 1) {
+if (scp.size > 1) {         // انگشت دوم: اگه درگ بود تموم میشه؛ از اینجا اسکرول یا زوم
 clearTimeout(scg.timer);
 if (scg.drag) { mbSet('L', 0); scg.drag = false; }
 scg.pd = scDist(); const c = scCenter(); scg.cx = c[0]; scg.cy = c[1];
@@ -2514,13 +2892,13 @@ scg.pd = scDist(); const c = scCenter(); scg.cx = c[0]; scg.cy = c[1];
 }
 });
 scv.addEventListener('pointermove', ev => {
-if (!isSC() || !scn.got) return;
+if (!isSC() || !scn.got || scn.frozen) return;
 if (ev.pointerType === 'mouse') { scMove(ev.clientX, ev.clientY, false); return; }
 const p = scp.get(ev.pointerId); if (!p || !scg) return;
 p.x = ev.clientX; p.y = ev.clientY;
 if (scp.size === 1) {
 if (scg.long) return;
-if (!scg.drag && Math.hypot(p.x - p.x0, p.y - p.y0) > SC_SLOP) {
+if (!scg.drag && Math.hypot(p.x - p.x0, p.y - p.y0) > SC_SLOP) {      // کشیدن: دکمه‌ی چپ همون جایی که انگشت گذاشته شد پایین میره
 clearTimeout(scg.timer); scg.moved = true; scg.drag = true;
 scMove(p.x0, p.y0, true); mbSet('L', 1);
 }
@@ -2538,7 +2916,7 @@ mk.aw += mkSgn() * (c[1] - scg.cy) * 3 * S.ms.scr; mkQ();
 scg.cx = c[0]; scg.cy = c[1];
 } else {
 scg.za += d - scg.pd; scg.pd = d;
-while (Math.abs(scg.za) >= 28) { send('mw ' + (scg.za > 0 ? 120 : -120)); scg.za -= Math.sign(scg.za) * 28; }
+while (Math.abs(scg.za) >= 28) { send('mw ' + (scg.za > 0 ? 120 : -120)); scg.za -= Math.sign(scg.za) * 28; }      // باز کردن انگشت‌ها = Ctrl + چرخ بالا = زوم
 }
 }
 });
@@ -2547,19 +2925,104 @@ if (!isSC()) return;
 if (ev.pointerType === 'mouse') { mbSet(scBtn(ev), 0); return; }
 const p = scp.get(ev.pointerId); if (!p) return;
 scp.delete(ev.pointerId);
-if (!scg || scp.size > 0) return;
+if (!scg || scp.size > 0) return;             // تا آخرین انگشت بلند نشده چیزی تموم نمیشه
 clearTimeout(scg.timer);
 const g = scg; scg = null;
 if (g.drag) mbSet('L', 0);
 if (g.mode === 'zoom') scCtrl(0);
 if (!g.moved && !g.long && !g.mode && ev.type === 'pointerup') {
-if (g.n === 1) { scMove(p.x, p.y, true); mbClick('L'); scRing(p.x, p.y); }
-else if (g.n === 2) { scMove(p.x, p.y, true); mbClick('R'); }
+if (g.n === 1) { scMove(p.x, p.y, true); mbClick('L'); scRing(p.x, p.y); }      // تپ = کلیک چپ (دو تپ پشت‌سرهم = دابل‌کلیک)
+else if (g.n === 2) { scMove(p.x, p.y, true); mbClick('R'); }                    // تپ دو انگشتی = کلیک راست
 }
 };
 ['pointerup', 'pointercancel'].forEach(t => scv.addEventListener(t, scUp));
-scv.addEventListener('wheel', ev => { if (!isSC()) return; ev.preventDefault(); mk.aw -= ev.deltaY * (ev.deltaMode === 1 ? 40 : 1.2) * S.ms.scr; mkQ(); }, { passive: false });
+scv.addEventListener('wheel', ev => { if (!isSC() || scn.frozen) return; ev.preventDefault(); mk.aw -= ev.deltaY * (ev.deltaMode === 1 ? 40 : 1.2) * S.ms.scr; mkQ(); }, { passive: false });
 
+// --- کیبورد: «کامل» (کلیدهای واقعی با اسکن‌کد) و «تایپ» (کیبورد خود گوشی، متن یونیکد؛ فارسی هم درست تایپ میشه) ---
+function scFreeze(on) {        // چشم: تصویر مثل عکس میمونه (۶۰٪ شفاف) و سرور پخش رو متوقف میکنه؛ دوباره زدن = پخش از سر
+if (!isSC() || !!scn.frozen === on) return;
+scn.frozen = on;
+scv.classList.toggle('frz', on); $('#scEye').classList.toggle('on', on);
+if (on) { scReset(); try { scVid.pause(); } catch {} send('scx'); } else scStart();
+}
+$('#scEye').onclick = () => scFreeze(!scn.frozen);
+
+// ===== صدای کامپیوتر برای گوشی =====
+// سرور صدا رو از خروجی انتخاب‌شده تو پنجره‌ی برنامه (یا پیش‌فرض ویندوز) میگیره و IMA-ADPCM میفرسته (نوع بسته ۳).
+// تا بلندگو روشن نباشه (یا صفحه تو پس‌زمینه باشه) سرور اصلاً ضبط نمیکنه و هیچ ترافیکی نیست؛ حجم صدا گوشی رو هم خودش (دکمه‌های ولوم) تنظیم میکنی.
+const au = { ctx: null, next: 0, on: false };
+const AU_LEAD = 0.1;                   // ثانیه: بافر کوچیک برای صاف پخش شدن (جیتر Wi-Fi)
+const AU_IDX = [-1, -1, -1, -1, 2, 4, 6, 8];
+const AU_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796, 876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767];
+function auCtx() {
+if (au.ctx) return au.ctx;
+const AC = window.AudioContext || window.webkitAudioContext;
+if (!AC) return null;
+try { au.ctx = new AC({ sampleRate: 32000, latencyHint: 'interactive' }); }
+catch { try { au.ctx = new AC(); } catch { return null; } }
+return au.ctx;
+}
+const auWant = () => !!S.sc.snd && isSC() && scn.on && !document.hidden;
+function auSync() {          // سرور رو با وضعیت فعلی هماهنگ کن (تکراری فرستادنش بی‌ضرره)
+const want = auWant();
+if (want) { const c = auCtx(); if (c && c.state !== 'running') c.resume().catch(() => {}); }
+if (want) { send('au 1'); au.on = true; }
+else if (au.on) { send('au 0'); au.on = false; au.next = 0; }
+}
+function auUI() { $('#scSnd').classList.toggle('on', !!S.sc.snd); $('#scSnd').setAttribute('aria-pressed', S.sc.snd ? 'true' : 'false'); }
+function onAus(m) { if (m.err) toast(__tr('js.ServerError', m.err)); }
+function auPlay(buf) {
+if (!S.sc.snd || !isSC()) return;
+const c = au.ctx;
+if (!c || c.state !== 'running') return;
+const u8 = new Uint8Array(buf), dv = new DataView(buf);
+const ch = u8[1], rate = dv.getUint16(2, true) * 10, n = dv.getUint16(4, true);
+if (ch < 1 || ch > 2 || n < 2 || (n & 1) || n > 4000 || rate < 8000 || buf.byteLength < 6 + ch * (4 + n / 2)) return;
+const ab = c.createBuffer(ch, n, rate);
+let hp = 6, dp = 6 + ch * 4;
+for (let k = 0; k < ch; k++) {
+let pred = dv.getInt16(hp, true), idx = Math.min(88, u8[hp + 2]);
+hp += 4;
+const out = ab.getChannelData(k);
+for (let i = 0; i < n; i += 2) {
+const b = u8[dp++];
+for (let h = 0; h < 2; h++) {
+const nib = h ? b >> 4 : b & 15, step = AU_STEP[idx];
+let d = step >> 3;
+if (nib & 4) d += step;
+if (nib & 2) d += step >> 1;
+if (nib & 1) d += step >> 2;
+pred += (nib & 8) ? -d : d;
+if (pred > 32767) pred = 32767; else if (pred < -32768) pred = -32768;
+idx += AU_IDX[nib & 7];
+if (idx < 0) idx = 0; else if (idx > 88) idx = 88;
+out[i + h] = pred / 32768;
+}
+}
+}
+const now = c.currentTime;
+if (au.next < now + 0.005) au.next = now + AU_LEAD;       // بافر خالی شد (یا شروع صدا): از نو با کمی فاصله
+else if (au.next - now > 0.25) return;                     // بیش از حد جلو افتاده (شبکه یهو چند بسته داد): این بسته رو دور بریز تا تاخیر زیاد نشه
+const src = c.createBufferSource();
+src.buffer = ab; src.connect(c.destination); src.start(au.next);
+au.next += n / rate;
+}
+if (!(window.AudioContext || window.webkitAudioContext)) $('#scSnd').hidden = true;
+auUI();
+$('#scSnd').onclick = () => {
+S.sc.snd = !S.sc.snd; saveS(); auUI();
+if (S.sc.snd) { const c = auCtx(); if (c && c.state !== 'running') c.resume().catch(() => {}); }      // باید داخل همین لمس باشه (قانون autoplay مرورگر)
+auSync();
+};
+addEventListener('pointerdown', () => { if (S.sc.snd && au.ctx && au.ctx.state !== 'running') au.ctx.resume().catch(() => {}); }, { passive: true });
+$('#scMon').onclick = () => {     // نمایشگر بعدی (بعد از آخری برمیگرده به اولی)
+if (scn.mons.length < 2) return;
+const cur = scMon(), i = scn.mons.findIndex(m => cur && m.i === cur.i);
+S.sc.mon = scn.mons[(i + 1) % scn.mons.length].i; saveS();
+scn.frozen = false; scv.classList.remove('frz'); $('#scEye').classList.remove('on');
+scRender(); scStart();
+};
+$('#scKbX').onclick = () => { document.body.classList.remove('kbo'); $('#scKb').classList.remove('on'); };
 $('#scKb').onclick = () => { const on = document.body.classList.toggle('kbo'); $('#scKb').classList.toggle('on', on); if (on) scIn.blur(); };
 const SC_SENT = '\u200b\u200b\u200b\u200b';
 let scPrev = SC_SENT, scComp = false;
@@ -2574,6 +3037,7 @@ for (let k = 0; k < add.length; k += 32) send('tx ' + encodeURIComponent(add.sli
 scPrev = v;
 if (!scComp && (v.length > 40 || v.length < SC_SENT.length)) scInReset();
 }
+$('#scHide').onclick = () => { const h = $('#scb').classList.toggle('hid'); document.body.classList.toggle('hid-gear', h); $('#scHide').setAttribute('aria-pressed', h ? 'true' : 'false'); };
 $('#scTx').onclick = () => { document.body.classList.remove('kbo'); $('#scKb').classList.remove('on'); scInReset(); scIn.focus(); };
 scIn.addEventListener('compositionstart', () => { scComp = true; });
 scIn.addEventListener('compositionend', () => { scComp = false; scDiff(); });
@@ -2581,15 +3045,16 @@ scIn.addEventListener('input', () => { if (!scComp) scDiff(); });
 scIn.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); scKey('Enter'); } });
 scIn.addEventListener('blur', () => { scComp = false; });
 
+// --- تنظیمات ---
 $('#sc-mon').onchange = e => { S.sc.mon = +e.target.value || 0; saveS(); scRender(); scStart(); };
 $('#sc-cur').checked = S.sc.cur; $('#sc-cur').onchange = e => { S.sc.cur = e.target.checked; saveS(); scStart(); };
 $('#sc-stats').checked = S.sc.stats; $('#sc-stats').onchange = e => { S.sc.stats = e.target.checked; saveS(); };
 window.scReady = true;
-setTimeout(scMeasure, 1500);
+setTimeout(scMeasure, 1500);      // هرتز گوشی رو یک بار از اول هم اندازه میگیریم
 scApply();
-function gyLock() {
-const x = S.pad === 'xbox' || isMK(), el = $('#gyro');
-if (el.disabled !== x) el.disabled = x;
+function gyLock() {   // تو حالت Xbox ژیروسکوپ پشتیبانی نمیشه: خاموش + چک‌باکس خاکستری و غیرفعال
+const mk = isMK(), x = mk || (S.pad === 'xbox' && S.gyM !== 'steer' && S.gyro), el = $('#gyro');   // Xbox فقط تو حالت «چپ و راست» ژیروسکوپ داره (تیک زدنش تو Xbox خودش میره روی «چپ و راست»)
+if (el.disabled !== mk) el.disabled = mk;
 if (x) {
 const was = S.gyro || gyOn;
 if (gyOn) gyroStop();
@@ -2597,15 +3062,32 @@ if (S.gyro) { S.gyro = false; saveS(); }
 el.checked = false;
 if (was) toast(__tr('js.GyroscopeTurnedOffItDoesnt'));
 }
+gyBtnUI(); gyHint();
+}
+function gyBtnUI() {   // دکمه‌های حالت فقط وقتی ژیروسکوپ روشنه دیده میشن؛ تو Xbox «ژیروسکوپ دسته» پشتیبانی نمیشه
+$('#gyM').hidden = !S.gyro;
+document.querySelectorAll('#gyM button').forEach(b => { b.classList.toggle('on', b.dataset.m === S.gyM); b.disabled = S.pad === 'xbox' && b.dataset.m === 'pad'; });
+}
+function wsPlace() {
+const w = $('#wheelSet');
+const home = $('#rowPedal'); if (w.nextElementSibling !== home) home.before(w);   // تنظیمات فرمون فقط تو ویرایش چیدمان (حالت فرمون) دیده میشه؛ «چپ و راست» از همون تنظیمات ذخیره‌شده استفاده میکنه
+w.hidden = !(isW() && sel === 'wheel');
+}
+function gyApply(gesture) {
+gyLock(); gyBtnUI(); wsPlace();
+if (!S.gyro && gyOn) gyDetach(true);
+if (steerOn()) { if (gyOn) gyDetach(true); whSync(gesture); }
+else { whSync(false); if (!isW() && S.gyro && !gyOn && !document.hidden) gyroStart(!!gesture); }
 gyHint();
 }
-window.gyLockReady = true; gyLock();
+document.querySelectorAll('#gyM button').forEach(b => b.onclick = () => { S.gyM = b.dataset.m; saveS(); gyApply(true); });
+window.gyLockReady = true; gyLock(); gyBtnUI(); wsPlace();
 if (S.gyro) { gyroStart(false); addEventListener('pointerup', () => { if (S.gyro && !gyOn) gyroStart(true); }, { once: true }); }
 if (typeof S.lite !== 'boolean') S.lite = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 3;
 const applyLite = () => document.body.classList.toggle('lite', !!S.lite);
 $('#lite').checked = S.lite; applyLite();
 $('#lite').onchange = e => { S.lite = e.target.checked; saveS(); applyLite(); };
-$('#vib').checked = S.vib;
+$('#vib').checked = S.vib; micUI();
 $('#vib').onchange = e => { S.vib = e.target.checked; saveS(); if (!S.vib) rumbleStop(); };
 $('#op').value = S.op;
 const applyOp = () => document.documentElement.style.setProperty('--op', S.op / 100);
@@ -2614,7 +3096,7 @@ $('#op').onchange = saveS;
 applyOp();
 function setEdit(on) {
 Object.values(B).forEach(b => b.reset());
-edit = on; document.body.classList.toggle('edit', on);
+swapOff(false); edit = on; document.body.classList.toggle('edit', on);
 $('#ptitle').textContent = on ? __tr('js.EditLayout') : __tr('js.Settings');
 if (!on) select(null);
 }
@@ -2676,17 +3158,17 @@ SK[g] = Object.assign({}, SK[g]); if (v == null) delete SK[g][n]; else SK[g][n] 
 if (!Object.keys(SK[g]).length) delete SK[g];
 }
 const SKV = {
-pad4:   () => S.dpad === 'pad4' || (S.dual && S.m2 === 'pad4'),
-dbtn:   () => isBtn(S.dpad) || (S.dual && isBtn(S.m2)),
-dstick: () => !isBtn(S.dpad) || (S.dual && !isBtn(S.m2)),
+pad4:   () => S.dpad === 'pad4' || (S.dual && S.m2 === 'pad4'),                                  // 4 دکمه‌ی جدا
+dbtn:   () => isBtn(S.dpad) || (S.dual && isBtn(S.m2)),          // هر حالت فلش‌دار
+dstick: () => !isBtn(S.dpad) || (S.dual && !isBtn(S.m2)),          // استیک چپ
 cross:  () => S.face === 'cross',
 wheel:  () => isW(),
-macro:  () => macIds().length > 0,
+macro:  () => macIds().length > 0,                                // فقط وقتی حداقل یه میکرو هست                                 // اکشن ضربدری
 };
 function syncSkinVis() { skinBox.querySelectorAll('[data-v]').forEach(el => { el.hidden = !SKV[el.dataset.v](); }); }
 const ACT_NAMES = { ps4: { A: __tr('js.Cross'), B: __tr('js.Circle'), X: __tr('js.Square'), Y: __tr('js.Triangle'), GUIDE: __tr('js.PSButtonGuide') }, xbox: { A: 'A', B: 'B', X: 'X', Y: 'Y', GUIDE: __tr('js.XboxButtonGuide') } };
 const ACT_PRE = { act: '', pa: __tr('js.Pressed'), pt: __tr('js.TextAfterPress') };
-function syncActLabels() {
+function syncActLabels() {   // اسم دکمه‌های اکشن با نوع دسته (PS4 / Xbox) عوض میشه
 const ps = S.pad === 'ps4';
 skinBox.querySelectorAll('.lab').forEach(e => {
 const k = e.dataset.k;
@@ -2699,7 +3181,11 @@ syncSkinVis(); syncActLabels();
 skinBox.querySelectorAll('.sw').forEach(b => b.style.setProperty('--c', skGet(b.dataset.k) || skDefault(b.dataset.k)));
 $('#sk-bw').value = SK.bw ?? 2; $('#sk-dbw').value = SK.dbw ?? SK.bw ?? 2; $('#sk-pblur').value = SK.pblur ?? 10; $('#sk-nbl').value = SK.nbl ?? 10;
 $('#sk-3d').checked = !!SK.fx3d; $('#sk-tr').checked = !SK.notr; $('#sk-grid').checked = !!SK.grid;
+$('#hap').checked = !!S.hap; $('#hapMs').value = S.hapMs; $('#hapMsv').textContent = S.hapMs + 'ms'; $('#rowHapMs').hidden = !S.hap;
 }
+$('#hap').onchange = e => { S.hap = e.target.checked; $('#rowHapMs').hidden = !S.hap; saveS(); if (S.hap) hapTick(); };
+$('#hapMs').oninput = e => { S.hapMs = +e.target.value; $('#hapMsv').textContent = S.hapMs + 'ms'; };
+$('#hapMs').onchange = () => { saveS(); hapTick(); };
 $('#sk-3d').onchange = e => { if (e.target.checked) SK.fx3d = true; else delete SK.fx3d; applySkin(); saveSkin(); };
 $('#sk-tr').onchange = e => { if (e.target.checked) delete SK.notr; else SK.notr = true; applySkin(); saveSkin(); };
 $('#sk-grid').onchange = e => { if (e.target.checked) SK.grid = true; else delete SK.grid; applySkin(); saveSkin(); };
@@ -2775,6 +3261,7 @@ codeMode = mode; $('#codeBox h2').textContent = h; $('#codeBox p').textContent =
 $('#codeIn').value = text; $('#codeBox').classList.add('open');
 }
 $('#themeJson').onclick = () => openCode('skin', JSON.stringify(SK), CODE_T0[0], CODE_T0[1], CODE_T0[2]);
+// ===== ویرایش Json چیدمان (فقط تو حالت ویرایش چیدمان) =====
 const layFam = () => isW() ? 'w' : 'm';
 function layExport(scope) {
 const fam = layFam(), inFam = k => isMacId(k) || isCloneId(k) || (fam === 'w') === /@w$/.test(k);
@@ -2788,7 +3275,7 @@ let o; try { o = JSON.parse(raw); } catch { toast(__tr('js.TheCodeIsNotValid'));
 if (!o || typeof o !== 'object' || Array.isArray(o) || !o.L || typeof o.L !== 'object' || Array.isArray(o.L)) { toast(__tr('js.ThereWasNoLayoutIn')); return false; }
 const d = cleanLay(o);
 if (!d || (!Object.keys(d.L).length && Object.keys(o.L).length)) { toast(__tr('js.ThereWasNoLayoutI')); return false; }
-const sc = o.scope === 'cur' ? 'cur' : scope;
+const sc = o.scope === 'cur' ? 'cur' : scope;   // کد «فقط یه دسته» هیچوقت چیدمان بقیه رو پاک نمیکنه
 if (sc === 'cur' && d.fam !== layFam()) { toast(__tr('js.ThisCodeIsForAnd', (d.fam === 'w' ? __tr('js.Wheel') : __tr('js.NormalControllerPS4Xbox')))); return false; }
 pushHist(); restore(mergeCopied(d, sc));
 return true;
@@ -2811,6 +3298,180 @@ $('#layCur').onclick = () => layOpenCode('cur');
 $('#layAll').onclick = () => layOpenCode('all');
 $('#layCancel').onclick = () => $('#layBox').classList.remove('open');
 $('#layBox').onclick = e => { if (e.target.id === 'layBox') $('#layBox').classList.remove('open'); };
+// ===== چیدمان‌ها و تم‌های ذخیره‌شده رو کامپیوتر (سرور: Presets.cs) =====
+// هر مورد یه فایل json تو پوشه‌ی data\presets کنار برنامه‌ی کامپیوتره؛ فایل‌هایی که اونجا بذاری هم تو لیست میاد.
+// بعد از لیست، محتوای هر مورد (pg) گرفته میشه تا هم پیش‌نمایش کشیده بشه هم با یه لمس اعمال بشه. تم‌ها ۳ تا تو هر ردیف، چیدمان‌ها ۲ تا.
+const pre = { kind: '', items: null, cache: {}, asked: {}, slots: {}, want: '', armed: '', saved: '', t: 0, ta: 0, tb: 0 };
+const PRE_MAX = 48000, PRE_SAVE_TXT = $('#preDo').textContent;
+const PRE_TRASH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></svg>';
+const PRE_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const preEnc = n => encodeURIComponent(n);
+function preBtnReset() { const b = $('#preDo'); clearTimeout(pre.tb); delete b.dataset.arm; b.textContent = PRE_SAVE_TXT; }
+function preClose() { $('#preBox').classList.remove('open'); pre.armed = ''; pre.want = ''; preBtnReset(); clearTimeout(pre.t); clearTimeout(pre.ta); }
+// پیش‌نمایش تم: همون نقطه‌های رنگی بالای تنظیمات ظاهری (صفحه + حاشیه + ۴ رنگ دکمه)
+function preThemePv(raw) {
+let o; try { o = JSON.parse(raw); } catch { return null; }
+if (!o || typeof o !== 'object' || Array.isArray(o)) return null;
+const sk = cleanSkin(o), ac = Object.assign({ A: '#6ea8ff', B: '#ef5a5a', X: '#e58bd0', Y: '#4fcf9a' }, sk.act || {});
+const tp = document.createElement('span'); tp.className = 'tp'; tp.style.background = sk.page || '#12151d'; tp.style.borderColor = sk.bd || '#3b5a99';
+['A', 'B', 'X', 'Y'].forEach(k => { const i = document.createElement('i'); i.style.background = ac[k]; if (sk.nc) i.style.boxShadow = '0 0 6px ' + sk.nc; tp.append(i); });
+return tp;
+}
+// پیش‌نمایش چیدمان: صفحه‌ی گوشی به‌صورت کوچیک، با جا و اندازه‌ی واقعی دکمه‌ها (عرض = s×ar×vmin ، ارتفاع = s×vmin) و رنگ‌های تمی که الان فعاله
+function preLayPv(raw) {
+let o; try { o = JSON.parse(raw); } catch { return null; }
+const d = cleanLay(o); if (!d) return null;
+const w = o.fam === 'w', box = document.createElement('span'); box.className = 'pvl';
+const r = cl(innerHeight / Math.max(innerWidth, 1), .4, .75);      // نسبت صفحه‌ی همین گوشی؛ vmin = ارتفاع پیش‌نمایش
+box.style.paddingTop = (r * 100) + '%'; box.style.background = SK.page || '#12151d';
+const ps = S.pad === 'ps4', bg = SK.bg || '#202535', bd = SK.bd || '#3b5a99', ring = SK.ring || '#161a25';
+const act = id => { const k = id.toUpperCase(), q = ps && PS[k] ? PS[k][1] : null; return (SK.act && SK.act[k]) || q || DEFS[id].col || null; };
+const ink = SK.tx || '#b4c8f2';
+const glyph = (id, col) => ps && SHAPES[id.toUpperCase()] ? SHAPES[id.toUpperCase()] : '<svg viewBox="0 0 24 24" aria-hidden="true"><text x="12" y="17.6" text-anchor="middle" font-size="17" font-weight="700" fill="currentColor" stroke="none">' + DEFS[id].l + '</text></svg>';   // ✕ ○ □ △ (PS4) یا حرف (Xbox)
+const add = (x, y, s, ar, cls, fill, line, wm = 1, hm = 1, inner = '', col = ink, rk = null) => {      // rk = ضریب گردی گوشه نسبت به ارتفاع (مثل خود دکمه‌ی واقعی: .5 => کاملاً گرد، L1/R1 و بقیه)
+const e = document.createElement('i'); e.className = cls; if (inner) { e.innerHTML = inner; e.style.color = col; }
+e.style.cssText = 'left:' + cl(x, 0, 100) + '%;top:' + cl(y, 0, 100) + '%;width:' + Math.max(s * (ar || 1) * r * wm, 1.6) + '%;height:' + Math.max(s * hm, 2.2) + '%;background:' + fill + ';border-color:' + line;
+if (rk !== null) e.style.borderRadius = (rk * 100 / Math.max(ar || 1, .1)) + '% / ' + (rk * 100) + '%';      // شعاع واقعی = rk×ارتفاع؛ به‌صورت درصدِ بیضوی تا با هر اندازه‌ی پیش‌نمایش درست و گرد بمونه
+box.append(e);
+};
+const cur = id => { const key = w && WD[id] ? id + '@w' : d.dual && MV.includes(id) ? id + '@d' : id; return Object.assign({}, DEFS[id], w && WD[id] ? WD[id]() : d.dual && DD[id] ? DD[id]() : {}, d.L[key] || {}); };
+const p1 = d.dpad === 'pad4', p2 = d.dual && d.m2 === 'pad4', cross = d.face === 'cross';
+for (const id of Object.keys(DEFS)) {
+const t = DEFS[id].t; if (t === 'ping' || t === 'macro') continue;
+const wo = id === 'wheel' || id === 'pg' || id === 'pb' || id === 'rc';
+if (wo && !w) continue;
+if (w && (id === 'lt' || id === 'rt' || id === 'rs')) continue;
+if (['y', 'x', 'b', 'a'].includes(id) && cross) continue;
+if (id === 'face' && !cross) continue;
+if (DIRS.includes(id) && !(p1 || p2)) continue;
+if (id === 'move' && p1) continue;
+if (id === 'move2' && (w || !d.dual || p2)) continue;
+const b = cur(id); if (b.del) continue;
+if (typeof b.x !== 'number' || typeof b.y !== 'number' || typeof b.s !== 'number') continue;
+const ar = b.ar || 1;
+if ((id === 'move' && d.dpad === 'buttons') || (id === 'move2' && d.m2 === 'buttons')) {      // دکمه‌های جهت: شکل + با فلش‌ها
+add(b.x, b.y, b.s, ar, 'dp', bg, bd, 1, 1 / 3);
+add(b.x, b.y, b.s, ar, 'dp', bg, bd, 1 / 3, 1);
+const W = b.s * ar * r;
+for (const [k, dx, dy] of [['U', 0, -1], ['L', -1, 0], ['R', 1, 0], ['D', 0, 1]]) add(b.x + dx * W / 3, b.y + dy * b.s / 3, b.s * .2, 1, 'ao', 'transparent', 'transparent', 1, 1, ARROWS[k]);
+}
+else if (t === 'face') {      // چهار دکمه‌ی گرد تو یه حلقه (حالت Cross)
+add(b.x, b.y, b.s, ar, 'c', ring, bd);
+for (const [k, dx, dy] of [['y', 0, -1], ['x', -1, 0], ['b', 1, 0], ['a', 0, 1]]) {
+const c = act(k) || bd;
+add(b.x + dx * b.s * ar * r * .3, b.y + dy * b.s * .3, b.s * .27, 1, 'c', bg, c, 1, 1, glyph(k), c);
+}
+}
+else if (['move', 'move2', 'stick'].includes(t)) { add(b.x, b.y, b.s, ar, 'c', ring, bd); add(b.x, b.y, b.s * .5, ar, 'c', bg, bd); }      // استیک: حلقه + توپ وسطش
+else if (t === 'wheel') { add(b.x, b.y, b.s, ar, 'c', ring, bd); add(b.x, b.y, b.s * .26, ar, 'c', bg, bd); }
+else if (t === 'pedal') add(b.x, b.y, b.s, ar, '', bg, b.col || bd, 1, 1, '', ink, typeof b.rd === 'number' ? b.rd : .12);
+else if (t === 'dir') add(b.x, b.y, b.s, ar, 'c', bg, bd, 1, 1, ARROWS[DEFS[id].a], ink, typeof b.rd === 'number' ? b.rd : .5);
+else if (t === 'btn') { const c = act(id); add(b.x, b.y, b.s, ar, 'c', bg, c || bd, 1, 1, ['y', 'x', 'b', 'a'].includes(id) ? glyph(id, c) : '', c || ink, typeof b.rd === 'number' ? b.rd : .5); }      // L1/R1/L2/R2/START/... گوشه‌گرد مثل دکمه‌ی اصلی
+else add(b.x, b.y, b.s, ar, t === 'rc' ? 'c' : '', bg, bd, 1, 1, '', ink, typeof b.rd === 'number' ? b.rd : .5);
+}
+const src = o.L && typeof o.L === 'object' ? o.L : {};
+for (const k of Object.keys(src)) {      // ماکروها و کپی‌های دکمه
+if (!isMacId(k) && !isCloneId(k)) continue;
+const m = src[k]; if (!m || typeof m !== 'object' || !!m.w !== w) continue;
+if (typeof m.x === 'number' && typeof m.y === 'number') add(m.x, m.y, typeof m.s === 'number' ? cl(m.s, 2, 100) : 10, 1, 'c', SK.mbg || bg, SK.mbd || bd, 1, 1, '', ink, typeof m.rd === 'number' ? cl(m.rd, 0, .5) : .5);
+}
+return box;
+}
+function preFillCard(name) {
+const slot = pre.slots[name]; if (!slot) return;
+const raw = pre.cache[name];
+let pv = typeof raw === 'string' ? (pre.kind === 'layouts' ? preLayPv(raw) : preThemePv(raw)) : null;
+if (!pv) { pv = document.createElement('span'); pv.className = (pre.kind === 'layouts' ? 'pvl' : 'tp') + ' ph'; }
+slot.replaceWith(pv); pre.slots[name] = pv;
+}
+function preFetch() {      // محتوای مورد‌هایی که هنوز نداریم رو بخواه (۲۵ تا تو هر پیام)
+const miss = (pre.items || []).filter(n => pre.cache[n] === undefined && !pre.asked[n]);
+for (let i = 0; i < miss.length; i += 25) send(miss.slice(i, i + 25).map(n => 'pg ' + pre.kind + ' ' + preEnc(n)).join('\n'));
+miss.forEach(n => { pre.asked[n] = 1; });
+}
+function preRender() {
+const box = $('#preList'); box.textContent = ''; pre.slots = {};
+box.className = pre.kind === 'layouts' ? 'l2' : 't3';
+if (pre.items === null) return;
+if (!pre.items.length) { const e = document.createElement('div'); e.className = 'preEmpty'; e.textContent = __tr('js.PresetEmpty'); box.appendChild(e); return; }
+for (const name of pre.items) {
+const card = document.createElement('div'); card.className = 'preCard';
+const b = document.createElement('button'); b.type = 'button'; b.className = 'pc'; b.title = name;
+const slot = document.createElement('span'); pre.slots[name] = slot;
+const nm = document.createElement('span'); nm.className = 'pnm'; nm.textContent = name;
+b.append(slot, nm);
+b.onclick = () => {
+const raw = pre.cache[name];
+if (raw === undefined) { pre.want = name; if (!pre.asked[name]) { pre.asked[name] = 1; send('pg ' + pre.kind + ' ' + preEnc(name)); } return; }
+if (raw === false) { toast(__tr('js.PresetMissing')); return; }
+preApply(raw);
+};
+const d = document.createElement('button'); d.type = 'button'; d.className = 'pd' + (pre.armed === name ? ' sure' : ''); d.title = name;
+d.innerHTML = pre.armed === name ? PRE_CHECK : PRE_TRASH;
+d.onclick = () => {
+if (pre.armed !== name) { pre.armed = name; preRender(); clearTimeout(pre.ta); pre.ta = setTimeout(() => { pre.armed = ''; preRender(); }, 3000); return; }
+pre.armed = ''; clearTimeout(pre.ta); send('pd ' + pre.kind + ' ' + preEnc(name)); preRender();
+};
+card.append(b, d); box.appendChild(card); preFillCard(name);
+}
+}
+function preOpen(kind) {
+pre.kind = kind; pre.items = null; pre.cache = {}; pre.asked = {}; pre.armed = ''; pre.want = '';
+$('#preT').textContent = __tr(kind === 'layouts' ? 'js.PresetLayoutsTitle' : 'js.PresetThemesTitle');
+$('#preAllRow').hidden = kind !== 'layouts'; $('#preAll').checked = false; $('#preName').value = '';
+preBtnReset(); preRender();
+$('#preBox').classList.add('open');
+clearTimeout(pre.t);
+if (!ws || ws.readyState !== 1) { toast(__tr('js.PresetNoServer')); return; }
+send('pl ' + kind);
+pre.t = setTimeout(() => { if (pre.items === null) toast(__tr('js.PresetNoServer')); }, 3000);   // سرورِ قدیمی (بدون این قابلیت) جواب نمیده
+}
+function preApply(raw) {
+if (pre.kind === 'layouts') {
+if (!edit) return;
+let sc = 'cur'; try { if (JSON.parse(raw).scope === 'all') sc = 'all'; } catch { }      // فایل بدون scope فقط برای همین دسته حساب میشه
+if (layImport(raw, sc)) { preClose(); toast(__tr('js.LayoutAppliedPressSaveAt')); }
+return;
+}
+let o; try { o = JSON.parse(raw); } catch { toast(__tr('js.TheCodeIsNotValid')); return; }
+if (!o || typeof o !== 'object' || Array.isArray(o)) { toast(__tr('js.TheCodeIsNotValid')); return; }
+const n = cleanSkin(o);
+if (!Object.keys(n).length && Object.keys(o).length) { toast(__tr('js.ThereWasNoSettingI')); return; }
+SK = n; applySkin(); saveSkin(); syncSkinUI(); preClose(); toast(__tr('js.ThemeApplied2'));
+}
+function onPre(m) {
+if (m.kind !== pre.kind || !$('#preBox').classList.contains('open')) return;
+if (m.op === 'get') {
+const nm = m.name; pre.cache[nm] = typeof m.d === 'string' ? m.d : false;
+if (pre.want === nm) { pre.want = ''; if (pre.cache[nm] === false) toast(__tr('js.PresetMissing')); else preApply(pre.cache[nm]); return; }
+preFillCard(nm); return;
+}
+if (Array.isArray(m.items)) {
+pre.items = m.items.filter(x => typeof x === 'string'); clearTimeout(pre.t);
+for (const k of Object.keys(pre.cache)) if (!pre.items.includes(k)) { delete pre.cache[k]; delete pre.asked[k]; }
+}
+if (m.op === 'save') { if (m.ok) { toast(__tr('js.PresetSaved', m.name)); $('#preName').value = ''; pre.cache[m.name] = pre.saved; pre.asked[m.name] = 1; } else toast(__tr('js.PresetFailed')); }
+else if (m.op === 'del') { if (m.ok) toast(__tr('js.PresetDeleted', m.name)); delete pre.cache[m.name]; delete pre.asked[m.name]; }
+preRender(); preFetch();
+}
+$('#preDo').onclick = () => {
+const name = $('#preName').value.trim(), b = $('#preDo');
+if (!name) { toast(__tr('js.PresetNeedName')); $('#preName').focus(); return; }
+const exists = pre.items && pre.items.some(x => x.toLowerCase() === name.toLowerCase());
+if (exists && b.dataset.arm !== name) { b.dataset.arm = name; b.textContent = __tr('js.PresetSure'); clearTimeout(pre.tb); pre.tb = setTimeout(preBtnReset, 3000); return; }      // اسم تکراری: یه بار دیگه بزن تا جایگزین بشه
+preBtnReset();
+const json = pre.kind === 'layouts' ? layExport($('#preAll').checked ? 'all' : 'cur') : JSON.stringify(SK);
+if (json.length > PRE_MAX) { toast(__tr('js.PresetTooBig')); return; }
+if (!ws || ws.readyState !== 1) { toast(__tr('js.PresetNoServer')); return; }
+pre.saved = json;
+send('ps ' + pre.kind + ' ' + preEnc(name) + ' ' + json);
+};
+$('#preName').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('#preDo').click(); } };
+$('#preClose').onclick = preClose;
+$('#preBox').onclick = e => { if (e.target.id === 'preBox') preClose(); };
+$('#preLayBtn').onclick = () => preOpen('layouts');
+$('#preThemeBtn').onclick = () => preOpen('themes');
+$('#pSave').onclick = () => $('#saveL').click();
 $('#codeCopy').onclick = () => {
 const a = $('#codeIn'); a.focus(); a.select();
 copyText(a.value).then(() => toast(__tr('js.CodeCopied')), () => toast(__tr('js.AutomaticCopyFailedTheText')));
@@ -2918,22 +3579,25 @@ $('#opc').onchange = () => { sessOpc = false; };
 const WH_CAP = id => { const t = id && DEFS[id] && DEFS[id].t; return { wh: ['btn', 'macro', 'dir', 'pedal', 'ping'].includes(t), ts: ['btn', 'dir', 'macro', 'pedal', 'ping', 'rc'].includes(t) }; };
 const wdPos = (id, v) => id === 'ping' ? cl((v - 1) / 71, 0, 1) : sizeToPos(v);
 const wdVal = (id, p) => id === 'ping' ? 1 + 71 * p : posToSize(p);
+const RD_MAX = .5, rdCap = id => !!(id && DEFS[id] && ['btn', 'macro', 'dir', 'pedal', 'rc'].includes(DEFS[id].t)), rdDef = id => DEFS[id] && DEFS[id].t === 'pedal' ? .12 : .5;      // گردی گوشه: ضریب ارتفاع (۰.۵ = کاملاً گرد)
 const TS_MAX = 2.5, AR_MIN = .1, AR_MAX = 15;
 const TS_KNEE = .05, TS_FACTOR = 2, TS_KNEE_V = TS_MAX * TS_FACTOR * TS_KNEE / (1 - TS_KNEE + TS_FACTOR * TS_KNEE);
 const tsFromPos = p => p <= TS_KNEE ? TS_KNEE_V * p / TS_KNEE : TS_KNEE_V + (TS_MAX - TS_KNEE_V) * (p - TS_KNEE) / (1 - TS_KNEE);
 const tsToPos = t => t <= TS_KNEE_V ? TS_KNEE * t / TS_KNEE_V : TS_KNEE + (1 - TS_KNEE) * (t - TS_KNEE_V) / (TS_MAX - TS_KNEE_V);
 function syncWH() {
 const c = WH_CAP(sel), d = sel && DEFS[sel] ? lay(sel) : null;
-$('#wd').disabled = $('#ht').disabled = !c.wh; $('#tsz').disabled = !c.ts;
+$('#wd').disabled = $('#ht').disabled = !c.wh; $('#tsz').disabled = !c.ts; $('#rdsl').disabled = !rdCap(sel);
 if (d) {
 $('#wd').value = Math.round(wdPos(sel, d.s * d.ar) * SZ_STEPS);
 $('#ht').value = Math.round(szToPos(sel, d.s) * SZ_STEPS);
 $('#tsz').value = Math.round(cl(tsToPos(cl(d.ts ?? 1, 0, TS_MAX)), 0, 1) * 1000);
+$('#rdsl').value = Math.round(cl((d.rd ?? rdDef(sel)) / RD_MAX, 0, 1) * 1000);
 if (document.activeElement !== $('#size')) $('#size').value = Math.round(szToPos(sel, d.s) * SZ_STEPS);
 }
 $('#wdv').textContent = d && c.wh ? (d.s * d.ar).toFixed(0) : '';
 $('#htv').textContent = d && c.wh ? (+d.s).toFixed(0) : '';
 $('#tszv').textContent = d && c.ts ? Math.round((d.ts ?? 1) * 100) + '%' : '';
+$('#rdslv').textContent = d && rdCap(sel) ? Math.round((d.rd ?? rdDef(sel)) / RD_MAX * 100) + '%' : '';
 }
 let sessWd = false, sessHt = false, sessTs = false;
 $('#wd').oninput = e => {
@@ -2952,7 +3616,13 @@ if (!sel) return; if (!sessTs) { sessTs = true; pushHist(); }
 setL(sel, { ts: +tsFromPos(+e.target.value / 1000).toFixed(3) }); syncWH();
 };
 $('#tsz').onchange = () => { sessTs = false; };
-$('#reset').onclick = () => { if (isFactory()) return; pushHist(); restore({ L: {}, dpad: 'buttons', face: 'buttons', rs: 'stick', m2: 'stick', dual: false }); };
+let sessRd = false;
+$('#rdsl').oninput = e => {
+if (!sel || !rdCap(sel)) return; if (!sessRd) { sessRd = true; pushHist(); }
+setL(sel, { rd: +(+e.target.value / 1000 * RD_MAX).toFixed(4) }); syncWH();
+};
+$('#rdsl').onchange = () => { sessRd = false; };
+$('#reset').onclick = () => { if (isFactory()) return; pushHist(); restore({ L: {}, dpad: 'buttons', face: 'buttons', rs: 'stick', m2: 'stick', dual: !isW() }); };
 $('#undoBtn').onclick = undo;
 $('#copyBtn').onclick = () => {
 const list = otherPlayers();
@@ -2979,7 +3649,7 @@ if (!['btn', 'dir', 'macro'].includes(t)) { toast(__tr('js.CopyIsOnlyForButtons'
 const c = lay(sel), r = { x: +cl(c.x + 15 / Math.max(innerWidth, 1) * 100, 0, 100).toFixed(2), y: c.y, s: c.s };
 if (c.o != null) r.o = c.o;
 if (isW()) r.w = true;
-if (c.ar != null) r.ar = c.ar; if (c.ts != null) r.ts = c.ts;
+if (c.ar != null) r.ar = c.ar; if (c.ts != null) r.ts = c.ts; if (c.rd != null) r.rd = c.rd;
 let id;
 if (t === 'macro') {
 if (macIds().length >= MAC_MAX) { toast(__tr('js.YouCantCreateMoreThan', MAC_MAX)); return; }
@@ -3011,16 +3681,16 @@ toast(__tr('js.MacroMAddedClickIt', n));
 const macBox = $('#macBox'), macList = $('#macList'), macKeysEl = $('#macKeys');
 let macEd = null, macMode = null;
 const macMark = i => i.classList.toggle('bad', !!i.value.trim() && !macParse(i.value));
-let macMulti = false, macLastRow = null;
-function macHeld() {
+let macMulti = false, macLastRow = null;   // حالت چنددکمه‌ای: کلیدها پشت‌سرهم به همون خط آخر اضافه میشن
+function macHeld() {   // کلیدهایی که تا آخر خط‌های فعلی هنوز hold هستن (hold بدون زمان و release/press نشده)
 const held = new Set();
 for (const i of macList.querySelectorAll('input')) {
 const p = macParse(i.value); if (!p || !p.ks) continue;
-if (p.h) p.ks.forEach(k => held.add(k)); else p.ks.forEach(k => held.delete(k));
+if (p.h) p.ks.forEach(k => held.add(k)); else p.ks.forEach(k => held.delete(k));   // release / press / hold با زمان = آزاد
 }
 return held;
 }
-function macRefreshKeys() {
+function macRefreshKeys() {   // تو حالت Release فقط کلیدهای hold شده نشون داده میشن
 const rel = macMode === 'release', held = rel ? macHeld() : null;
 let any = false;
 macKeysEl.querySelectorAll('button[data-k]').forEach(b => { const show = !rel || held.has(b.dataset.k); b.style.display = show ? '' : 'none'; if (show) any = true; });
@@ -3047,7 +3717,7 @@ macEd = id; $('#macT').textContent = __tr('js.Edit', DEFS[id].l);
 macList.textContent = ''; ((lay(id).mac || {}).steps || []).forEach(macAddRow);
 const ps = S.pad === 'ps4'; macKeysEl.textContent = '';
 const DIR_ARW = { DU: ARROWS.U, DD: ARROWS.D, DL: ARROWS.L, DR: ARROWS.R };
-const XB_NAME = { GUIDE: 'XBOX' };
+const XB_NAME = { GUIDE: 'XBOX' };   // اسم دکمه‌ها فقط ظاهر پیکر؛ کامند توی ردیف همون قبلیه (press A, press DU, ...)
 const mb = document.createElement('button'); mb.type = 'button'; mb.className = 'multi'; mb.textContent = __tr('js.MultiButtonPressKeysOne');
 macMulti = false; macLastRow = null; mb.classList.toggle('on', macMulti);
 mb.onclick = () => { macMulti = !macMulti; macLastRow = null; mb.classList.toggle('on', macMulti); };
@@ -3061,7 +3731,7 @@ else b.textContent = ps && PS[k] ? PS[k][0] : isW() && WL[k] ? WL[k] : XB_NAME[k
 b.setAttribute('aria-label', k); b.dataset.k = k;
 b.onclick = () => {
 const cmd = macMode || 'press';
-if (macMulti && macLastRow && macLastRow.isConnected && macLastRow._cmd === cmd) {
+if (macMulti && macLastRow && macLastRow.isConnected && macLastRow._cmd === cmd) {   // اضافه به خط قبلی: press A,B,X
 const ks = macLastRow._keys;
 if (!ks.includes(k)) { ks.push(k); const i = macLastRow.querySelector('input'); i.value = cmd + ' ' + ks.join(','); macMark(i); }
 macRefreshKeys(); return;
@@ -3098,6 +3768,7 @@ while (n && e.clientY > mid(n)) { macList.insertBefore(n, r); n = r.nextElementS
 const macDragEnd = e => { if (!macDrag || e.pointerId !== macDrag.pid) return; macDrag.row.classList.remove('drag'); macDrag = null; macRefreshKeys(); };
 macList.addEventListener('pointerup', macDragEnd); macList.addEventListener('pointercancel', macDragEnd);
 $('#macCancel').onclick = closeMacEd;
+// کلیک بیرون از کارت ویرایشگر ماکرو نباید پنجره رو ببنده (فقط دکمه‌های لغو / ثبت)
 $('#macOk').onclick = () => {
 const steps = [];
 for (const i of macList.querySelectorAll('input')) {
@@ -3110,13 +3781,13 @@ closeMacEd();
 };
 updateUndoBtn(); updateCopyBtn(); updateResetBtn();
 const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
-function isLand() {
+function isLand() {   // عرض > ارتفاع؛ از orientation خود دستگاه میخونیم تا باز شدن کیبورد گمراهش نکنه
 try { const o = screen.orientation && screen.orientation.type; if (o) return o.indexOf('landscape') === 0; } catch {}
 if (typeof window.orientation === 'number') return Math.abs(window.orientation) === 90;
 return innerWidth > innerHeight;
 }
 function goFS() {
-if (fsEl() || !isLand()) return;
+if (fsEl() || !isLand()) return;   // تا گوشی نچرخیده فول‌اسکرین نشه (وگرنه صفحه دیگه نمیچرخه)
 const d = document.documentElement, f = d.requestFullscreen || d.webkitRequestFullscreen;
 if (!f) return;
 try { const p = f.call(d); if (p && p.catch) p.catch(() => {}); } catch {}
@@ -3173,11 +3844,13 @@ if (!S.name) { nameBox.classList.add('open'); setTimeout(() => $('#nameIn').focu
 const releaseAll = keepMacros => {
 if (window.mkReady) mkReset(); for (const id in B) { if (keepMacros && DEFS[id] && DEFS[id].t === 'macro') continue; B[id].reset(); } };
 document.addEventListener('visibilitychange', () => { if (document.hidden) { releaseAll(); rumbleStop(); } });
-addEventListener('blur', () => releaseAll(true));
+addEventListener('blur', () => releaseAll(true));   // کلیک بیرون پنجره: دکمه‌ها ول میشن ولی ماکرو و کول‌داونش ادامه میده
 addEventListener('pointerdown', () => { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {}); }, { once: true });
-const WH_FMT = { lock: v => v + '\u00b0', sens: v => (+v).toFixed(1) + '\u00d7', dz: v => +v ? (+v).toFixed(1) + '\u00b0' : __tr('js.Off'), bAt: v => +v ? v + '\u00b0' : __tr('js.Off'), bX: v => (+v).toFixed(1) + '\u00d7', sm: v => v + '%' };
+const WH_FMT = { lock: v => v + '\u00b0', sens: v => (+v).toFixed(1) + '\u00d7', dz: v => +v ? (+v).toFixed(1) + '\u00b0' : __tr('js.Off'), bAt: v => +v ? v + '\u00b0' : __tr('js.Off'), bX: v => (+v).toFixed(1) + '\u00d7', bA: v => (+v).toFixed(2), bAd: v => v + '\u00b0', sm: v => v + '%' };
 const showWh = k => { $('#wh-' + k + 'v').textContent = WH_FMT[k](S.wh[k]); };
-function whUI() { for (const k in WH_FMT) { $('#wh-' + k).value = S.wh[k]; showWh(k); } $('#wh-inv').checked = S.wh.inv; $('#wh-pedal').value = S.wh.pedal; $('#wh-pinv').checked = !!S.wh.pInv; }
+function whBmUI() { document.querySelectorAll('#whBm button').forEach(b => b.classList.toggle('on', b.dataset.m === S.wh.bm)); $('#whMul').hidden = S.wh.bm === 'add'; $('#whAdd').hidden = S.wh.bm === 'mul'; }
+document.querySelectorAll('#whBm button').forEach(b => b.onclick = () => { S.wh.bm = b.dataset.m; saveS(); whBmUI(); });
+function whUI() { whBmUI(); for (const k in WH_FMT) { $('#wh-' + k).value = S.wh[k]; showWh(k); } $('#wh-inv').checked = S.wh.inv; $('#wh-pedal').value = S.wh.pedal; $('#wh-pinv').checked = !!S.wh.pInv; }
 for (const k in WH_FMT) { const el = $('#wh-' + k); el.oninput = () => { S.wh[k] = +el.value; showWh(k); }; el.onchange = saveS; }
 $('#wh-inv').onchange = e => { S.wh.inv = e.target.checked; saveS(); };
 $('#wh-pinv').onchange = e => { S.wh.pInv = e.target.checked; saveS(); };
@@ -3185,16 +3858,18 @@ $('#wh-pedal').onchange = e => { S.wh.pedal = e.target.value; saveS(); };
 $('#whCenter').onclick = whCenter;
 $('#whDef').onclick = () => { S.wh = Object.assign({}, WH_DEF); saveS(); whUI(); toast(__tr('js.WheelSettingsWereResetTo')); };
 whUI(); whHint();
-document.addEventListener('visibilitychange', () => { if (isW()) whSync(false); });
-addEventListener('pointerup', () => { if (isW() && S.wh.gy && !wh.on && !wh.denied) whSync(true); });
+document.addEventListener('visibilitychange', () => { if (whOn()) whSync(false); });
+addEventListener('pointerup', () => { if (((isW() && S.wh.gy) || steerOn()) && !wh.on && !wh.denied) whSync(true); });
 whSync();
 
+// ===== تشخیص ماوس واقعی (برای نمایش راهنمای قفل ماوس) =====
 (function () {
 const on = () => document.body.classList.add('hasmouse');
 try { const mq = matchMedia('(any-pointer: fine)'); if (mq.matches) on(); const f = () => { if (mq.matches) on(); }; if (mq.addEventListener) mq.addEventListener('change', f); else if (mq.addListener) mq.addListener(f); } catch {}
 const det = ev => { if (ev.pointerType === 'mouse') { on(); removeEventListener('pointermove', det, true); removeEventListener('pointerdown', det, true); } };
 addEventListener('pointermove', det, true); addEventListener('pointerdown', det, true);
 })();
+// ===== پنل انتخاب سفارشی (جایگزین منوی پیش‌فرض مرورگر برای select ها) =====
 
 const PI = b => '<svg viewBox="0 0 32 32" aria-hidden="true">' + b + '</svg>';
 const IC_MODE = {
@@ -3265,6 +3940,43 @@ sel.addEventListener('click', ev => { ev.preventDefault(); openPick(sel); });
 sel.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openPick(sel); } });
 });
 pickBox.onclick = e => { if (e.target === pickBox) closePick(); };
+
+// ---- دکمه‌ی برگشتِ گوشی (برنامه‌ی اندروید این تابع رو صدا میزنه): بالاترین پنل بازِ صفحه رو میبنده؛ اگه چیزی باز نبود false
+window.hshBack = function () {
+  const open = id => { const e = document.getElementById(id); return !!e && e.classList.contains('open'); };
+  const click = id => { const e = document.getElementById(id); if (e) e.click(); return true; };
+  if (open('pickBox')) return click('pickBox');
+  if (open('macBox')) return click('macCancel');
+  if (open('codeBox')) return click('codeCancel');
+  if (open('layBox')) return click('layCancel');
+  if (open('copyBox')) return click('copyCancel');
+  if (open('preBox')) return click('preClose');
+  if (document.body.classList.contains('skin')) return click('sclose');
+  if (typeof panelOn !== 'undefined' && panelOn) { setDrawer(false); return true; }
+  return false;
+};
+</script>
+<script>
+/* پرکردنِ نوار اسلایدرها تا نقطه‌ی فعلی؛ جهت (راست‌به‌چپ/چپ‌به‌راست) خودکار */
+(() => {
+const fill = el => {
+  if (!el || el.type !== 'range') return;
+  const mn = +el.min || 0, mx = el.max === '' ? 100 : +el.max, v = +el.value;
+  const p = mx > mn ? Math.min(100, Math.max(0, (v - mn) / (mx - mn) * 100)) : 0;
+  el.style.setProperty('--p', p + '%');
+  el.style.setProperty('--pd', getComputedStyle(el).direction === 'rtl' ? 'to left' : 'to right');
+};
+try {
+  const d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+  Object.defineProperty(HTMLInputElement.prototype, 'value', { configurable: true, enumerable: d.enumerable,
+    get() { return d.get.call(this); }, set(v) { d.set.call(this, v); if (this.type === 'range') fill(this); } });
+} catch (e) {}
+document.addEventListener('input', e => fill(e.target), true);
+const all = () => document.querySelectorAll('input[type=range]').forEach(fill);
+all();
+try { new MutationObserver(m => m.forEach(r => fill(r.target))).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['min', 'max', 'step'] }); } catch (e) {}
+setTimeout(all, 300); setTimeout(all, 1500);
+})();
 </script>
 </body>
 </html>

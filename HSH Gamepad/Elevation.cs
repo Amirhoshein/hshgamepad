@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -8,8 +9,13 @@ using System.Windows.Forms;
 
 namespace GamepadServer;
 
+/// <summary>
+/// اجرا با دسترسی ادمین. ویندوز (UIPI) اجازه نمیده برنامه‌ی معمولی به پنجره‌ی برنامه‌ی ادمین (مثل Task Manager) ماوس/کیبورد بفرسته؛
+/// پس اگه تو تنظیمات «اجرا با دسترسی ادمین» روشن باشه، برنامه موقع اجرا خودش رو با UAC دوباره باز میکنه.
+/// </summary>
 public static class Elevation
 {
+    /// <summary>به نسخه‌ی تازه میگه نسخه‌ی قبلی داره بسته میشه؛ چند ثانیه برای آزاد شدن قفل «فقط یک نسخه» صبر کن</summary>
     public const string RestartArg = "--restart";
 
     public static bool IsAdmin()
@@ -24,6 +30,7 @@ public static class Elevation
 
     private static string Quote(string a) => "\"" + a.Replace("\"", "\\\"") + "\"";
 
+    /// <summary>خودش رو با «Run as administrator» دوباره اجرا میکنه. اگه کاربر UAC رو رد کنه false برمیگردونه.</summary>
     public static bool Relaunch(string[] args, bool restart)
     {
         try
@@ -41,7 +48,7 @@ public static class Elevation
             Process.Start(psi);
             return true;
         }
-        catch (Win32Exception) { return false; }
+        catch (Win32Exception) { return false; }   // کاربر تو پنجره‌ی UAC «No» زد
         catch { return false; }
     }
 }

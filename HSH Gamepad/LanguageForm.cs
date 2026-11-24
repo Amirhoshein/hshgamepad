@@ -1,3 +1,4 @@
+// HSH Gamepad | Telegram: @HSHGamepad
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,6 +8,7 @@ using System.Windows.Forms;
 
 namespace GamepadServer;
 
+/// <summary>پنجره‌ی انتخاب زبان: لیست زبان‌های پوشه‌ی lang (هر کدوم یه کارت) + Import / Export / باز کردن پوشه. همه‌ی متن‌هاش از json زبان میاد.</summary>
 internal sealed class LanguageForm : Form
 {
     private static readonly Color cBg = Color.FromArgb(18, 21, 29);
@@ -53,10 +55,11 @@ internal sealed class LanguageForm : Form
         AutoScaleMode = AutoScaleMode.None;
         ClientSize = new Size(S(460), S(480));
         _baseHeight = ClientSize.Height;
-        AllowDrop = true;
+        AllowDrop = true;       // فایل json زبان رو بندازی روی پنجره، اضافه میشه
         DragEnter += (_, e) => { e.Effect = DroppedFiles(e).Length > 0 ? DragDropEffects.Copy : DragDropEffects.None; };
         DragDrop += (_, e) => { var f = DroppedFiles(e); if (f.Length > 0) ImportFiles(f); };
 
+        // ---------- بالا ----------
         var head = new Panel { Dock = DockStyle.Top, Height = S(104), BackColor = cPanel };
         _head = head;
         _title = new Label
@@ -95,6 +98,7 @@ internal sealed class LanguageForm : Form
         head.Controls.AddRange(new Control[] { _title, _hint, _path });
         Fit.Auto(_title, false, 10f);
 
+        // ---------- پایین: دکمه‌ها ----------
         var foot = new Panel { Dock = DockStyle.Bottom, Height = S(68), BackColor = cPanel };
         int bw = S(120), bh = S(36), gap = S(10), by = S(16);
         _import = MakeButton(S(20), by, bw, bh);
@@ -105,6 +109,7 @@ internal sealed class LanguageForm : Form
         _folder.Click += (_, _) => L.OpenFolder();
         foot.Controls.AddRange(new Control[] { _import, _export, _folder });
 
+        // ---------- وسط: لیست زبان‌ها ----------
         var mid = new Panel { Dock = DockStyle.Fill, BackColor = cPanel, Padding = new Padding(S(20), S(4), S(20), S(8)) };
         _list = new LangList(_k) { Dock = DockStyle.Fill, AllowDrop = true };
         _list.DragEnter += (_, e) => { e.Effect = DroppedFiles(e).Length > 0 ? DragDropEffects.Copy : DragDropEffects.None; };
@@ -112,7 +117,7 @@ internal sealed class LanguageForm : Form
         _list.Picked += info => Pick(info);
         mid.Controls.Add(_list);
 
-        Controls.Add(mid);
+        Controls.Add(mid);      // اول Fill بعد لبه‌ها
         Controls.Add(foot);
         Controls.Add(head);
 
@@ -140,6 +145,7 @@ internal sealed class LanguageForm : Form
         return Fit.Auto(b);
     }
 
+    /// <summary>همه‌ی متن‌ها رو از زبان فعلی دوباره میذاره</summary>
     private void Relabel()
     {
         Text = L.T("lang.title");
@@ -175,7 +181,7 @@ internal sealed class LanguageForm : Form
         if (info.Code.Equals(L.Code, StringComparison.OrdinalIgnoreCase)) return;
         _settings.Language = info.Code;
         _settings.Save();
-        L.Select(info.Code);
+        L.Select(info.Code);        // L.Changed -> همه‌ی پنجره‌ها متن‌هاشون رو عوض میکنن
     }
 
     private DialogResult Msg(string text, MessageBoxButtons buttons, MessageBoxIcon icon)
@@ -196,6 +202,7 @@ internal sealed class LanguageForm : Form
         }
     }
 
+    /// <summary>هر فایل json با هر اسمی (anything.json) قبول میشه، به شرطی که ساختارش (meta + strings) درست باشه</summary>
     private void ImportFiles(string[] files)
     {
         var added = new List<string>();
@@ -273,6 +280,7 @@ internal sealed class LanguageForm : Form
         catch { }
     }
 
+    /// <summary>لیست کارتی زبان‌ها (خودِ ویندوز لیستی با این ظاهر نداره)</summary>
     private sealed class LangList : Control
     {
         private readonly float _k;
@@ -361,6 +369,7 @@ internal sealed class LanguageForm : Form
                     using (var pen = new Pen(border, active ? 1.8f : 1f)) g.DrawPath(pen, path);
                 }
 
+                // دایره‌ی انتخاب (پر = زبان فعلی)
                 int cy = r.Top + r.Height / 2;
                 var circle = new Rectangle(r.Left + pad, cy - dot / 2, dot, dot);
                 using (var pen = new Pen(active ? cAccent : cMuted, 2f)) g.DrawEllipse(pen, circle);
@@ -371,6 +380,7 @@ internal sealed class LanguageForm : Form
                         g.FillEllipse(br, circle.Left + (dot - inner) / 2, circle.Top + (dot - inner) / 2, inner, inner);
                 }
 
+                // برچسب RTL / LTR سمت راست
                 string badge = info.Rtl ? "RTL" : "LTR";
                 var bsz = TextRenderer.MeasureText(g, badge, _badgeFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
                 var brect = new Rectangle(r.Right - pad - bsz.Width - S(14), cy - (bsz.Height + S(6)) / 2, bsz.Width + S(14), bsz.Height + S(6));
