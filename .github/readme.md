@@ -14,7 +14,7 @@
 ![Gyroscope](https://img.shields.io/badge/gyroscope-supported-purple)
 ![Languages](https://img.shields.io/badge/languages-12-teal)
 ![Touch Screen](https://img.shields.io/badge/phone%20as%20monitor-new-red)
-![Android App](https://img.shields.io/badge/Android%20app-APK-3DDC84)
+![Android App](https://img.shields.io/badge/Android-APK-3DDC84)
 
 [**🇬🇧 English**](README.md) · [**🇮🇷 فارسی**](README.fa.md) · [🔗 Telegram @HSHGamepad](https://t.me/HSHGamepad)
 
@@ -22,14 +22,11 @@
 
 <img src="https://github.com/user-attachments/assets/3290b7a3-bf2c-4dee-b915-f1c5bd43968a" alt="HSH Gamepad Demo" width="900">
 
-<!-- Demo video: drag the mp4 file into the README editor on GitHub, then put the link it creates here:
-<video src="VIDEO_LINK_HERE" controls width="700"></video>
--->
 
 <br>
 
 [![Download for Windows](https://img.shields.io/badge/_-Download_Now-2ea44f?style=for-the-badge)](https://github.com/Amirhoshein/hshgamepad/releases/latest)
-
+[![Donate Us](https://img.shields.io/badge/_-Donate_Us-b0b?style=for-the-badge)](https://donito.me/HSHGamepad)
 </div>
 
 ---
