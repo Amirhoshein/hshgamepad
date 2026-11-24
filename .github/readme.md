@@ -6,7 +6,7 @@
 
 **Turn your phone into a Gamepad (PS4 / Xbox 360 controller), gyroscope steering wheel, mouse & keyboard and a touch screen for your PC**
 
-![Version](https://img.shields.io/badge/version-1.0.5-blue)
+![Version](https://img.shields.io/badge/version-1.0.6-blue)
 [![Downloads](https://img.shields.io/github/downloads/Amirhoshein/hshgamepad/total?color=3b5a99)](https://github.com/Amirhoshein/hshgamepad/releases)
 ![Platform](https://img.shields.io/badge/Windows-7%20%7C%208.1%20%7C%2010%20%7C%2011-0078D6)
 ![Players](https://img.shields.io/badge/players-up%20to%209-brightgreen)
@@ -14,6 +14,7 @@
 ![Gyroscope](https://img.shields.io/badge/gyroscope-supported-purple)
 ![Languages](https://img.shields.io/badge/languages-12-teal)
 ![Touch Screen](https://img.shields.io/badge/phone%20as%20monitor-new-red)
+![Android App](https://img.shields.io/badge/Android%20app-APK-3DDC84)
 
 [**🇬🇧 English**](README.md) · [**🇮🇷 فارسی**](README.fa.md) · [🔗 Telegram @HSHGamepad](https://t.me/HSHGamepad)
 
@@ -33,13 +34,24 @@
 
 ---
 
-**Contents:** [Quick Start](#en-quickstart) · [What's New](#en-new) · [Features](#en-features) · [Latency](#en-latency) · [Macros](#en-macros) · [Install & Use](#en-install) · [FAQ](#en-faq) · [Roadmap](#en-roadmap)
+## ⚡ HSH Gamepad at a glance
+
+- 🎮 **Virtual PS4 (DualShock 4) and Xbox 360 controllers**, up to **9 players**
+- 🎯 **Gyroscope:** motion controls, a steering wheel, and tilt-to-steer for any controller
+- 🖱️ **Mouse & keyboard** from the phone, like a laptop touchpad
+- 🖥️ **Touch Screen:** your PC screen live on the phone (H.264 / JPEG, multi-monitor), with **PC sound** on the phone
+- 🎤 **Phone as a PC microphone**
+- 🛠️ **Layout editor** with macros, ready-made themes, layout / theme **JSON**, and saving them **on the PC**
+- 📱 **Optional Android app** that finds your PC, scans the QR and plays fullscreen (or just use the browser)
+- 🌍 **12 languages** · 🔐 **secret address + auto ban** · ⚡ **2–6 ms** latency over Wi-Fi or USB
+
+**Contents:** [Quick Start](#en-quickstart) · [What's New](#en-new-106) · [Android App](#en-android) · [Features](#en-features) · [Latency](#en-latency) · [Macros](#en-macros) · [Install & Use](#en-install) · [FAQ](#en-faq) · [Roadmap](#en-roadmap)
 
 ## What is HSH Gamepad?
 
-A simple Windows app that turns your phone into a **real game controller** for your PC. No phone app needed: just open an address in your phone's browser. Games see a genuine Xbox 360 or PS4 controller plugged into the computer.
+A simple Windows app that turns your phone into a **real game controller** for your PC. No phone app needed: just open an address in your phone's browser (or use the optional [Android app](#en-android)). Games see a genuine Xbox 360 or PS4 controller plugged into the computer.
 
-**Keywords:** phone as gamepad · gyroscope controller · motion controls · gyro steering wheel · virtual Xbox 360 / DualShock 4 · phone as mouse & keyboard · local multiplayer up to 9 players · phone as touch screen / second monitor · multi-language · ViGEmBus
+**Keywords:** phone as gamepad · gyroscope controller · motion controls · gyro steering wheel · virtual Xbox 360 / DualShock 4 · phone as mouse & keyboard · local multiplayer up to 9 players · phone as touch screen / second monitor · multi-language · Android app · ViGEmBus
 
 Great for:
 - Playing **local multiplayer with up to 9 players** without owning any controllers 🎮
@@ -47,6 +59,7 @@ Great for:
 - Controlling your PC's **mouse & keyboard** from the phone, like a laptop touchpad 🖱️
 - Seeing your PC screen **live on the phone** and using it as a **touch screen** 🖥️📱
 - Using the app in **your own language** (12 built-in) 🌍
+- Hearing your **PC's sound on the phone** and using the phone as a **PC microphone** 🔊🎤
 - Keeping the connection **private** with a secret address and automatic ban of guessers 🔐
 
 <a id="en-quickstart"></a>
@@ -55,15 +68,61 @@ Great for:
 
 1. **Download & install:** get the installer for your Windows from **[Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest)** (it installs the ViGEmBus driver for you)
 2. **Run the app** and accept the administrator prompt. Make sure the **phone and PC are on the same Wi-Fi**
-3. **Scan the QR code** in the app (or type the shown address into your phone's browser), choose your player and controller type, and launch your game 🎉
+3. **Scan the QR code** in the app (or type the shown address into your phone's browser, or use the [Android app](#en-android)), choose your player and controller type, and launch your game 🎉
 
 > Details, USB-cable mode and troubleshooting are below.
 
 ---
 
+<a id="en-new-106"></a>
+
+## 🆕 What's New in v1.0.6
+
+> Upgrading from **v1.0.5**? Here is what was added. Full details are in [CHANGELOG.md](CHANGELOG.md).
+
+| | |
+|---|---|
+| 📱 **Android app** | A small app that finds your PC, scans the QR code and plays fullscreen ([details](#en-android)) |
+| 🔊 **PC sound on the phone** | New speaker button in Touch Screen mode, plus a sound-output picker in the Windows app |
+| 🎤 **Phone microphone** | Use the phone as a PC microphone (player 1) |
+| 💾 **Layouts & themes on the PC** | Save them on the computer; copy, rename, delete or share the files |
+| 🏎️ **Gyro for left / right** | Tilt the phone to push the left stick left / right; works with every controller type |
+| 🏎️ **Wheel: add after N degrees** | Adds a small value (e.g. 0.10) as soon as the wheel leaves the center |
+| 🔀 **Swap buttons** | Tap a button 3 times within a second, then tap another one to swap places |
+| 📳 **Vibrate on touch** | Optional phone vibration when you press a button, with adjustable strength |
+| 🧪 **Test button** | A **Test** button for each phone in the player list |
+| 👆 **Accurate touch areas** | Sticks, D-Pad and wheel only react inside their real shape |
+
+### 🔊 PC sound on the phone
+- In **Touch Screen** mode there is a **speaker button**; you hear the computer's sound on your phone
+- In the Windows app choose **which sound output** is sent to the phone (default: the Windows default output)
+
+### 🎤 Phone as a PC microphone (player 1 only)
+- The phone's microphone shows up in Windows as a **microphone input**
+- It uses a virtual microphone driver on the PC; if it is missing, the phone page tells you
+- Option **"Keep the virtual microphone always connected"**: on = it stays in Windows even when the app is closed or the PC restarts; off = it appears only while it's in use
+- Browsers block the microphone on `http` addresses: turn on **Insecure origins treated as secure** in `chrome://flags`, or use the [Android app](#en-android), which doesn't need it
+
+### 💾 Layouts & themes on the PC
+- Save your layouts and themes from the phone **on the computer**, so changing phone or browser doesn't lose them
+- Open their folder from the Windows app to **copy, rename, delete or share** the files
+- Any file you put in that folder also shows up in the phone's list
+
+### 🏎️ Gyro for left / right and wheel
+- **Gyro for left / right:** tilt the phone like a steering wheel and the left stick goes left / right. Great for racing games (like Need for Speed) with any controller type
+- **Wheel:** the new **"Add after N degrees"** and **"Added value"** options add a small value to the output as soon as the wheel leaves the center (e.g. `0.10` = 10%). Useful for games that need a bit of input before they react
+
+### 🛠️ Layout editing
+- **Swap buttons:** in layout editing tap a button **3 times within 1 second**, then tap the second button to swap their places
+- **Vibrate when touching buttons** is optional and its **strength** is adjustable
+- **Touch areas fixed:** the empty square corners around the sticks, wheel and D-Pad used to catch touches and block nearby buttons. Touch areas now match the shapes you see
+- The dashed outlines in layout editing are smaller and thinner on phones
+
+---
+
 <a id="en-new"></a>
 
-## 🆕 What's New in v1.0.5
+## 🆕 Added in v1.0.5 (details)
 
 > Upgrading from **v1.0.4**? Here is everything that was added and fixed. Full details are in [CHANGELOG.md](CHANGELOG.md).
 
@@ -142,7 +201,7 @@ Use the phone as a **live view of your PC monitor** and control the PC by touchi
 - **Up to 9 players** at once, each with their own color
 - **Analog L2 / R2:** slide the triggers like a real controller (direction adjustable)
 - **Rumble / vibration**: when the game vibrates, your phone does too (can be turned off)
-- **No app to install on the phone**, works in the phone's browser
+- **No app needed on the phone**: it works in the phone's browser (an optional [Android app](#en-android) is available too)
 - Custom **name per player** and a live **ping indicator** (green / yellow / red)
 - Fullscreen mode
 
@@ -152,11 +211,13 @@ Use the phone as a **live view of your PC monitor** and control the PC by touchi
   - Full **rotation angle** setting
   - **Sensitivity** and **N-degree multiplier**
   - **Dead zone**
+  - **Add after N degrees:** adds a small value (e.g. 0.10) as soon as the wheel leaves the center
   - **Smoothing** for soft, stable movement
   - **Center calibration**
   - **Gas / brake pedals**, analog or digital
   - Wheel look is fully customizable (gradient colors)
 - **Live gyro log** in the Windows controller tester, so you can verify the data is arriving correctly
+- **Gyro for left / right:** tilt the phone to push the left stick left / right, with any controller type (great for racing games)
 
 ### 🌍 Languages
 - **12 built-in languages** for the Windows app and the phone page, with custom JSON translations ([details](#en-new))
@@ -166,6 +227,16 @@ Use the phone as a **live view of your PC monitor** and control the PC by touchi
 
 ### 🖥️ Touch Screen (Player 1 only)
 - Live **PC monitor on the phone**, monitor picker, H.264 / JPEG, quality and FPS control, full touch control ([details](#en-new))
+
+### 🔊 Sound & Microphone (Player 1 only)
+- **PC sound on the phone** from the speaker button in Touch Screen mode, with a choice of sound output in the Windows app
+- **Phone as a PC microphone**, with an option to keep the virtual microphone always connected ([details](#en-new-106))
+
+### 💾 Layouts & Themes on the PC
+- Save layouts and themes on the computer; copy, rename, delete or share the files from the folder the Windows app opens ([details](#en-new-106))
+
+### 📱 Android App (optional)
+- Finds your PC automatically, scans the QR code, remembers the last PC, plays fullscreen, and makes the microphone / gyroscope / vibration work without browser flags ([details](#en-android))
 
 ### 🖱️ Mouse & Keyboard (Player 1 only)
 - Laptop-style **touchpad** on the phone
@@ -178,6 +249,8 @@ Use the phone as a **live view of your PC monitor** and control the PC by touchi
 - **Layout editor**: press and hold any button, drop it wherever you want
 - **Exact size** (width, height, font size) and **opacity** per button
 - **Duplicate, delete and add** buttons
+- **Swap two buttons** by tapping one 3 times within a second
+- **Vibrate when touching a button** (optional), with adjustable strength
 - **Different D-Pad / second-control modes**: buttons, separated buttons (action style), fixed or following joystick, right-stick ↔ buttons, separated or diamond action buttons
 - **Macros**: any button can run a sequence of actions (`press`, `hold`, `release`, `delay`)
 - **Layout JSON editor**: copy, edit and paste your layout as code, to back it up or share it ([details](#en-new))
@@ -194,7 +267,7 @@ Use the phone as a **live view of your PC monitor** and control the PC by touchi
 - Shows the **connection address** + copy button + **QR code**, just scan
 - List of connected players (name, phone model, IP)
 - **Controller tester**: a live 3D window showing which buttons are pressed + gyro log + **rumble test**
-  > double click on player to show Controller tester
+  > double click on a player, or press its **Test** button, to show the Controller tester
 - **Auto-remove idle controllers** after N seconds (optional)
 - **Tray icon**: closing the window keeps the app running in the tray
 - Taskbar right-click menu with **"Exit"**
@@ -331,9 +404,44 @@ The installer sets up the **ViGEmBus** driver (needed for virtual controllers) a
 - If you turn on the **secret address**, use the full address with the key (the QR code already has it)
 - Each player number can only be used by **one phone**
 - Windows limit: **Xbox 360 has only 4 slots**. Players 5–9 must be PS4 (if Xbox can't be created, it automatically falls back to PS4)
-- Mouse & keyboard and **Touch Screen** are **Player 1 only**
-- The gyroscope is used in **PS4 mode** and in the **steering wheel** mode
+- Mouse & keyboard, **Touch Screen** (with its sound) and the **phone microphone** are **Player 1 only**
+- The gyroscope is used in **PS4 mode** and in the **steering wheel** mode; **Gyro for left / right** works with every controller type
 - Opening the address on the PC that runs the server is blocked on purpose, use your phone
+
+---
+
+<a id="en-android"></a>
+
+## 📱 Android App (optional)
+
+HSH Gamepad works in any phone browser, but there is also a small **Android app** that makes connecting and playing easier. It does **not** replace the Windows app: the PC app still has to be running.
+
+### What it gives you
+| | |
+|---|---|
+| 🔎 **Finds your PC by itself** | Scans your Wi-Fi / hotspot for the HSH Gamepad server and lists every PC it finds. Tap one to connect |
+| 📷 **QR scanner** | Scan the QR code from the Windows app (the secret key is included) |
+| ⌨️ **Manual address** | Type the IP, or the full address with the secret key (e.g. `192.168.1.5/q2szc`) |
+| 🕘 **Remembers your last PC** | It is shown at the top of the list for one-tap reconnecting |
+| 🖥️ **Fullscreen landscape** | Hides the status and navigation bars and keeps the screen on while you play |
+| 🎤 🎯 📳 **Microphone, gyroscope and vibration just work** | No `chrome://flags` needed: the app opens the controller page through a small local proxy on the phone, so the browser treats it as a secure page |
+| ⏳ **Loading screen** | A progress bar while the page loads and connects |
+| ⬅️ **Smart Back button** | Closes the open panel (settings, appearance, macro editor...); press Back **twice** to leave the app |
+| ❓ **Built-in guide** | The "?" button explains how to connect and has a button to download the Windows app |
+| 🌍 **5 languages** | فارسی, English, Türkçe, Русский, 中文 |
+
+### Install
+1. Download the `.apk` file from **[Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest)**
+2. Open it. Android may ask you to allow **installing from this source** (your browser or file manager)
+3. If **Play Protect** says the app is unknown, that's because it isn't from a store: tap **Send this time** (send for a security check) and continue
+4. It needs **Android 7.0 or newer**. On an iPhone, open the address in Safari instead
+
+### Connect
+1. Start HSH Gamepad on the PC. The phone and PC must be on the same Wi-Fi (or the PC connected to the phone's hotspot)
+2. Open the app: your PC shows up in the list, tap it. If it doesn't, tap **Scan QR** or **Enter address**
+3. Choose your player and controller type, and start the game 🎉
+
+The app may ask for the **Camera** (to scan the QR) and the **Microphone** (only if you use the phone as a PC microphone).
 
 ---
 
@@ -357,6 +465,18 @@ Make sure the ViGEmBus driver is installed and you restarted the PC after instal
 - Too many wrong tries can get an IP **temporarily banned**; wait, or turn the ban off in the server window
 - If port 80 is busy the app picks another port (e.g. 1111); type the full address including the port
 - Guest/public Wi-Fi networks often block device-to-device traffic
+</details>
+
+<details>
+<summary><b>Play Protect says the Android app is unknown / unsafe</b></summary>
+
+Play Protect shows this for apps it hasn't scanned before and for apps that don't come from a store; it doesn't mean the app was found harmful. Tap **Send this time** (or **Scan app**) and continue the install. Only download the `.apk` from this GitHub page and compare its SHA-256 checksum. If your phone asks for "install from unknown sources", allow it for your browser or file manager.
+</details>
+
+<details>
+<summary><b>The phone microphone doesn't work in my browser</b></summary>
+
+Browsers block the microphone on `http` addresses. Either use the [Android app](#en-android) or open `chrome://flags`, turn on **Insecure origins treated as secure** and add the address the app shows. The microphone is for **player 1** only, and the PC needs its virtual microphone driver (the phone page tells you if it's missing).
 </details>
 
 <details>
@@ -390,6 +510,6 @@ Have an idea? [Open an issue](https://github.com/Amirhoshein/hshgamepad/issues/n
 
 <div align="center">
 
-**HSH Gamepad v1.0.5** · [Telegram @HSHGamepad](https://t.me/HSHGamepad) · [GitHub](https://github.com/Amirhoshein/hshgamepad)
+**HSH Gamepad v1.0.6** · [Telegram @HSHGamepad](https://t.me/HSHGamepad) · [GitHub](https://github.com/Amirhoshein/hshgamepad)
 
 </div>
