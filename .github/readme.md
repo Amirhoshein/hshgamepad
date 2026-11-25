@@ -75,7 +75,7 @@ Great for:
 
 ## 🆕 What's New in v1.0.6
 
-> Upgrading from **v1.0.5**? Here is what was added. Full details are in [CHANGELOG.md](CHANGELOG.md).
+> Upgrading from **v1.0.5**? Here is what was added. Full details are in [CHANGELOG.md](../CHANGELOG.md).
 
 | | |
 |---|---|
@@ -121,7 +121,7 @@ Great for:
 
 ## 🆕 Added in v1.0.5 (details)
 
-> Upgrading from **v1.0.4**? Here is everything that was added and fixed. Full details are in [CHANGELOG.md](CHANGELOG.md).
+> Upgrading from **v1.0.4**? Here is everything that was added and fixed. Full details are in [CHANGELOG.md](../CHANGELOG.md).
 
 | | |
 |---|---|
@@ -165,7 +165,7 @@ Besides the theme JSON, you can now edit the **layout** as JSON too.
 - **Secret address (access key):** phones can only connect through an address that contains your key, like `http://192.168.1.5/q2szc`. Any other address looks like a site that doesn't exist
 - **Random key** button to generate a new key any time. The QR code and the shown address always include the key
 - **Auto ban:** after N wrong attempts an IP is blocked for M minutes. Both numbers are adjustable, and you can turn the ban off
-- Both options live in the server window. See [SECURITY.md](SECURITY.md) for the details
+- Both options live in the server window. See [SECURITY.md](../SECURITY.md) for the details
 
 ### 🖥️ Touch Screen mode (Monitor management)
 Use the phone as a **live view of your PC monitor** and control the PC by touching it.
@@ -485,7 +485,7 @@ The app uses low-level Windows APIs to create virtual controllers and simulate m
 <details>
 <summary><b>How secure is it?</b></summary>
 
-The phone ↔ PC link stays on your local network. Since v1.0.5 you can turn on a **secret address (access key)** so only people who know the full address can connect, and **auto ban** blocks IPs that keep guessing. Without the key, anyone on the same Wi-Fi who knows the address can connect. See [SECURITY.md](SECURITY.md) for details. On public or crowded networks, turn on the key and turn off "mouse & keyboard access from phone".
+The phone ↔ PC link stays on your local network. Since v1.0.5 you can turn on a **secret address (access key)** so only people who know the full address can connect, and **auto ban** blocks IPs that keep guessing. Without the key, anyone on the same Wi-Fi who knows the address can connect. See [SECURITY.md](../SECURITY.md) for details. On public or crowded networks, turn on the key and turn off "mouse & keyboard access from phone".
 </details>
 
 ---
@@ -500,8 +500,8 @@ Have an idea? [Open an issue](https://github.com/Amirhoshein/hshgamepad/issues/n
 
 - Telegram channel (tutorials, videos, updates): **[@HSHGamepad](https://t.me/HSHGamepad)**
 - Bugs & suggestions: [Issues](https://github.com/Amirhoshein/hshgamepad/issues)
-- Security problems: see [SECURITY.md](SECURITY.md)
-- Changes between versions: [CHANGELOG.md](CHANGELOG.md)
+- Security problems: see [SECURITY.md](../SECURITY.md)
+- Changes between versions: [CHANGELOG.md](../CHANGELOG.md)
 
 ---
 
