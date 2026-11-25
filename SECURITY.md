@@ -1,79 +1,79 @@
-# 🔐 سیاست امنیتی
+# 🔐 Security Policy
 
-امنیت کاربران **HSH Gamepad** برامون مهمه. ممنون که اگه مشکلی پیدا کردی، مسئولانه گزارشش می‌کنی.
+The security of **HSH Gamepad** users matters to us. Thank you for reporting any problem you find responsibly.
 
 ---
 
-## 📦 نسخه‌های پشتیبانی‌شده
+## 📦 Supported Versions
 
-فقط **آخرین نسخه** پشتیبانی امنیتی می‌گیره. لطفاً قبل از گزارش، مطمئن شو از آخرین نسخه‌ی [Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest) استفاده می‌کنی.
+Only the **latest version** receives security support. Before reporting, please make sure you're using the latest version from [Releases](https://github.com/Amirhoshein/hshgamepad/releases/latest).
 
-| نسخه | پشتیبانی |
+| Version | Supported |
 |---|---|
-| 1.0.6 (آخرین) | ✅ |
-| 1.0.5 و قدیمی‌تر | ❌ |
+| 1.0.6 (latest) | ✅ |
+| 1.0.5 and older | ❌ |
 
 ---
 
-## 🚨 گزارش یک آسیب‌پذیری
+## 🚨 Reporting a Vulnerability
 
-**لطفاً برای مشکلات امنیتی Issue یا Discussion عمومی باز نکن.**
+**Please do not open a public Issue or Discussion for security problems.**
 
-روش پیشنهادی:
+Recommended method:
 
-1. برو به تب [**Security**](https://github.com/Amirhoshein/hshgamepad/security) ریپو.
-2. روی **Report a vulnerability** بزن.
-3. فرم گزارش رو پر کن.
+1. Go to the repo's [**Security**](https://github.com/Amirhoshein/hshgamepad/security) tab.
+2. Click **Report a vulnerability**.
+3. Fill out the report form.
 
-این گزارش فقط برای من قابل مشاهده‌ست و تا زمان رفع مشکل، عمومی نمیشه.
+This report is visible only to me and will not be made public until the problem is fixed.
 
-### چی بنویسی؟
+### What to include
 
-- توضیح مشکل و اینکه چه تأثیری داره
-- نسخه‌ی برنامه و نسخه‌ی ویندوز
-- مراحل دقیق بازتولید (یا کد/اسکریپت اثبات مفهوم)
-- پیشنهاد برای رفع مشکل، اگه داری
-
----
-
-## ⏱️ بعد از گزارش چه اتفاقی میفته؟
-
-این پروژه رو من تنهایی نگه‌می‌دارم، پس زمان‌ها تقریبی‌ان:
-
-- 📬 تلاش می‌کنم **ظرف چند روز** گزارشت رو بررسی کنم و جواب بدم.
-- 🔧 اگه مشکل تأیید بشه، رفعش رو تو نسخه‌ی بعدی منتشر می‌کنم.
-- 📣 بعد از انتشار نسخه‌ی اصلاح‌شده، مشکل تو [CHANGELOG.md](CHANGELOG.md) ثبت میشه و (اگه بخوای) از تو به‌عنوان گزارش‌دهنده تشکر می‌کنم.
+- A description of the problem and its impact
+- The app version and your Windows version
+- Exact steps to reproduce (or proof-of-concept code/script)
+- A suggested fix, if you have one
 
 ---
 
-## 🛡️ محدوده
+## ⏱️ What Happens After You Report
 
-مواردی که تو محدوده‌ی گزارش امنیتی هستن:
+I maintain this project alone, so timelines are approximate:
 
-- دسترسی غیرمجاز به کنترل دسته یا کامپیوتر از طریق اتصال برنامه
-- اجرای دستور یا کد دلخواه روی کامپیوتر
-- افشای اطلاعات (مثلاً محتوای صفحه‌ی مانیتور یا صدای کامپیوتر) به افراد غیرمجاز
-- دسترسی غیرمجاز به میکروفون گوشی یا به میکروفون مجازی کامپیوتر
-- مشکلات مربوط به فایل‌های `json` زبان، چیدمان یا تم (از جمله فایل‌هایی که رو کامپیوتر ذخیره میشن) که می‌تونن باعث اجرای کد بشن
-- مشکلات نصب‌کننده و برنامه‌ی اندروید (APK)
-
-مواردی که معمولاً خارج از محدوده‌ان:
-
-- باگ‌های عادی بدون تأثیر امنیتی (برای اینا از [Issues](https://github.com/Amirhoshein/hshgamepad/issues) استفاده کن)
-- مشکلاتی که نیاز به دسترسی فیزیکی کامل به کامپیوتر یا گوشی دارن
-- مشکلات نرم‌افزارهای جانبی (مرورگر، ویندوز، درایور ViGEm و...)
+- 📬 I'll try to review your report and respond **within a few days**.
+- 🔧 If the issue is confirmed, I'll release a fix in the next version.
+- 📣 After the fixed version is released, the issue will be recorded in [CHANGELOG.md](CHANGELOG.md) and (if you'd like) I'll credit you as the reporter.
 
 ---
 
-## 🧰 توصیه‌هایی برای کاربران
+## 🛡️ Scope
 
-- 🌐 برنامه رو فقط تو **شبکه‌ی مورد اعتماد** (مثل Wi-Fi خونه) استفاده کن، نه تو شبکه‌های عمومی.
-- 🔽 برنامه رو فقط از [صفحه‌ی رسمی Releases](https://github.com/Amirhoshein/hshgamepad/releases) یا کانال [@HSHGamepad](https://t.me/HSHGamepad) دانلود کن.
-- ✅ **چک‌سام SHA-256** هر فایل کنار همون فایل تو بخش Assets نشون داده میشه؛ بعد از دانلود با اون مقایسه‌ش کن.
-- 📱 فایل **APK** اندروید رو هم فقط از همون Releases بگیر. اگه Play Protect نوشت برنامه ناشناخته‌ست، چون از فروشگاه نیست؛ ولی اگه فایل رو از جای دیگه‌ای گرفتی نصبش نکن.
-- 🧩 فایل‌های JSON چیدمان، تم و زبان رو که از منابع نامعتبر گرفتی، قبل از وارد کردن چک کن.
-- 🔄 همیشه از آخرین نسخه استفاده کن.
+Items within the scope of a security report:
+
+- Unauthorized access to the controller or the computer through the app's connection
+- Execution of arbitrary commands or code on the computer
+- Disclosure of information (e.g. the contents of the computer's screen or audio) to unauthorized people
+- Unauthorized access to the phone's microphone or the computer's virtual microphone
+- Issues with language, layout, or theme `json` files (including files saved on the computer) that could lead to code execution
+- Issues with the installer and the Android app (APK)
+
+Items that are usually out of scope:
+
+- Ordinary bugs with no security impact (use [Issues](https://github.com/Amirhoshein/hshgamepad/issues) for these)
+- Problems that require full physical access to the computer or phone
+- Issues in third-party software (browser, Windows, the ViGEm driver, etc.)
 
 ---
 
-🎮 کانال تلگرام: [@HSHGamepad](https://t.me/HSHGamepad)
+## 🧰 Recommendations for Users
+
+- 🌐 Use the app only on a **trusted network** (like your home Wi-Fi), not on public networks.
+- 🔽 Download the app only from the [official Releases page](https://github.com/Amirhoshein/hshgamepad/releases) or the [@HSHGamepad](https://t.me/HSHGamepad) channel.
+- ✅ The **SHA-256 checksum** of each file is shown next to it in the Assets section; compare it against the file after downloading.
+- 📱 Get the Android **APK** only from those same Releases. If Play Protect says the app is unknown, that's because it isn't from the store; but if you got the file from anywhere else, don't install it.
+- 🧩 Check any layout, theme, and language JSON files you got from untrusted sources before importing them.
+- 🔄 Always use the latest version.
+
+---
+
+🎮 Telegram channel: [@HSHGamepad](https://t.me/HSHGamepad)
